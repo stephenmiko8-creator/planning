@@ -1,9 +1,149 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.resolve(__dirname, 'planning.db');
-const db = new sqlite3.Database(dbPath);
+// Check if we should use Supabase PostgreSQL (via DATABASE_URL) or local SQLite
+const usePostgres = !!process.env.DATABASE_URL;
 
+let db;
+
+if (usePostgres) {
+  const { Pool } = require('pg');
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+
+  console.log('Connected to Supabase PostgreSQL database.');
+
+  function convertSql(sql) {
+    let index = 1;
+    let converted = sql.replace(/\?/g, () => `$${index++}`);
+    
+    // SQLite syntax conversions for Postgres compatibility
+    converted = converted.replace(/INTEGER PRIMARY KEY AUTOINCREMENT/gi, 'SERIAL PRIMARY KEY');
+    converted = converted.replace(/INSERT OR IGNORE INTO user_profile/gi, 'INSERT INTO user_profile');
+    converted = converted.replace(/INSERT OR IGNORE INTO categories/gi, 'INSERT INTO categories');
+    
+    // Add conflict resolution for user_profile insert if needed
+    if (converted.includes('user_profile') && !converted.includes('ON CONFLICT')) {
+      converted += ' ON CONFLICT (key) DO NOTHING';
+    }
+    
+    return converted;
+  }
+
+  db = {
+    get(sql, params, callback) {
+      let cb = callback;
+      let queryParams = [];
+      if (typeof params === 'function') {
+        cb = params;
+      } else if (Array.isArray(params)) {
+        queryParams = params;
+      }
+      
+      const convertedSql = convertSql(sql);
+      pool.query(convertedSql, queryParams, (err, res) => {
+        if (err) {
+          if (cb) cb(err);
+          return;
+        }
+        const row = res.rows && res.rows.length > 0 ? res.rows[0] : null;
+        if (cb) cb(null, row);
+      });
+    },
+
+    all(sql, params, callback) {
+      let cb = callback;
+      let queryParams = [];
+      if (typeof params === 'function') {
+        cb = params;
+      } else if (Array.isArray(params)) {
+        queryParams = params;
+      }
+      
+      const convertedSql = convertSql(sql);
+      pool.query(convertedSql, queryParams, (err, res) => {
+        if (err) {
+          if (cb) cb(err);
+          return;
+        }
+        if (cb) cb(null, res.rows || []);
+      });
+    },
+
+    run(sql, params, callback) {
+      let cb = callback;
+      let queryParams = [];
+      if (typeof params === 'function') {
+        cb = params;
+      } else if (Array.isArray(params)) {
+        queryParams = params;
+      }
+      
+      let convertedSql = convertSql(sql);
+      
+      // Auto-append RETURNING id for insert statements to fetch lastID
+      const isInsert = /insert\s+into\s+(users|events|categories)/i.test(convertedSql);
+      if (isInsert && !/returning/i.test(convertedSql)) {
+        convertedSql += ' RETURNING id';
+      }
+      
+      pool.query(convertedSql, queryParams, function(err, res) {
+        if (err) {
+          if (cb) cb(err);
+          return;
+        }
+        
+        const lastID = res.rows && res.rows.length > 0 && res.rows[0].id ? res.rows[0].id : null;
+        const context = {
+          changes: res.rowCount,
+          lastID: lastID
+        };
+        
+        if (cb) {
+          cb.call(context, null);
+        }
+      });
+    },
+
+    prepare(sql) {
+      const self = this;
+      return {
+        run(...args) {
+          let params = args;
+          let cb = null;
+          
+          if (args.length > 0 && typeof args[args.length - 1] === 'function') {
+            cb = args.pop();
+          }
+          
+          if (args.length === 1 && Array.isArray(args[0])) {
+            params = args[0];
+          }
+          
+          self.run(sql, params, cb);
+        },
+        finalize(cb) {
+          if (cb) cb();
+        }
+      };
+    },
+
+    serialize(callback) {
+      callback();
+    }
+  };
+
+} else {
+  const dbPath = path.resolve(__dirname, 'planning.db');
+  db = new sqlite3.Database(dbPath);
+  console.log('Connected to local SQLite database.');
+}
+
+// Database schema initialization (runs for both SQLite and Postgres)
 db.serialize(() => {
   // Table users
   db.run(`CREATE TABLE IF NOT EXISTS users (
@@ -45,10 +185,8 @@ db.serialize(() => {
     color_class TEXT,
     FOREIGN KEY(user_id) REFERENCES users(id)
   )`, () => {
-    // Check if name column is UNIQUE (older schema might have UNIQUE on name, which we want to allow per user)
-    // To keep it simple, we just insert system-wide defaults if empty
     db.get(`SELECT COUNT(*) as count FROM categories`, (err, row) => {
-      if (!err && row && row.count === 0) {
+      if (!err && row && parseInt(row.count || 0) === 0) {
         const defaults = [
           [null, 'Travail', 'bg-purple-500/30 border-purple-500/60 text-purple-200'],
           [null, 'Temps Personnel', 'bg-teal-500/30 border-teal-500/60 text-teal-200'],
@@ -79,7 +217,7 @@ db.serialize(() => {
     value TEXT
   )`, () => {
     db.get(`SELECT COUNT(*) as count FROM user_profile WHERE key = 'lifestyle_context'`, (err, row) => {
-      if (!err && row && row.count === 0) {
+      if (!err && row && parseInt(row.count || 0) === 0) {
         db.run(`INSERT OR IGNORE INTO user_profile (key, value) VALUES ('lifestyle_context', 'Je suis un étudiant universitaire qui travaille à mi-temps et cherche à équilibrer mes cours, mes shifts de travail et mon développement de projets personnels.')`);
       }
     });
