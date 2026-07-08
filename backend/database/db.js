@@ -30,6 +30,9 @@ if (usePostgres) {
       converted += ' ON CONFLICT (key) DO NOTHING';
     }
     
+    // Fix parameter typing for Postgres IS NULL checks
+    converted = converted.replace(/AND (\$\d+) IS NULL/gi, 'AND CAST($1 AS integer) IS NULL');
+    
     return converted;
   }
 
