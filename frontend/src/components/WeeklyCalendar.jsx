@@ -1,0 +1,727 @@
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { Calendar, Clock, AlertTriangle, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+
+const HOURS = Array.from({ length: 24 }, (_, i) => i); // 0h -> 23h
+const DAYS_FR = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+const MONTHS_FR = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
+
+function getCourseColor(titre, type, categorie, categories = []) {
+  if (categorie) {
+    const match = categories.find(c => c.name.toLowerCase() === categorie.toLowerCase());
+    if (match) return match.color_class;
+  }
+
+  const cat = (categorie || '').toLowerCase();
+  if (cat.includes('travail')) return 'bg-purple-500/30 border-purple-500/60 text-purple-200';
+  if (cat.includes('personnel')) return 'bg-teal-500/30 border-teal-500/60 text-teal-200';
+  if (cat.includes('formation')) return 'bg-amber-500/30 border-amber-500/60 text-amber-200';
+  if (cat.includes('développement') || cat.includes('developpement')) return 'bg-pink-500/30 border-pink-500/60 text-pink-200';
+
+  const t = (titre || '').toLowerCase();
+  const ty = (type || '').toLowerCase();
+
+  if (
+    t.includes('dispo') ||
+    t.includes('libre') ||
+    t.includes('disponibilit') ||
+    ty.includes('dispo') ||
+    ty.includes('libre') ||
+    ty.includes('disponibilit')
+  ) {
+    return 'bg-green-500/30 border-green-500/60 text-green-200';
+  }
+  if (t.includes('comptabilit')) return 'bg-amber-500/30 border-amber-500/60 text-amber-200';
+  if (t.includes('english')) return 'bg-emerald-500/30 border-emerald-500/60 text-emerald-200';
+  if (t.includes('logiciel')) return 'bg-blue-500/30 border-blue-500/60 text-blue-200';
+  return 'bg-indigo-500/30 border-indigo-500/60 text-indigo-200';
+}
+
+function getWeekDates(offset = 0, timezone = 'Europe/Paris') {
+  // Récupérer la date du jour au fuseau configuré
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: timezone });
+  const today = new Date(todayStr + 'T12:00:00');
+  const day = today.getDay();
+  // En France, la semaine commence le lundi. 
+  // Si on est dimanche (day === 0), on considère que c'est le 7ème jour de la semaine.
+  const dayAdjusted = day === 0 ? 7 : day;
+
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - dayAdjusted + 1 + offset * 7);
+
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+function formatDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function timeToMinutes(t) {
+  if (!t) return 0;
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function layoutDayEvents(dayEvents) {
+  if (!dayEvents || dayEvents.length === 0) return [];
+
+  // Trier par heure de début
+  const sorted = [...dayEvents].sort((a, b) => timeToMinutes(a.heure_debut) - timeToMinutes(b.heure_debut));
+
+  // Regrouper les événements qui se chevauchent mutuellement
+  const groups = [];
+  sorted.forEach(event => {
+    const start = timeToMinutes(event.heure_debut);
+    const end = timeToMinutes(event.heure_fin);
+
+    let addedToGroup = false;
+    for (const group of groups) {
+      const overlaps = group.some(e => {
+        const eStart = timeToMinutes(e.heure_debut);
+        const eEnd = timeToMinutes(e.heure_fin);
+        return start < eEnd && eStart < end;
+      });
+      if (overlaps) {
+        group.push(event);
+        addedToGroup = true;
+        break;
+      }
+    }
+    if (!addedToGroup) {
+      groups.push([event]);
+    }
+  });
+
+  // Distribuer les événements de chaque groupe dans des colonnes distinctes
+  groups.forEach(group => {
+    const cols = [];
+    group.forEach(event => {
+      let colIdx = 0;
+      while (true) {
+        if (!cols[colIdx]) {
+          cols[colIdx] = [];
+        }
+        const overlaps = cols[colIdx].some(e => {
+          const eStart = timeToMinutes(e.heure_debut);
+          const eEnd = timeToMinutes(e.heure_fin);
+          const start = timeToMinutes(event.heure_debut);
+          const end = timeToMinutes(event.heure_fin);
+          return start < eEnd && eStart < end;
+        });
+        if (!overlaps) {
+          cols[colIdx].push(event);
+          event.colIdx = colIdx;
+          break;
+        }
+        colIdx++;
+      }
+    });
+    group.forEach(event => {
+      event.totalCols = cols.length;
+    });
+  });
+
+  return sorted;
+}
+
+const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categories = [], onTimeSlotClick, config, onRefresh }) => {
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [viewMode, setViewMode] = useState('week'); // 'week' or 'day'
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0); // 0 = Lun, 6 = Dim
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const scrollContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const startHourStr = config?.active_start_hour || '08:00';
+      const [h] = startHourStr.split(':').map(Number);
+      // scroll to 2 hours before active start to give some context, clamped at 0
+      const scrollHour = Math.max(h - 2, 0);
+      scrollContainerRef.current.scrollTop = scrollHour * 60;
+      
+      // Measure scrollbar width and set CSS variable for header alignment
+      const el = scrollContainerRef.current;
+      const scrollbarWidth = el.offsetWidth - el.clientWidth;
+      el.parentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+    }
+  }, [viewMode, selectedDayIndex, weekOffset, config]);
+
+  const [showAvailabilities, setShowAvailabilities] = useState(false);
+
+  const minutesToTimeStr = (mins) => {
+    const h = Math.floor(mins / 60).toString().padStart(2, '0');
+    const m = (mins % 60).toString().padStart(2, '0');
+    return `${h}:${m}`;
+  };
+
+  const formatDuration = (mins) => {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    if (h === 0) return `${m}m`;
+    if (m === 0) return `${h}h`;
+    return `${h}h${m.toString().padStart(2, '0')}`;
+  };
+
+  const getFreeSlots = (dayEvents) => {
+    const sorted = [...dayEvents].sort((a, b) => timeToMinutes(a.heure_debut) - timeToMinutes(b.heure_debut));
+
+    const startHourStr = config?.active_start_hour || '08:00';
+    const endHourStr = config?.active_end_hour || '22:00';
+    const [startH, startM] = startHourStr.split(':').map(Number);
+    const [endH, endM] = endHourStr.split(':').map(Number);
+
+    const activeStart = startH * 60 + startM;
+    const activeEnd = endH * 60 + endM;
+    let currentStart = activeStart;
+    const slots = [];
+
+    sorted.forEach(e => {
+      const start = timeToMinutes(e.heure_debut);
+      const end = timeToMinutes(e.heure_fin);
+      if (start > currentStart) {
+        const gap = start - currentStart;
+        if (gap >= 30) {
+          slots.push({ start: currentStart, end: start });
+        }
+      }
+      currentStart = Math.max(currentStart, end);
+    });
+
+    if (currentStart < activeEnd) {
+      const gap = activeEnd - currentStart;
+      if (gap >= 30) {
+        slots.push({ start: currentStart, end: activeEnd });
+      }
+    }
+    return slots;
+  };
+
+  const tz = config?.timezone || 'Europe/Paris';
+  const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+  const weekDates = getWeekDates(weekOffset, tz);
+
+  const weekStart = formatDateKey(weekDates[0]);
+  const weekEnd = formatDateKey(weekDates[6]);
+
+  const weekEvents = useMemo(() => {
+    return events.filter(e => e.date_absolue >= weekStart && e.date_absolue <= weekEnd);
+  }, [events, weekStart, weekEnd]);
+
+  const conflictSet = useMemo(() => {
+    const set = new Set();
+    conflicts.forEach(c => { set.add(c.a.id); set.add(c.b.id); });
+    return set;
+  }, [conflicts]);
+
+  const weekConflicts = conflicts.filter(c =>
+    c.a.date_absolue >= weekStart && c.a.date_absolue <= weekEnd
+  );
+
+  const gridColsClass = viewMode === 'week' ? 'grid-cols-8' : 'grid-cols-2';
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Header navigation */}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              if (viewMode === 'week') {
+                setWeekOffset(w => w - 1);
+              } else {
+                if (selectedDayIndex > 0) {
+                  setSelectedDayIndex(selectedDayIndex - 1);
+                } else {
+                  setWeekOffset(w => w - 1);
+                  setSelectedDayIndex(6);
+                }
+              }
+            }}
+            className="glass-panel p-2 hover:bg-white/10 transition-all rounded-xl"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          {viewMode === 'day' && (
+            <button
+              onClick={() => setViewMode('week')}
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:bg-white/10 text-white transition-all"
+            >
+              ← Voir la semaine
+            </button>
+          )}
+          <button
+            onClick={() => setShowAvailabilities(!showAvailabilities)}
+            className={`px-3 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 ${showAvailabilities
+                ? 'bg-green-500/30 text-green-300 border border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.3)]'
+                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+          >
+            <Clock size={14} />
+            <span>{showAvailabilities ? 'Masquer dispos' : 'Afficher dispos'}</span>
+          </button>
+        </div>
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-white">
+            {viewMode === 'week' ? (
+              `${weekDates[0].getDate()} - ${weekDates[6].getDate()} ${MONTHS_FR[weekDates[6].getMonth()]} ${weekDates[6].getFullYear()}`
+            ) : (
+              `${DAYS_FR[selectedDayIndex]} ${weekDates[selectedDayIndex].getDate()} ${MONTHS_FR[weekDates[selectedDayIndex].getMonth()]} ${weekDates[selectedDayIndex].getFullYear()}`
+            )}
+          </h3>
+          <p className="text-sm text-gray-400">
+            {viewMode === 'week' ? (
+              `${weekEvents.length} cours • ${weekConflicts.length} conflits`
+            ) : (
+              `${weekEvents.filter(e => e.date_absolue === formatDateKey(weekDates[selectedDayIndex])).length} cours`
+            )}
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            if (viewMode === 'week') {
+              setWeekOffset(w => w + 1);
+            } else {
+              if (selectedDayIndex < 6) {
+                setSelectedDayIndex(selectedDayIndex + 1);
+              } else {
+                setWeekOffset(w => w + 1);
+                setSelectedDayIndex(0);
+              }
+            }
+          }}
+          className="glass-panel p-2 hover:bg-white/10 transition-all rounded-xl"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+
+      {/* Conflicts Alert */}
+      {weekConflicts.length > 0 && (
+        <div className="bg-red-500/10 border border-red-500/40 rounded-xl p-4">
+          <h4 className="text-red-400 font-bold flex items-center gap-2 mb-2">
+            <AlertTriangle size={18} /> {weekConflicts.length} Conflit(s) detecte(s)
+          </h4>
+          <div className="flex flex-col gap-2">
+            {weekConflicts.map((c, i) => (
+              <div key={i} className="text-sm text-red-300 bg-red-500/10 rounded-lg p-2">
+                <span className="font-bold">{c.a.date_absolue}</span> : "{c.a.titre}" ({c.a.heure_debut}-{c.a.heure_fin})
+                <span className="text-red-500 font-bold mx-2">VS</span>
+                "{c.b.titre}" ({c.b.heure_debut}-{c.b.heure_fin})
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Calendar Grid */}
+      <div className="glass-panel rounded-2xl overflow-hidden flex flex-col">
+        <div className={`grid ${gridColsClass} border-b border-white/10`} style={{ paddingRight: 'var(--scrollbar-width, 0px)' }}>
+          {/* Hour column header — hidden scroll-to-events button */}
+          <div 
+            className="p-2 text-center text-xs text-gray-500 border-r border-white/5 cursor-pointer relative group"
+            onClick={() => {
+              if (!scrollContainerRef.current) return;
+              setIsRefreshing(true);
+              if (onRefresh) onRefresh();
+              
+              // Find the earliest event time in the current week
+              const earliestMinutes = weekEvents.reduce((earliest, e) => {
+                const mins = timeToMinutes(e.heure_debut);
+                return mins < earliest ? mins : earliest;
+              }, 24 * 60);
+              
+              if (earliestMinutes < 24 * 60) {
+                // Scroll to 1 hour before the first event for context
+                const targetScroll = Math.max((earliestMinutes - 60), 0);
+                scrollContainerRef.current.scrollTo({ top: targetScroll, behavior: 'smooth' });
+              } else {
+                // No events — scroll to active start hour
+                const startHourStr = config?.active_start_hour || '08:00';
+                const [h] = startHourStr.split(':').map(Number);
+                scrollContainerRef.current.scrollTo({ top: Math.max(h - 1, 0) * 60, behavior: 'smooth' });
+              }
+              
+              setTimeout(() => setIsRefreshing(false), 800);
+            }}
+            title="Aller aux événements"
+          >
+            <span className={`transition-all duration-300 text-[10px] text-white ${isRefreshing ? 'opacity-60 animate-spin inline-block' : 'opacity-0 group-hover:opacity-40'}`}>↻</span>
+          </div>
+          {/* Day headers */}
+          {viewMode === 'week' ? (
+            weekDates.map((date, i) => {
+              const isToday = formatDateKey(date) === todayKey;
+              const isWeekend = i >= 5; // Sam=5, Dim=6
+              return (
+                <div
+                  key={i}
+                  onClick={() => {
+                    setSelectedDayIndex(i);
+                    setViewMode('day');
+                  }}
+                  className={`p-3 text-center border-r border-white/5 cursor-pointer hover:bg-white/5 transition-all ${isToday ? 'bg-neon-purple/20' : ''} ${isWeekend ? 'bg-white/3 opacity-40' : ''}`}
+                >
+                  <div className="text-xs text-gray-400">{DAYS_FR[i]}</div>
+                  <div className={`text-lg font-bold ${isToday ? 'text-neon-purple' : isWeekend ? 'text-gray-600' : 'text-white'}`}>
+                    {date.getDate()}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            (() => {
+              const date = weekDates[selectedDayIndex];
+              const isToday = formatDateKey(date) === todayKey;
+              return (
+                <div className={`p-3 text-center border-r border-white/5 ${isToday ? 'bg-neon-purple/20' : ''}`}>
+                  <div className="text-xs text-gray-400">{DAYS_FR[selectedDayIndex]}</div>
+                  <div className={`text-lg font-bold ${isToday ? 'text-neon-purple' : 'text-white'}`}>
+                    {date.getDate()}
+                  </div>
+                </div>
+              );
+            })()
+          )}
+        </div>
+
+        {/* Scrollable container for time rows grid */}
+        <div
+          ref={scrollContainerRef}
+          className="overflow-y-scroll calendar-scroll"
+          style={{ height: '600px', scrollbarGutter: 'stable' }}
+        >
+          {/* Time rows grid */}
+          <div className="relative" style={{ minHeight: `${HOURS.length * 60}px` }}>
+            {/* Background Grid */}
+            {HOURS.map((hour, hi) => {
+              const h = parseInt(hour);
+              const getPeriod = (h) => {
+                if (h >= 0 && h < 6) return { label: 'Nuit', color: 'text-indigo-400', border: 'border-l-indigo-500/60', bg: 'bg-indigo-500/5', icon: '🌙' };
+                if (h >= 6 && h < 12) return { label: 'Matin', color: 'text-amber-400', border: 'border-l-amber-500/60', bg: 'bg-amber-500/5', icon: '☀️' };
+                if (h >= 12 && h < 18) return { label: 'Après-midi', color: 'text-orange-400', border: 'border-l-orange-500/60', bg: 'bg-orange-500/5', icon: '🌤️' };
+                return { label: 'Soirée', color: 'text-purple-400', border: 'border-l-purple-500/60', bg: 'bg-purple-500/5', icon: '🌆' };
+              };
+              const period = getPeriod(h);
+              const isBoundary = h === 0 || h === 6 || h === 12 || h === 18;
+
+              return (
+                <div key={hi} className={`grid ${gridColsClass} border-b border-white/15 ${period.bg}`} style={{ height: '60px' }}>
+                  <div className={`p-1 text-right text-xs border-r border-white/15 pr-2 pt-0 border-l-2 ${period.border} flex flex-col items-end justify-start`}>
+                    <span className={`${period.color} font-semibold`}>{hour}:00</span>
+                    {isBoundary && (
+                      <span className={`${period.color} text-[9px] opacity-70 mt-0.5`}>
+                        {period.icon} {period.label}
+                      </span>
+                    )}
+                  </div>
+                  {viewMode === 'week' ? (
+                    Array.from({ length: 7 }).map((_, di) => {
+                      const date = weekDates[di];
+                      const dateKey = formatDateKey(date);
+                      const isToday = dateKey === todayKey;
+
+                      return (
+                        <div
+                          key={di}
+                          onClick={() => {
+                            const startHour = hour.toString().padStart(2, '0') + ':00';
+                            const endHour = (hour + 1).toString().padStart(2, '0') + ':00';
+                            onTimeSlotClick && onTimeSlotClick(dateKey, startHour, endHour);
+                          }}
+                          className={`border-r border-white/15 cursor-pointer hover:bg-white/5 transition-colors bg-[#0B0F17] ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
+                            }`}
+                        />
+                      );
+                    })
+                  ) : (
+                    (() => {
+                      const date = weekDates[selectedDayIndex];
+                      const dateKey = formatDateKey(date);
+                      const isToday = dateKey === todayKey;
+
+                      return (
+                        <div
+                          onClick={() => {
+                            const startHour = hour.toString().padStart(2, '0') + ':00';
+                            const endHour = (hour + 1).toString().padStart(2, '0') + ':00';
+                            onTimeSlotClick && onTimeSlotClick(dateKey, startHour, endHour);
+                          }}
+                          className={`border-r border-white/15 cursor-pointer hover:bg-white/5 transition-colors bg-[#0B0F17] ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
+                            }`}
+                        />
+                      );
+                    })()
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Absolute Events Overlay */}
+            <div className={`absolute top-0 left-0 right-0 bottom-0 pointer-events-none grid ${gridColsClass}`}>
+              {/* Hour labels spacer column */}
+              <div className="border-r border-white/15" />
+
+              {/* columns for events */}
+              {viewMode === 'week' ? (
+                weekDates.map((date, di) => {
+                  const dateKey = formatDateKey(date);
+                  const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
+                  const processedEvents = layoutDayEvents(dayEvents);
+                  const freeSlots = showAvailabilities ? getFreeSlots(dayEvents) : [];
+
+                  return (
+                    <div key={di} className="relative h-full pointer-events-none">
+                      {/* Render Free Slots */}
+                      {freeSlots.map((slot, si) => {
+                        const topOffset = slot.start;
+                        const duration = slot.end - slot.start;
+                        const startStr = minutesToTimeStr(slot.start);
+                        const endStr = minutesToTimeStr(slot.end);
+
+                        return (
+                          <div
+                            key={`free-${si}`}
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              onTimeSlotClick && onTimeSlotClick(dateKey, startStr, endStr);
+                            }}
+                            className="absolute rounded-md border border-dashed border-green-500/40 bg-green-500/5 hover:bg-green-500/15 cursor-pointer pointer-events-auto p-1 text-center transition-all flex flex-col justify-center items-center hover:z-20 hover:border-green-400 group"
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${duration}px`,
+                              left: '2%',
+                              width: '96%',
+                              zIndex: 2
+                            }}
+                          >
+                            <span className="text-[10px] font-bold text-green-300 flex items-center gap-1">
+                              <Clock size={10} /> Dispo ({formatDuration(duration)})
+                            </span>
+                            <span className="text-[9px] text-green-400/80">
+                              {startStr} - {endStr}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      {/* Dark backgrounds for events to mask the green grid */}
+                      {processedEvents.map((e, ei) => {
+                        const startMin = timeToMinutes(e.heure_debut);
+                        const endMin = timeToMinutes(e.heure_fin);
+                        const topOffset = startMin;
+                        const duration = Math.max(endMin - startMin, 30);
+                        const widthPercent = 100 / e.totalCols;
+                        const leftPercent = e.colIdx * widthPercent;
+                        const animDelay = `${(di * 0.12) + (ei * 0.04)}s`;
+
+                        return (
+                          <div
+                            key={`mask-${ei}`}
+                            className="absolute bg-[#0B0F17] rounded-md animate-sky-panel"
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${duration}px`,
+                              left: `${leftPercent}%`,
+                              width: `${widthPercent - 1}%`,
+                              zIndex: 0,
+                              animationDelay: animDelay
+                            }}
+                          />
+                        );
+                      })}
+
+                      {processedEvents.map((e, ei) => {
+                        const startMin = timeToMinutes(e.heure_debut);
+                        const endMin = timeToMinutes(e.heure_fin);
+                        const topOffset = startMin;
+                        const duration = Math.max(endMin - startMin, 30);
+                        const isConflict = conflictSet.has(e.id);
+
+                        const widthPercent = 100 / e.totalCols;
+                        const leftPercent = e.colIdx * widthPercent;
+
+                        const animDelay = `${(di * 0.12) + (ei * 0.04)}s`;
+                        return (
+                          <div
+                            key={ei}
+                            className={`absolute rounded-md border px-1 py-0.5 text-xs overflow-hidden cursor-pointer pointer-events-auto group transition-all hover:z-20 hover:shadow-lg animate-sky-panel ${getCourseColor(e.titre, e.type, e.categorie, categories)} ${isConflict ? 'ring-2 ring-red-500 animate-pulse' : ''}`}
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${duration}px`,
+                              left: `${leftPercent}%`,
+                              width: `${widthPercent - 1}%`,
+                              zIndex: isConflict ? 10 : 1,
+                              animationDelay: animDelay
+                            }}
+                            onClick={() => onSelectEvent && onSelectEvent(e)}
+                            title={`${e.titre}\n${e.heure_debut} - ${e.heure_fin}`}
+                          >
+                            <div className="font-bold truncate" style={{ fontSize: '10px' }}>{e.titre}</div>
+                            <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
+                            {onDeleteEvent && (
+                              <button
+                                onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.id); }}
+                                className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 bg-red-600 rounded p-0.5 transition-opacity"
+                              >
+                                <Trash2 size={10} />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })
+              ) : (
+                (() => {
+                  const date = weekDates[selectedDayIndex];
+                  const dateKey = formatDateKey(date);
+                  const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
+                  const processedEvents = layoutDayEvents(dayEvents);
+                  const freeSlots = showAvailabilities ? getFreeSlots(dayEvents) : [];
+
+                  return (
+                    <div className="relative h-full pointer-events-none">
+                      {/* Render Free Slots */}
+                      {freeSlots.map((slot, si) => {
+                        const topOffset = slot.start;
+                        const duration = slot.end - slot.start;
+                        const startStr = minutesToTimeStr(slot.start);
+                        const endStr = minutesToTimeStr(slot.end);
+
+                        return (
+                          <div
+                            key={`free-${si}`}
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              onTimeSlotClick && onTimeSlotClick(dateKey, startStr, endStr);
+                            }}
+                            className="absolute rounded-md border border-dashed border-green-500/40 bg-green-500/5 hover:bg-green-500/15 cursor-pointer pointer-events-auto p-1 text-center transition-all flex flex-col justify-center items-center hover:z-20 hover:border-green-400 group"
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${duration}px`,
+                              left: '2%',
+                              width: '96%',
+                              zIndex: 2
+                            }}
+                          >
+                            <span className="text-[11px] font-bold text-green-300 flex items-center gap-1">
+                              <Clock size={11} /> Disponible ({formatDuration(duration)})
+                            </span>
+                            <span className="text-[10px] text-green-400/85">
+                              {startStr} - {endStr}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      {/* Dark backgrounds for events to mask the green grid */}
+                      {processedEvents.map((e, ei) => {
+                        const startMin = timeToMinutes(e.heure_debut);
+                        const endMin = timeToMinutes(e.heure_fin);
+                        const topOffset = startMin;
+                        const duration = Math.max(endMin - startMin, 30);
+                        const widthPercent = 100 / e.totalCols;
+                        const leftPercent = e.colIdx * widthPercent;
+
+                        return (
+                          <div
+                            key={`mask-${ei}`}
+                            className="absolute bg-[#0B0F17] rounded-md animate-sky-panel"
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${duration}px`,
+                              left: `${leftPercent}%`,
+                              width: `${widthPercent - 1}%`,
+                              zIndex: 0
+                            }}
+                          />
+                        );
+                      })}
+
+                      {processedEvents.map((e, ei) => {
+                        const startMin = timeToMinutes(e.heure_debut);
+                        const endMin = timeToMinutes(e.heure_fin);
+                        const topOffset = startMin;
+                        const duration = Math.max(endMin - startMin, 30);
+                        const isConflict = conflictSet.has(e.id);
+
+                        const widthPercent = 100 / e.totalCols;
+                        const leftPercent = e.colIdx * widthPercent;
+
+                        return (
+                          <div
+                            key={ei}
+                            className={`absolute rounded-md border px-1 py-0.5 text-xs overflow-hidden cursor-pointer pointer-events-auto group transition-all hover:z-20 hover:shadow-lg animate-sky-panel ${getCourseColor(e.titre, e.type, e.categorie, categories)} ${isConflict ? 'ring-2 ring-red-500 animate-pulse' : ''}`}
+                            style={{
+                              top: `${topOffset}px`,
+                              height: `${duration}px`,
+                              left: `${leftPercent}%`,
+                              width: `${widthPercent - 1}%`,
+                              zIndex: isConflict ? 10 : 1
+                            }}
+                            onClick={() => onSelectEvent && onSelectEvent(e)}
+                            title={`${e.titre}\n${e.heure_debut} - ${e.heure_fin}`}
+                          >
+                            <div className="font-bold truncate" style={{ fontSize: '10px' }}>{e.titre}</div>
+                            <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
+                            {onDeleteEvent && (
+                              <button
+                                onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.id); }}
+                                className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 bg-red-600 rounded p-0.5 transition-opacity"
+                              >
+                                <Trash2 size={10} />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
+              )}
+            </div></div>
+        </div></div><style>{`
+        @keyframes skyPanelIn {
+          0% {
+            opacity: 0;
+            transform: perspective(1200px) translate3d(60px, -250px, 500px) rotateX(-65deg) rotateY(15deg);
+            filter: blur(6px);
+          }
+          100% {
+            opacity: 1;
+            transform: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg);
+            filter: blur(0);
+          }
+        }
+        .animate-sky-panel {
+          animation: skyPanelIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+          transform-style: preserve-3d;
+          backface-visibility: hidden;
+        }
+        /* Custom scrollbar styling for calendar */
+        .calendar-scroll::-webkit-scrollbar {
+          width: 6px;
+        }
+        .calendar-scroll::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 8px;
+        }
+        .calendar-scroll::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+        }
+        .calendar-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default WeeklyCalendar;
