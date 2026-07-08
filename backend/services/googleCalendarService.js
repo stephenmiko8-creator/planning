@@ -8,7 +8,7 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 // Générer l'URL d'authentification
-function getAuthUrl() {
+function getAuthUrl(state) {
   const scopes = [
     'https://www.googleapis.com/auth/calendar',
     'https://www.googleapis.com/auth/calendar.events'
@@ -16,6 +16,8 @@ function getAuthUrl() {
   return oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes,
+    state: state,
+    prompt: 'consent'
   });
 }
 

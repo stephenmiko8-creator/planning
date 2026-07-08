@@ -175,7 +175,10 @@ const Dashboard = () => {
   }, [token]);
 
   const handleGoogleConnect = () => {
-    window.open(`${API_BASE_URL}/api/calendar/auth/google`, 'Google Auth', 'width=500,height=600');
+    const url = token 
+      ? `${API_BASE_URL}/api/calendar/auth/google?token=${encodeURIComponent(token)}` 
+      : `${API_BASE_URL}/api/calendar/auth/google`;
+    window.open(url, 'Google Auth', 'width=500,height=600');
   };
 
   const [isPushingAll, setIsPushingAll] = useState(false);
