@@ -1,4 +1,3 @@
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 // Check if we should use Supabase PostgreSQL (via DATABASE_URL) or local SQLite
@@ -138,6 +137,7 @@ if (usePostgres) {
   };
 
 } else {
+  const sqlite3 = require('sqlite3').verbose();
   const dbPath = path.resolve(__dirname, 'planning.db');
   db = new sqlite3.Database(dbPath);
   console.log('Connected to local SQLite database.');
