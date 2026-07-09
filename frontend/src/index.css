@@ -2,22 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Default: Gradient Electrique (Futuriste / Techno) */
+  --bg-color-from: #0f172a;
+  --bg-color-to: #050a14;
+  --panel-bg: rgba(30, 41, 59, 0.6);
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --text-main: #f3f4f6;
+  --text-300: #d1d5db;
+  --text-400: #9ca3af;
+  --text-white-custom: #ffffff;
+  --accent-purple: #c084fc;
+  --accent-teal: #2dd4bf;
+  --accent-blue: #38bdf8;
+  --glow-purple: 0 0 15px rgba(192, 132, 252, 0.3), inset 0 0 10px rgba(192, 132, 252, 0.1);
+  --glow-teal: 0 0 15px rgba(45, 212, 191, 0.3), inset 0 0 10px rgba(45, 212, 191, 0.1);
+  --border-radius: 1rem;
+}
+
+[data-theme="minimalist"] {
+  /* Palette "Épure & Moderne" (Sombre & Minimaliste) */
+  --bg-color-from: #121212;
+  --bg-color-to: #121212;
+  --panel-bg: #1c1c1c;
+  --panel-border: #2e2e2e;
+  --text-main: #ffffff;
+  --text-300: #e5e7eb;
+  --text-400: #9ca3af;
+  --text-white-custom: #ffffff;
+  --accent-purple: #ffffff;
+  --accent-teal: #a3a3a3;
+  --accent-blue: #d4d4d4;
+  --glow-purple: none;
+  --glow-teal: none;
+}
+
+[data-theme="light"] {
+  /* Palette "Pastel Doux" (Light Mode) */
+  --bg-color-from: #fbfbfa;
+  --bg-color-to: #f3f3f0;
+  --panel-bg: #ffffff;
+  --panel-border: rgba(99, 102, 241, 0.18);
+  --text-main: #1e1b4b;
+  --text-300: #312e81;
+  --text-400: #4f46e5;
+  --text-white-custom: #1e1b4b;
+  --accent-purple: #6366f1;
+  --accent-teal: #10b981;
+  --accent-blue: #4f46e5;
+  --glow-purple: 0 4px 12px rgba(99, 102, 241, 0.08);
+  --glow-teal: 0 4px 12px rgba(16, 185, 129, 0.08);
+}
+
+[data-theme="organic"] {
+  /* Palette "Vert Nature & Terre" (Chaleureux) */
+  --bg-color-from: #2c3b32;
+  --bg-color-to: #1f2823;
+  --panel-bg: #222d26;
+  --panel-border: #324338;
+  --text-main: #fef3c7;
+  --text-300: #fde68a;
+  --text-400: #a7f3d0;
+  --text-white-custom: #fef3c7;
+  --accent-purple: #d97706;
+  --accent-teal: #10b981;
+  --accent-blue: #ea580c;
+  --glow-purple: 0 0 12px rgba(217, 119, 6, 0.2);
+  --glow-teal: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
 @layer base {
   body {
-    @apply bg-dark-900 text-gray-100 font-sans;
+    background-color: var(--bg-color-to);
+    color: var(--text-main);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
 .glass-panel {
-  @apply bg-dark-800/60 backdrop-blur-md border border-white/10 shadow-lg rounded-2xl;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .neon-border-purple {
-  box-shadow: 0 0 15px rgba(192, 132, 252, 0.3), inset 0 0 10px rgba(192, 132, 252, 0.1);
-  border: 1px solid rgba(192, 132, 252, 0.5);
+  box-shadow: var(--glow-purple);
+  border: 1px solid var(--accent-purple);
 }
 
 .neon-border-teal {
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3), inset 0 0 10px rgba(45, 212, 191, 0.1);
-  border: 1px solid rgba(45, 212, 191, 0.5);
+  box-shadow: var(--glow-teal);
+  border: 1px solid var(--accent-teal);
 }

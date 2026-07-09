@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Tag, Plus, Trash2, Save, Check, AlertCircle, Settings } from 'lucide-react';
+import { User, Tag, Plus, Trash2, Save, Check, AlertCircle, Settings, Palette } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const COLOR_PRESETS = [
@@ -12,7 +12,7 @@ const COLOR_PRESETS = [
   { name: 'Rouge Éclatant', class: 'bg-red-500/30 border-red-500/60 text-red-200', dot: 'bg-red-500' }
 ];
 
-const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token }) => {
+const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, currentTheme, onChangeTheme }) => {
   const [profile, setProfile] = useState('');
   const [categories, setCategories] = useState([]);
   const [newCatName, setNewCatName] = useState('');
@@ -301,6 +301,42 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token }) => {
               )}
               <span>Enregistrer les paramètres</span>
             </button>
+          </div>
+        </div>
+
+        {/* Thème Visuel */}
+        <div className="glass-panel p-5 border border-neon-purple/20">
+          <h4 className="text-white font-bold mb-2 flex items-center gap-2">
+            <Palette size={18} className="text-neon-purple" /> Thème Visuel de l'Application
+          </h4>
+          <p className="text-xs text-gray-400 mb-4">
+            Choisissez l'univers visuel qui correspond le mieux à votre utilisation.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { id: 'electric', label: 'Gradient Électrique', desc: 'Futuriste / Techno', colors: 'from-blue-600 via-purple-600 to-pink-500' },
+              { id: 'minimalist', label: 'Épure & Moderne', desc: 'Sombre & Minimaliste', colors: 'from-neutral-800 to-neutral-900' },
+              { id: 'light', label: 'Pastel Doux', desc: 'Light Mode', colors: 'from-indigo-200 via-purple-100 to-amber-50' },
+              { id: 'organic', label: 'Vert Nature & Terre', desc: 'Chaleureux & Organique', colors: 'from-emerald-800 via-stone-700 to-amber-900' }
+            ].map(t => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => onChangeTheme && onChangeTheme(t.id)}
+                className={`p-3 rounded-xl border text-left flex flex-col gap-2 transition-all cursor-pointer ${
+                  currentTheme === t.id 
+                    ? 'bg-white/10 border-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.3)]' 
+                    : 'bg-dark-900/40 border-white/5 hover:border-white/20'
+                }`}
+              >
+                <div className={`h-8 rounded-lg bg-gradient-to-r ${t.colors} border border-white/10`} />
+                <div>
+                  <div className="text-xs font-bold text-white">{t.label}</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5">{t.desc}</div>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
       </div>

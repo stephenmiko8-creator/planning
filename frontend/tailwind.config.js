@@ -7,14 +7,20 @@ export default {
     extend: {
       colors: {
         dark: {
-          900: '#0f172a', // Deep slate
-          800: '#1e293b', // Lighter slate
+          900: 'var(--bg-color-to)',
+          850: 'var(--bg-color-from)',
+          800: 'var(--panel-bg)',
         },
         neon: {
-          purple: '#c084fc',
-          teal: '#2dd4bf',
-          blue: '#38bdf8',
-        }
+          purple: 'var(--accent-purple)',
+          teal: 'var(--accent-teal)',
+          blue: 'var(--accent-blue)',
+        },
+        gray: {
+          300: 'var(--text-300)',
+          400: 'var(--text-400)',
+        },
+        white: 'var(--text-white-custom)',
       },
     },
   },

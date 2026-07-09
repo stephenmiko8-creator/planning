@@ -12,7 +12,7 @@ import { CalendarCheck, ShieldAlert, CheckCircle2, Clock, LogIn, Activity, Coffe
 import { API_BASE_URL } from '../config';
 import { useToast } from './Toast';
 
-const Dashboard = () => {
+const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const { addToast } = useToast();
   const [events, setEvents] = useState([]);
   const [savedEvents, setSavedEvents] = useState([]);
@@ -638,6 +638,8 @@ const Dashboard = () => {
           config={config}
           onConfigChange={loadConfig}
           token={token}
+          currentTheme={currentTheme}
+          onChangeTheme={onChangeTheme}
         />
       )}
       {/* Event Detail Modal */}
