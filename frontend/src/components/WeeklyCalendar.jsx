@@ -132,8 +132,19 @@ function layoutDayEvents(dayEvents) {
 
 const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categories = [], onTimeSlotClick, config, onRefresh }) => {
   const [weekOffset, setWeekOffset] = useState(0);
-  const [viewMode, setViewMode] = useState('week'); // 'week' or 'day'
-  const [selectedDayIndex, setSelectedDayIndex] = useState(0); // 0 = Lun, 6 = Dim
+  const [viewMode, setViewMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768 ? 'day' : 'week';
+    }
+    return 'week';
+  }); // 'week' or 'day'
+  const [selectedDayIndex, setSelectedDayIndex] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const day = new Date().getDay();
+      return day === 0 ? 6 : day - 1;
+    }
+    return 0;
+  }); // 0 = Lun, 6 = Dim
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const scrollContainerRef = useRef(null);
@@ -267,8 +278,8 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
             <span>{showAvailabilities ? 'Masquer dispos' : 'Afficher dispos'}</span>
           </button>
         </div>
-        <div className="text-center">
-          <h3 className="text-xl font-bold text-white">
+        <div className="text-center px-2">
+          <h3 className="text-sm md:text-xl font-bold text-white whitespace-nowrap">
             {viewMode === 'week' ? (
               `${weekDates[0].getDate()} - ${weekDates[6].getDate()} ${MONTHS_FR[weekDates[6].getMonth()]} ${weekDates[6].getFullYear()}`
             ) : (
@@ -320,9 +331,42 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         </div>
       )}
 
+      {/* Mobile Day Selector Bar */}
+      <div className="flex md:hidden justify-between bg-dark-900/60 p-2 rounded-xl border border-white/5 gap-1 mb-2">
+        {weekDates.map((date, i) => {
+          const isSelected = selectedDayIndex === i && viewMode === 'day';
+          const isToday = formatDateKey(date) === todayKey;
+          return (
+            <button
+              key={i}
+              onClick={() => {
+                setSelectedDayIndex(i);
+                setViewMode('day');
+              }}
+              className={`flex-1 py-2 px-1 rounded-xl flex flex-col items-center justify-center transition-all ${
+                isSelected 
+                  ? 'bg-neon-purple text-dark-950 font-black shadow-[0_0_12px_rgba(168,85,247,0.4)]' 
+                  : isToday
+                  ? 'bg-neon-purple/10 text-neon-purple border border-neon-purple/30 font-bold'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span className="text-[10px] uppercase opacity-70">{DAYS_FR[i]}</span>
+              <span className="text-sm font-bold mt-0.5">{date.getDate()}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Calendar Grid */}
       <div className="glass-panel rounded-2xl overflow-hidden flex flex-col">
-        <div className={`grid ${gridColsClass} border-b border-white/10`} style={{ paddingRight: 'var(--scrollbar-width, 0px)' }}>
+        <div 
+          className="grid border-b border-white/10" 
+          style={{ 
+            gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr',
+            paddingRight: 'var(--scrollbar-width, 0px)' 
+          }}
+        >
           {/* Hour column header — hidden scroll-to-events button */}
           <div 
             className="p-2 text-center text-xs text-gray-500 border-r border-white/5 cursor-pointer relative group"
@@ -412,7 +456,14 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               const isBoundary = h === 0 || h === 6 || h === 12 || h === 18;
 
               return (
-                <div key={hi} className={`grid ${gridColsClass} border-b border-white/15 ${period.bg}`} style={{ height: '60px' }}>
+                <div 
+                  key={hi} 
+                  className={`grid border-b border-white/15 ${period.bg}`} 
+                  style={{ 
+                    height: '60px',
+                    gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr'
+                  }}
+                >
                   <div className={`p-1 text-right text-xs border-r border-white/15 pr-2 pt-0 border-l-2 ${period.border} flex flex-col items-end justify-start`}>
                     <span className={`${period.color} font-semibold`}>{hour}:00</span>
                     {isBoundary && (
@@ -464,7 +515,12 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
             })}
 
             {/* Absolute Events Overlay */}
-            <div className={`absolute top-0 left-0 right-0 bottom-0 pointer-events-none grid ${gridColsClass}`}>
+            <div 
+              className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none grid"
+              style={{
+                gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr'
+              }}
+            >
               {/* Hour labels spacer column */}
               <div className="border-r border-white/15" />
 

@@ -331,21 +331,21 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 flex flex-col gap-6">
+    <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24 md:pb-6 flex flex-col gap-6">
       {/* Header */}
-      <div className="flex justify-between items-center flex-wrap gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-teal">
+          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-teal">
             Planning Assistant
           </h1>
-          <p className="text-gray-400 mt-1">Votre agent personnel d'extraction et d'optimisation de temps.</p>
+          <p className="text-xs md:text-sm text-gray-400 mt-1">Votre agent personnel d'extraction et d'optimisation de temps.</p>
         </div>
-        <div className="flex gap-3 items-center flex-wrap">
+        <div className="flex gap-2 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
           {/* User Auth Section */}
           {user ? (
-            <div className="flex items-center gap-3 bg-dark-800/40 border border-white/5 p-1.5 pl-3 rounded-2xl">
+            <div className="flex items-center gap-2 bg-dark-800/40 border border-white/5 p-1.5 pl-3 rounded-2xl shrink-0">
               <div className="flex flex-col text-right hidden sm:flex">
-                <span className="text-xs font-semibold text-gray-300 max-w-[150px] truncate">{user.email}</span>
+                <span className="text-xs font-semibold text-gray-300 max-w-[120px] truncate">{user.email}</span>
                 {user.subscription_plan === 'free' ? (
                   <span className="text-[10px] text-gray-500 font-bold">
                     {user.scan_count_this_month || 0}/10 scans
@@ -360,33 +360,33 @@ const Dashboard = () => {
               {/* Plan badge, clickable to change subscription */}
               <button
                 onClick={() => setIsSubOpen(true)}
-                className={`px-2.5 py-1 text-[11px] font-extrabold uppercase rounded-full transition-all flex items-center gap-1 cursor-pointer ${
+                className={`px-2 py-0.5 text-[10px] font-extrabold uppercase rounded-full transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
                   user.subscription_plan === 'premium'
-                    ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/50 shadow-[0_0_10px_rgba(168,85,247,0.3)] hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]'
+                    ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/50 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
                     : user.subscription_plan === 'pro'
-                    ? 'bg-neon-teal/20 text-neon-teal border border-neon-teal/50 shadow-[0_0_10px_rgba(20,184,166,0.3)] hover:shadow-[0_0_15px_rgba(20,184,166,0.5)]'
-                    : 'bg-white/5 text-gray-400 border border-white/10 hover:border-white/20'
+                    ? 'bg-neon-teal/20 text-neon-teal border border-neon-teal/50 shadow-[0_0_10px_rgba(20,184,166,0.3)]'
+                    : 'bg-white/5 text-gray-400 border border-white/10'
                 }`}
               >
-                {user.subscription_plan === 'premium' && <Crown size={12} className="animate-pulse" />}
-                {user.subscription_plan === 'pro' && <Sparkles size={12} className="animate-pulse" />}
+                {user.subscription_plan === 'premium' && <Crown size={10} className="animate-pulse" />}
+                {user.subscription_plan === 'pro' && <Sparkles size={10} className="animate-pulse" />}
                 <span>{user.subscription_plan}</span>
               </button>
 
               <button 
                 onClick={handleLogout}
                 title="Déconnexion"
-                className="p-2 text-gray-400 hover:text-red-400 transition-colors rounded-xl"
+                className="p-1.5 text-gray-400 hover:text-red-400 transition-colors rounded-xl"
               >
-                <LogOut size={16} />
+                <LogOut size={14} />
               </button>
             </div>
           ) : (
             <button 
               onClick={() => setIsAuthOpen(true)}
-              className="px-4 py-2 border border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10 font-bold rounded-xl text-sm transition-all flex items-center gap-2 hover:shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+              className="px-3 py-1.5 border border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shrink-0"
             >
-              <LogIn size={16} />
+              <LogIn size={14} />
               <span>Connexion</span>
             </button>
           )}
@@ -396,7 +396,7 @@ const Dashboard = () => {
               setAddModalInitialValues(null);
               setIsAddModalOpen(true);
             }}
-            className="px-4 py-2 bg-neon-purple text-dark-950 font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all flex items-center gap-2"
+            className="hidden md:flex px-4 py-2 bg-neon-purple text-dark-950 font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all items-center gap-2 shrink-0"
           >
             <PlusCircle size={18} />
             <span>Planifier un bloc</span>
@@ -405,14 +405,14 @@ const Dashboard = () => {
           {(!user || user.subscription_plan === 'premium') && (
             <button 
               onClick={handleGoogleConnect}
-              className={`px-4 py-2 flex items-center gap-2 rounded-xl transition-all font-bold ${
+              className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xl transition-all font-bold text-xs shrink-0 ${
                 isGoogleConnected 
                   ? 'bg-green-500/20 text-green-400 border border-green-500/50' 
                   : 'glass-panel text-white hover:bg-white/10'
               }`}
             >
-              {isGoogleConnected ? <CheckCircle2 size={18} /> : <LogIn size={18} />}
-              {isGoogleConnected ? 'Google OK' : 'Connexion Google'}
+              {isGoogleConnected ? <CheckCircle2 size={14} /> : <LogIn size={14} />}
+              <span>{isGoogleConnected ? 'Google OK' : 'Connexion Google'}</span>
             </button>
           )}
         </div>
@@ -450,8 +450,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* View Tabs */}
-      <div className="flex gap-2">
+      {/* View Tabs - Desktop Only */}
+      <div className="hidden md:flex gap-2">
         {[
           { id: 'calendar', icon: <LayoutGrid size={16} />, label: 'Calendrier' },
           { id: 'list', icon: <List size={16} />, label: 'Liste' },
@@ -674,6 +674,41 @@ const Dashboard = () => {
         onPlanUpdated={loadProfile}
         token={token}
       />
+
+      {/* Floating Action Button (FAB) for Mobile */}
+      <button 
+        onClick={() => {
+          setAddModalInitialValues(null);
+          setIsAddModalOpen(true);
+        }}
+        className="fixed bottom-20 right-4 z-40 md:hidden p-4 bg-neon-purple text-dark-950 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
+        aria-label="Planifier un bloc"
+      >
+        <PlusCircle size={24} />
+      </button>
+
+      {/* Bottom Nav Bar for Mobile */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-dark-950/95 backdrop-blur-md border-t border-white/10 flex justify-around p-2 pb-safe md:hidden shadow-[0_-5px_15px_rgba(0,0,0,0.5)]">
+        {[
+          { id: 'calendar', icon: <LayoutGrid size={20} />, label: 'Calendrier' },
+          { id: 'list', icon: <List size={20} />, label: 'Liste' },
+          { id: 'stats', icon: <BarChart3 size={20} />, label: 'Stats' },
+          { id: 'settings', icon: <Settings size={20} />, label: 'Paramètres' },
+        ].map(tab => (
+          <button 
+            key={tab.id}
+            onClick={() => setActiveView(tab.id)}
+            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
+              activeView === tab.id 
+                ? 'text-neon-purple' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            {tab.icon}
+            <span className="text-[10px] font-bold">{tab.label}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
