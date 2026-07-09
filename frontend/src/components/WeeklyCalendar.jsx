@@ -8,14 +8,23 @@ const MONTHS_FR = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juille
 function getCourseColor(titre, type, categorie, categories = []) {
   if (categorie) {
     const match = categories.find(c => c.name.toLowerCase() === categorie.toLowerCase());
-    if (match) return match.color_class;
+    if (match) {
+      const cls = match.color_class;
+      if (cls.includes('purple')) return 'event-purple';
+      if (cls.includes('teal')) return 'event-teal';
+      if (cls.includes('amber')) return 'event-amber';
+      if (cls.includes('pink')) return 'event-pink';
+      if (cls.includes('green')) return 'event-green';
+      if (cls.includes('blue')) return 'event-blue';
+      return 'event-indigo';
+    }
   }
 
   const cat = (categorie || '').toLowerCase();
-  if (cat.includes('travail')) return 'bg-purple-500/30 border-purple-500/60 text-purple-200';
-  if (cat.includes('personnel')) return 'bg-teal-500/30 border-teal-500/60 text-teal-200';
-  if (cat.includes('formation')) return 'bg-amber-500/30 border-amber-500/60 text-amber-200';
-  if (cat.includes('développement') || cat.includes('developpement')) return 'bg-pink-500/30 border-pink-500/60 text-pink-200';
+  if (cat.includes('travail')) return 'event-purple';
+  if (cat.includes('personnel')) return 'event-teal';
+  if (cat.includes('formation')) return 'event-amber';
+  if (cat.includes('développement') || cat.includes('developpement')) return 'event-pink';
 
   const t = (titre || '').toLowerCase();
   const ty = (type || '').toLowerCase();
@@ -28,12 +37,12 @@ function getCourseColor(titre, type, categorie, categories = []) {
     ty.includes('libre') ||
     ty.includes('disponibilit')
   ) {
-    return 'bg-green-500/30 border-green-500/60 text-green-200';
+    return 'event-green';
   }
-  if (t.includes('comptabilit')) return 'bg-amber-500/30 border-amber-500/60 text-amber-200';
-  if (t.includes('english')) return 'bg-emerald-500/30 border-emerald-500/60 text-emerald-200';
-  if (t.includes('logiciel')) return 'bg-blue-500/30 border-blue-500/60 text-blue-200';
-  return 'bg-indigo-500/30 border-indigo-500/60 text-indigo-200';
+  if (t.includes('comptabilit')) return 'event-amber';
+  if (t.includes('english')) return 'event-green';
+  if (t.includes('logiciel')) return 'event-blue';
+  return 'event-indigo';
 }
 
 function getWeekDates(offset = 0, timezone = 'Europe/Paris') {
@@ -361,16 +370,18 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                 setSelectedDayIndex(i);
                 setViewMode('day');
               }}
-              className={`flex-1 py-2 px-1 rounded-xl flex flex-col items-center justify-center transition-all ${
-                isSelected 
-                  ? 'bg-neon-purple text-dark-950 font-black shadow-[0_0_12px_rgba(168,85,247,0.4)]' 
-                  : isToday
-                  ? 'bg-neon-purple/10 text-neon-purple border border-neon-purple/30 font-bold'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
-              }`}
+              className="flex-1 py-1.5 px-0.5 flex flex-col items-center justify-center transition-all"
             >
-              <span className="text-[10px] uppercase opacity-70">{DAYS_FR[i]}</span>
-              <span className="text-sm font-bold mt-0.5">{date.getDate()}</span>
+              <span className="text-[10px] uppercase opacity-70 mb-1">{DAYS_FR[i]}</span>
+              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                isSelected 
+                  ? 'bg-neon-purple text-dark-950 shadow-md font-black ring-2 ring-neon-purple/30' 
+                  : isToday
+                  ? 'border border-neon-purple/50 text-neon-purple font-bold'
+                  : 'text-gray-400 hover:text-white'
+              }`}>
+                {date.getDate()}
+              </span>
             </button>
           );
         })}
@@ -504,7 +515,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                             const endHour = (hour + 1).toString().padStart(2, '0') + ':00';
                             onTimeSlotClick && onTimeSlotClick(dateKey, startHour, endHour);
                           }}
-                          className={`border-r border-white/15 cursor-pointer hover:bg-white/5 transition-colors bg-[#0B0F17] ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
+                          className={`border-r border-white/15 cursor-pointer hover:bg-white/5 transition-colors bg-dark-900 ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
                             }`}
                         />
                       );
@@ -522,7 +533,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                             const endHour = (hour + 1).toString().padStart(2, '0') + ':00';
                             onTimeSlotClick && onTimeSlotClick(dateKey, startHour, endHour);
                           }}
-                          className={`border-r border-white/15 cursor-pointer hover:bg-white/5 transition-colors bg-[#0B0F17] ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
+                          className={`border-r border-white/15 cursor-pointer hover:bg-white/5 transition-colors bg-dark-900 ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
                             }`}
                         />
                       );
@@ -597,7 +608,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         return (
                           <div
                             key={`mask-${ei}`}
-                            className="absolute bg-[#0B0F17] rounded-md animate-sky-panel"
+                            className="absolute bg-dark-900 rounded-md animate-sky-panel"
                             style={{
                               top: `${topOffset}px`,
                               height: `${duration}px`,
@@ -706,7 +717,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         return (
                           <div
                             key={`mask-${ei}`}
-                            className="absolute bg-[#0B0F17] rounded-md animate-sky-panel"
+                            className="absolute bg-dark-900 rounded-md animate-sky-panel"
                             style={{
                               top: `${topOffset}px`,
                               height: `${duration}px`,
