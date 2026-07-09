@@ -191,12 +191,12 @@ const ScannerInput = ({ onScan }) => {
           className={`flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.3)] ${
             isBtnDisabled 
               ? 'bg-white/5 text-gray-500 cursor-not-allowed shadow-none' 
-              : 'bg-neon-purple text-dark-950 hover:bg-neon-purple/80 hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]'
+              : 'bg-neon-purple text-active-day-text hover:bg-neon-purple/80 hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]'
           }`}
         >
           {isScanning ? (
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-dark-950 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-active-day-text border-t-transparent rounded-full animate-spin"></div>
               <span>Analyse en cours...</span>
             </div>
           ) : (

@@ -306,9 +306,9 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
           )}
           <button
             onClick={() => setShowAvailabilities(!showAvailabilities)}
-            className={`px-3 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 ${showAvailabilities
-                ? 'bg-green-500/30 text-green-300 border border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.3)]'
-                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10'
+            className={`px-3 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 border ${showAvailabilities
+                ? 'event-green border-solid shadow-[0_0_10px_var(--event-green-border)]'
+                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-transparent'
               }`}
           >
             <Clock size={14} />
@@ -589,7 +589,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               ev.stopPropagation();
                               onTimeSlotClick && onTimeSlotClick(dateKey, startStr, endStr);
                             }}
-                            className="absolute rounded-md border border-dashed border-green-500/40 bg-green-500/5 hover:bg-green-500/15 cursor-pointer pointer-events-auto p-1 text-center transition-all flex flex-col justify-center items-center hover:z-20 hover:border-green-400 group"
+                            className="absolute rounded-md border border-dashed cursor-pointer pointer-events-auto p-1 text-center transition-all flex flex-col justify-center items-center hover:z-20 event-green opacity-90 hover:opacity-100 group"
                             style={{
                               top: `${topOffset}px`,
                               height: `${duration}px`,
@@ -598,10 +598,10 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               zIndex: 2
                             }}
                           >
-                            <span className="text-[10px] font-bold text-green-300 flex items-center gap-1">
+                            <span className="text-[10px] font-bold flex items-center gap-1 text-current">
                               <Clock size={10} /> Dispo ({formatDuration(duration)})
                             </span>
-                            <span className="text-[9px] text-green-400/80">
+                            <span className="text-[9px] opacity-80 text-current">
                               {startStr} - {endStr}
                             </span>
                           </div>
@@ -699,7 +699,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               ev.stopPropagation();
                               onTimeSlotClick && onTimeSlotClick(dateKey, startStr, endStr);
                             }}
-                            className="absolute rounded-md border border-dashed border-green-500/40 bg-green-500/5 hover:bg-green-500/15 cursor-pointer pointer-events-auto p-1 text-center transition-all flex flex-col justify-center items-center hover:z-20 hover:border-green-400 group"
+                            className="absolute rounded-md border border-dashed cursor-pointer pointer-events-auto p-1 text-center transition-all flex flex-col justify-center items-center hover:z-20 event-green opacity-90 hover:opacity-100 group"
                             style={{
                               top: `${topOffset}px`,
                               height: `${duration}px`,
@@ -708,10 +708,10 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               zIndex: 2
                             }}
                           >
-                            <span className="text-[11px] font-bold text-green-300 flex items-center gap-1">
+                            <span className="text-[11px] font-bold flex items-center gap-1 text-current">
                               <Clock size={11} /> Disponible ({formatDuration(duration)})
                             </span>
-                            <span className="text-[10px] text-green-400/85">
+                            <span className="text-[10px] opacity-80 text-current">
                               {startStr} - {endStr}
                             </span>
                           </div>

@@ -221,10 +221,10 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
             <button
               onClick={handleSaveProfile}
               disabled={isSavingProfile}
-              className="px-5 py-2 bg-neon-purple text-dark-950 font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center gap-2 disabled:opacity-40"
+              className="px-5 py-2 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center gap-2 disabled:opacity-40"
             >
               {isSavingProfile ? (
-                <div className="w-4 h-4 border-2 border-dark-950 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-active-day-text border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <Save size={16} />
               )}
@@ -292,10 +292,10 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
             <button
               onClick={handleSaveConfig}
               disabled={isSavingConfig}
-              className="px-5 py-2 bg-neon-purple text-dark-950 font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center gap-2 disabled:opacity-40"
+              className="px-5 py-2 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center gap-2 disabled:opacity-40"
             >
               {isSavingConfig ? (
-                <div className="w-4 h-4 border-2 border-dark-950 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-active-day-text border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <Save size={16} />
               )}
@@ -408,7 +408,7 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
 
             <button
               type="submit"
-              className="w-full py-2 bg-neon-teal text-dark-950 font-bold rounded-xl text-xs hover:shadow-[0_0_15px_rgba(20,184,166,0.4)] transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-neon-teal text-active-day-text font-bold rounded-xl text-xs hover:shadow-[0_0_15px_rgba(20,184,166,0.4)] transition-all flex items-center justify-center gap-1.5"
             >
               <Plus size={14} />
               <span>Ajouter</span>

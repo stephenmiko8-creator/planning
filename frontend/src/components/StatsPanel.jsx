@@ -357,7 +357,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
             <button 
               onClick={handleGenerateReport}
               disabled={isGenerating || !startDate || !endDate}
-              className="w-full py-2.5 bg-neon-purple text-dark-950 font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-2.5 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
                 <>

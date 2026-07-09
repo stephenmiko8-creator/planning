@@ -396,7 +396,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
               setAddModalInitialValues(null);
               setIsAddModalOpen(true);
             }}
-            className="hidden md:flex px-4 py-2 bg-neon-purple text-dark-950 font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all items-center gap-2 shrink-0"
+            className="hidden md:flex px-4 py-2 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all items-center gap-2 shrink-0"
           >
             <PlusCircle size={18} />
             <span>Planifier un bloc</span>
@@ -505,13 +505,13 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
                   <div className="flex bg-white/5 rounded-xl p-0.5 border border-white/10 mr-2">
                     <button 
                       onClick={() => setResultsView('cards')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${resultsView === 'cards' ? 'bg-neon-purple text-dark-950 shadow-md' : 'text-gray-400 hover:text-white'}`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${resultsView === 'cards' ? 'bg-neon-purple text-active-day-text shadow-md' : 'text-gray-400 hover:text-white'}`}
                     >
                       Cartes
                     </button>
                     <button 
                       onClick={() => setResultsView('table')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${resultsView === 'table' ? 'bg-neon-purple text-dark-950 shadow-md' : 'text-gray-400 hover:text-white'}`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${resultsView === 'table' ? 'bg-neon-purple text-active-day-text shadow-md' : 'text-gray-400 hover:text-white'}`}
                     >
                       Tableau
                     </button>
@@ -535,7 +535,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
                   <button 
                     onClick={handlePushAllToCalendar}
                     disabled={isPushingAll}
-                    className="px-4 py-2 bg-neon-purple text-dark-950 font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <PlusCircle size={16} /> 
                     <span>{isPushingAll ? "Importation..." : "Tout importer"}</span>
@@ -683,7 +683,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           setAddModalInitialValues(null);
           setIsAddModalOpen(true);
         }}
-        className="fixed bottom-20 right-4 z-40 md:hidden p-4 bg-neon-purple text-dark-950 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
+        className="fixed bottom-20 right-4 z-40 md:hidden p-4 bg-neon-purple text-active-day-text rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
         aria-label="Planifier un bloc"
       >
         <PlusCircle size={24} />

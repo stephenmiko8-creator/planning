@@ -80,7 +80,7 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
             onClick={() => setActiveTab('login')}
             className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
               activeTab === 'login' 
-                ? 'bg-neon-purple text-dark-900 shadow-lg shadow-neon-purple/20 font-bold' 
+                ? 'bg-neon-purple text-active-day-text shadow-lg shadow-neon-purple/20 font-bold' 
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -91,7 +91,7 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
             onClick={() => setActiveTab('register')}
             className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
               activeTab === 'register' 
-                ? 'bg-neon-purple text-dark-900 shadow-lg shadow-neon-purple/20 font-bold' 
+                ? 'bg-neon-purple text-active-day-text shadow-lg shadow-neon-purple/20 font-bold' 
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -142,10 +142,10 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full py-3 bg-gradient-to-r from-neon-purple to-neon-teal text-dark-950 font-bold rounded-xl text-base hover:shadow-[0_0_25px_rgba(45,212,191,0.4)] hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+            className="mt-2 w-full py-3 bg-gradient-to-r from-neon-purple to-neon-teal text-active-day-text font-bold rounded-xl text-base hover:shadow-[0_0_25px_rgba(45,212,191,0.4)] hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
           >
             {loading ? (
-              <span className="h-5 w-5 border-2 border-dark-950 border-t-transparent rounded-full animate-spin" />
+              <span className="h-5 w-5 border-2 border-active-day-text border-t-transparent rounded-full animate-spin" />
             ) : activeTab === 'login' ? (
               <>Se connecter</>
             ) : (
