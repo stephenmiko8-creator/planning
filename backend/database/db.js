@@ -26,7 +26,7 @@ if (usePostgres) {
     converted = converted.replace(/INSERT OR IGNORE INTO categories/gi, 'INSERT INTO categories');
     
     // Add conflict resolution for user_profile insert if needed
-    if (converted.includes('user_profile') && !converted.includes('ON CONFLICT')) {
+    if (/insert\s+into/i.test(converted) && converted.includes('user_profile') && !converted.includes('ON CONFLICT')) {
       converted += ' ON CONFLICT (key) DO NOTHING';
     }
     
