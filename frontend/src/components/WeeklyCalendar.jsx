@@ -40,7 +40,7 @@ function getCourseColor(titre, type, categorie, categories = []) {
     return 'event-green';
   }
   if (t.includes('comptabilit')) return 'event-amber';
-  if (t.includes('english')) return 'event-green';
+  if (t.includes('english')) return 'event-amber';
   if (t.includes('logiciel')) return 'event-blue';
   return 'event-indigo';
 }
