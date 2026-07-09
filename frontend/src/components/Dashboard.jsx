@@ -419,7 +419,7 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="hidden md:grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="glass-panel p-3 flex items-center gap-3">
           <div className="bg-neon-purple/20 p-2 rounded-lg"><CalendarCheck className="text-neon-purple" size={20} /></div>
           <div>

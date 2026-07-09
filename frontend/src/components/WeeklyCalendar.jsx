@@ -149,20 +149,47 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
   const scrollContainerRef = useRef(null);
 
+  const tz = config?.timezone || 'Europe/Paris';
+  const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+  const weekDates = getWeekDates(weekOffset, tz);
+
+  const weekStart = formatDateKey(weekDates[0]);
+  const weekEnd = formatDateKey(weekDates[6]);
+
+  const weekEvents = useMemo(() => {
+    return events.filter(e => e.date_absolue >= weekStart && e.date_absolue <= weekEnd);
+  }, [events, weekStart, weekEnd]);
+
   useEffect(() => {
     if (scrollContainerRef.current) {
-      const startHourStr = config?.active_start_hour || '08:00';
-      const [h] = startHourStr.split(':').map(Number);
-      // scroll to 2 hours before active start to give some context, clamped at 0
-      const scrollHour = Math.max(h - 2, 0);
-      scrollContainerRef.current.scrollTop = scrollHour * 60;
+      // Find events on the selected day
+      const dateKey = formatDateKey(weekDates[selectedDayIndex]);
+      const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
+      
+      let scrollTargetMinutes = 0;
+      if (dayEvents.length > 0) {
+        // Find the earliest start time among the day's events
+        const earliestMinutes = dayEvents.reduce((earliest, e) => {
+          const mins = timeToMinutes(e.heure_debut);
+          return mins < earliest ? mins : earliest;
+        }, 24 * 60);
+        
+        // Scroll to 30 minutes before the earliest event for context
+        scrollTargetMinutes = Math.max(earliestMinutes - 30, 0);
+      } else {
+        // Fallback to active start hour
+        const startHourStr = config?.active_start_hour || '08:00';
+        const [h] = startHourStr.split(':').map(Number);
+        scrollTargetMinutes = Math.max(h - 1, 0) * 60; // 1 hour before active start hour
+      }
+      scrollContainerRef.current.scrollTop = scrollTargetMinutes;
       
       // Measure scrollbar width and set CSS variable for header alignment
       const el = scrollContainerRef.current;
       const scrollbarWidth = el.offsetWidth - el.clientWidth;
       el.parentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
     }
-  }, [viewMode, selectedDayIndex, weekOffset, config]);
+  }, [viewMode, selectedDayIndex, weekOffset, config, weekEvents, weekDates]);
 
   const [showAvailabilities, setShowAvailabilities] = useState(false);
 
@@ -214,16 +241,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
     return slots;
   };
 
-  const tz = config?.timezone || 'Europe/Paris';
-  const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: tz });
-  const weekDates = getWeekDates(weekOffset, tz);
-
-  const weekStart = formatDateKey(weekDates[0]);
-  const weekEnd = formatDateKey(weekDates[6]);
-
-  const weekEvents = useMemo(() => {
-    return events.filter(e => e.date_absolue >= weekStart && e.date_absolue <= weekEnd);
-  }, [events, weekStart, weekEnd]);
+  // Calendar variables already declared above for useEffect use
 
   const conflictSet = useMemo(() => {
     const set = new Set();
