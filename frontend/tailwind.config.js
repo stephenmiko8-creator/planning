@@ -21,6 +21,7 @@ export default {
           400: 'var(--text-400)',
         },
         white: 'var(--text-white-custom)',
+        'active-day-text': 'var(--active-day-text)',
       },
     },
   },

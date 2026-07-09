@@ -170,7 +170,9 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
   }, [events, weekStart, weekEnd]);
 
   useEffect(() => {
-    if (scrollContainerRef.current) {
+    const handleScroll = () => {
+      if (!scrollContainerRef.current) return;
+      
       // Find events on the selected day
       const dateKey = formatDateKey(weekDates[selectedDayIndex]);
       const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
@@ -191,13 +193,21 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         const [h] = startHourStr.split(':').map(Number);
         scrollTargetMinutes = Math.max(h - 1, 0) * 60; // 1 hour before active start hour
       }
+      
       scrollContainerRef.current.scrollTop = scrollTargetMinutes;
       
       // Measure scrollbar width and set CSS variable for header alignment
       const el = scrollContainerRef.current;
-      const scrollbarWidth = el.offsetWidth - el.clientWidth;
-      el.parentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
-    }
+      if (el && el.parentElement) {
+        const scrollbarWidth = el.offsetWidth - el.clientWidth;
+        el.parentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+      }
+    };
+
+    // Run immediately and also in a short timeout to guarantee it applies after rendering
+    handleScroll();
+    const timer = setTimeout(handleScroll, 100);
+    return () => clearTimeout(timer);
   }, [viewMode, selectedDayIndex, weekOffset, config, weekEvents, weekDates]);
 
   const [showAvailabilities, setShowAvailabilities] = useState(false);
@@ -370,15 +380,17 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                 setSelectedDayIndex(i);
                 setViewMode('day');
               }}
-              className="flex-1 py-1.5 px-0.5 flex flex-col items-center justify-center transition-all"
+              className={`flex-1 py-1.5 px-0.5 flex flex-col items-center justify-center transition-all rounded-lg ${
+                isSelected ? 'text-neon-purple' : 'text-gray-400 hover:text-white'
+              }`}
             >
-              <span className="text-[10px] uppercase opacity-70 mb-1">{DAYS_FR[i]}</span>
+              <span className="text-[10px] uppercase font-semibold mb-1">{DAYS_FR[i]}</span>
               <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                 isSelected 
-                  ? 'bg-neon-purple text-dark-950 shadow-md font-black ring-2 ring-neon-purple/30' 
+                  ? 'bg-neon-purple text-active-day-text shadow-md font-black ring-2 ring-neon-purple/30' 
                   : isToday
                   ? 'border border-neon-purple/50 text-neon-purple font-bold'
-                  : 'text-gray-400 hover:text-white'
+                  : ''
               }`}>
                 {date.getDate()}
               </span>
