@@ -402,7 +402,7 @@ const Dashboard = () => {
             <span>Planifier un bloc</span>
           </button>
           
-          {(!user || user.subscription_plan === 'premium') && (
+          {(user && user.subscription_plan === 'premium') && (
             <button 
               onClick={handleGoogleConnect}
               className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xl transition-all font-bold text-xs shrink-0 ${
