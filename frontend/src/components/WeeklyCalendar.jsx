@@ -402,7 +402,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
       {/* Calendar Grid */}
       <div className="glass-panel rounded-2xl overflow-hidden flex flex-col">
         <div 
-          className="grid border-b border-white/30" 
+          className={`grid border-b border-white/30 ${viewMode === 'day' ? 'hidden md:grid' : ''}`} 
           style={{ 
             gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr',
             paddingRight: 'var(--scrollbar-width, 0px)' 
