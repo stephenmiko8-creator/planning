@@ -402,7 +402,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
       {/* Calendar Grid */}
       <div className="glass-panel rounded-2xl overflow-hidden flex flex-col">
         <div 
-          className="grid border-b border-white/10" 
+          className="grid border-b border-white/30" 
           style={{ 
             gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr',
             paddingRight: 'var(--scrollbar-width, 0px)' 
@@ -410,7 +410,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         >
           {/* Hour column header — hidden scroll-to-events button */}
           <div 
-            className="p-2 text-center text-xs text-gray-500 border-r border-white/5 cursor-pointer relative group"
+            className="p-2 text-center text-xs text-gray-500 border-r border-white/20 cursor-pointer relative group"
             onClick={() => {
               if (!scrollContainerRef.current) return;
               setIsRefreshing(true);
@@ -451,7 +451,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                     setSelectedDayIndex(i);
                     setViewMode('day');
                   }}
-                  className={`p-3 text-center border-r border-white/5 cursor-pointer hover:bg-white/5 transition-all ${isToday ? 'bg-neon-purple/20' : ''} ${isWeekend ? 'bg-white/3 opacity-40' : ''}`}
+                  className={`p-3 text-center border-r border-white/20 cursor-pointer hover:bg-white/5 transition-all ${isToday ? 'bg-neon-purple/20' : ''} ${isWeekend ? 'bg-white/3 opacity-40' : ''}`}
                 >
                   <div className="text-xs text-gray-400">{DAYS_FR[i]}</div>
                   <div className={`text-lg font-bold ${isToday ? 'text-neon-purple' : isWeekend ? 'text-gray-600' : 'text-white'}`}>
@@ -465,7 +465,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               const date = weekDates[selectedDayIndex];
               const isToday = formatDateKey(date) === todayKey;
               return (
-                <div className={`p-3 text-center border-r border-white/5 ${isToday ? 'bg-neon-purple/20' : ''}`}>
+                <div className={`p-3 text-center border-r border-white/20 ${isToday ? 'bg-neon-purple/20' : ''}`}>
                   <div className="text-xs text-gray-400">{DAYS_FR[selectedDayIndex]}</div>
                   <div className={`text-lg font-bold ${isToday ? 'text-neon-purple' : 'text-white'}`}>
                     {date.getDate()}
@@ -499,13 +499,13 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               return (
                 <div 
                   key={hi} 
-                  className={`grid border-b border-white/15 ${period.bg}`} 
+                  className={`grid border-b border-white/30 ${period.bg}`} 
                   style={{ 
                     height: '60px',
                     gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr'
                   }}
                 >
-                  <div className={`p-1 text-right text-xs border-r border-white/15 pr-2 pt-0 border-l-2 ${period.border} flex flex-col items-end justify-start`}>
+                  <div className={`p-1 text-right text-xs border-r border-white/25 pr-2 pt-0 border-l-2 ${period.border} flex flex-col items-end justify-start`}>
                     <span className={`${period.color} font-semibold`}>{hour}:00</span>
                     {isBoundary && (
                       <span className={`${period.color} text-[9px] opacity-70 mt-0.5`}>
@@ -527,7 +527,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                             const endHour = (hour + 1).toString().padStart(2, '0') + ':00';
                             onTimeSlotClick && onTimeSlotClick(dateKey, startHour, endHour);
                           }}
-                          className={`border-r border-white/15 cursor-pointer hover:bg-white/5 transition-colors bg-dark-900 ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
+                          className={`border-r border-white/20 cursor-pointer hover:bg-white/5 transition-colors bg-dark-900 ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
                             }`}
                         />
                       );
@@ -545,7 +545,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                             const endHour = (hour + 1).toString().padStart(2, '0') + ':00';
                             onTimeSlotClick && onTimeSlotClick(dateKey, startHour, endHour);
                           }}
-                          className={`border-r border-white/15 cursor-pointer hover:bg-white/5 transition-colors bg-dark-900 ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
+                          className={`border-r border-white/20 cursor-pointer hover:bg-white/5 transition-colors bg-dark-900 ${isToday ? 'relative after:absolute after:inset-0 after:bg-neon-purple/20' : ''
                             }`}
                         />
                       );
@@ -563,7 +563,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               }}
             >
               {/* Hour labels spacer column */}
-              <div className="border-r border-white/15" />
+              <div className="border-r border-white/20" />
 
               {/* columns for events */}
               {viewMode === 'week' ? (
