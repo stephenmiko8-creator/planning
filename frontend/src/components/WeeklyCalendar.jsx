@@ -489,7 +489,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               const h = parseInt(hour);
               const getPeriod = (h) => {
                 if (h >= 0 && h < 6) return { label: 'Nuit', color: 'text-indigo-400', border: 'border-l-indigo-500/60', bg: 'bg-indigo-500/5', icon: '🌙' };
-                if (h >= 6 && h < 12) return { label: 'Matin', color: 'text-amber-400', border: 'border-l-amber-500/60', bg: 'bg-amber-500/5', icon: '☀️' };
+                if (h >= 6 && h < 12) return { label: 'Matin', color: 'text-yellow-400', border: 'border-l-yellow-500/60', bg: 'bg-yellow-500/5', icon: '☀️' };
                 if (h >= 12 && h < 18) return { label: 'Après-midi', color: 'text-orange-400', border: 'border-l-orange-500/60', bg: 'bg-orange-500/5', icon: '🌤️' };
                 return { label: 'Soirée', color: 'text-purple-400', border: 'border-l-purple-500/60', bg: 'bg-purple-500/5', icon: '🌆' };
               };
