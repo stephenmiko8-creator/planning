@@ -369,7 +369,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
       )}
 
       {/* Mobile Day Selector Bar */}
-      <div className="flex md:hidden justify-between bg-dark-900/60 p-2 rounded-xl border border-white/5 gap-1 mb-2">
+      <div className={`flex md:hidden justify-between bg-dark-900/60 p-2 rounded-xl border border-white/5 gap-1 mb-2 ${viewMode === 'week' ? 'hidden' : ''}`}>
         {weekDates.map((date, i) => {
           const isSelected = selectedDayIndex === i && viewMode === 'day';
           const isToday = formatDateKey(date) === todayKey;
