@@ -169,46 +169,44 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
     return events.filter(e => e.date_absolue >= weekStart && e.date_absolue <= weekEnd);
   }, [events, weekStart, weekEnd]);
 
+  // Scroll to active hours on initial mount and when switching weeks
   useEffect(() => {
     const handleScroll = () => {
       if (!scrollContainerRef.current) return;
       
-      // Find events on the selected day
-      const dateKey = formatDateKey(weekDates[selectedDayIndex]);
-      const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
+      // Find the earliest event time in the current week
+      const earliestMinutes = weekEvents.reduce((earliest, e) => {
+        const mins = timeToMinutes(e.heure_debut);
+        return mins < earliest ? mins : earliest;
+      }, 24 * 60);
       
       let scrollTargetMinutes = 0;
-      if (dayEvents.length > 0) {
-        // Find the earliest start time among the day's events
-        const earliestMinutes = dayEvents.reduce((earliest, e) => {
-          const mins = timeToMinutes(e.heure_debut);
-          return mins < earliest ? mins : earliest;
-        }, 24 * 60);
-        
-        // Scroll to 30 minutes before the earliest event for context
-        scrollTargetMinutes = Math.max(earliestMinutes - 30, 0);
+      if (earliestMinutes < 24 * 60) {
+        // Scroll to 1 hour before the first event of the week
+        scrollTargetMinutes = Math.max(earliestMinutes - 60, 0);
       } else {
-        // Fallback to active start hour
+        // No events — scroll to 1 hour before active start hour
         const startHourStr = config?.active_start_hour || '08:00';
         const [h] = startHourStr.split(':').map(Number);
-        scrollTargetMinutes = Math.max(h - 1, 0) * 60; // 1 hour before active start hour
+        scrollTargetMinutes = Math.max(h - 1, 0) * 60;
       }
       
       scrollContainerRef.current.scrollTop = scrollTargetMinutes;
-      
-      // Measure scrollbar width and set CSS variable for header alignment
-      const el = scrollContainerRef.current;
-      if (el && el.parentElement) {
-        const scrollbarWidth = el.offsetWidth - el.clientWidth;
-        el.parentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
-      }
     };
 
-    // Run immediately and also in a short timeout to guarantee it applies after rendering
     handleScroll();
     const timer = setTimeout(handleScroll, 100);
     return () => clearTimeout(timer);
-  }, [viewMode, selectedDayIndex, weekOffset, config, weekEvents, weekDates]);
+  }, [weekOffset, config]);
+
+  // Adjust scrollbar width CSS variable for header alignment
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (el && el.parentElement) {
+      const scrollbarWidth = el.offsetWidth - el.clientWidth;
+      el.parentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+    }
+  }, [viewMode]);
 
   const [showAvailabilities, setShowAvailabilities] = useState(false);
 
@@ -664,7 +662,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                             {onDeleteEvent && (
                               <button
                                 onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.id); }}
-                                className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 bg-red-600 rounded p-0.5 transition-opacity"
+                                className="absolute top-0.5 right-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-red-600 rounded p-0.5 transition-opacity"
                               >
                                 <Trash2 size={10} />
                               </button>
@@ -770,7 +768,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                             {onDeleteEvent && (
                               <button
                                 onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.id); }}
-                                className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 bg-red-600 rounded p-0.5 transition-opacity"
+                                className="absolute top-0.5 right-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-red-600 rounded p-0.5 transition-opacity"
                               >
                                 <Trash2 size={10} />
                               </button>
