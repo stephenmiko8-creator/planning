@@ -116,7 +116,7 @@ const ScannerInput = ({ onScan }) => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Collez ici le texte de votre emploi du temps, ou directement le lien iCal/Pronote (.ics)..."
-            className="w-full h-40 bg-dark-900/50 border border-white/10 rounded-xl p-4 text-gray-200 focus:outline-none focus:border-neon-purple/50 resize-none font-sans"
+            className="w-full h-40 bg-dark-900 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-neon-purple/50 resize-none font-sans"
           ></textarea>
         )}
         
@@ -165,7 +165,7 @@ const ScannerInput = ({ onScan }) => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="https://example.com/planning"
-            className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-4 text-gray-200 focus:outline-none focus:border-neon-blue/50"
+            className="w-full bg-dark-900 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-neon-blue/50"
           />
         )}
 

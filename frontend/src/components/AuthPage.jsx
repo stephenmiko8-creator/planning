@@ -111,7 +111,7 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
                 placeholder="nom@exemple.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-dark-900/60 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-neon-purple transition-all focus:ring-1 focus:ring-neon-purple/30"
+                className="w-full bg-dark-900 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-neon-purple transition-all focus:ring-1 focus:ring-neon-purple/30"
                 required
               />
             </div>
@@ -126,7 +126,7 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-dark-900/60 border border-white/10 rounded-xl py-3 pl-11 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-neon-purple transition-all focus:ring-1 focus:ring-neon-purple/30"
+                className="w-full bg-dark-900 border border-white/10 rounded-xl py-3 pl-11 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-neon-purple transition-all focus:ring-1 focus:ring-neon-purple/30"
                 required
               />
               <button

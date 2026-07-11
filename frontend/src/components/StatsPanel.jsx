@@ -332,7 +332,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
                   type="date" 
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-neon-purple/50"
+                  className="w-full bg-dark-900 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-neon-purple/50"
                 />
               </div>
               <div className="flex-1 min-w-[150px]">
@@ -343,7 +343,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
                   type="date" 
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-neon-purple/50"
+                  className="w-full bg-dark-900 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-neon-purple/50"
                 />
               </div>
             </div>

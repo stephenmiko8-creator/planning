@@ -203,7 +203,7 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
             value={profile}
             onChange={(e) => setProfile(e.target.value)}
             placeholder="Exemple: Je suis étudiant en Master de Finance et je travaille également comme caissier chez Sephora et McDonald's les weekends. Je souhaite équilibrer mes heures de cours avec mes shifts tout en gardant du temps pour mon apprentissage du code."
-            className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-purple/50 min-h-[160px] resize-y custom-scrollbar mb-4"
+            className="w-full bg-dark-900 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-purple/50 min-h-[160px] resize-y custom-scrollbar mb-4"
           />
 
           <div className="flex items-center justify-between">
@@ -250,7 +250,7 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
               <select
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
-                className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-purple/50"
+                className="w-full bg-dark-900 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-purple/50"
               >
                 <option value="Europe/Paris">Europe/Paris</option>
                 <option value="America/New_York">America/New_York</option>
@@ -266,7 +266,7 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
                 type="time"
                 value={activeStartHour}
                 onChange={(e) => setActiveStartHour(e.target.value)}
-                className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-purple/50"
+                className="w-full bg-dark-900 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-purple/50"
               />
             </div>
             <div>
@@ -277,7 +277,7 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
                 type="time"
                 value={activeEndHour}
                 onChange={(e) => setActiveEndHour(e.target.value)}
-                className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-purple/50"
+                className="w-full bg-dark-900 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-purple/50"
               />
             </div>
           </div>
@@ -376,7 +376,7 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               placeholder="Nom (ex: Sport, Projet X)"
-              className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-teal/50"
+              className="w-full bg-dark-900 border border-white/10 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-teal/50"
               maxLength={25}
             />
 

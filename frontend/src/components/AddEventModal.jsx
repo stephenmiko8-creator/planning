@@ -101,7 +101,7 @@ const AddEventModal = ({ onClose, onSave, categories = [], initialValues }) => {
               value={titre}
               onChange={(e) => setTitre(e.target.value)}
               placeholder="Ex: Shift Orgemont, Séance Sport, Lecture..."
-              className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-neon-purple/50 focus:shadow-[0_0_10px_rgba(168,85,247,0.15)]"
+              className="w-full bg-dark-900 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-neon-purple/50 focus:shadow-[0_0_10px_rgba(168,85,247,0.15)]"
               required
             />
           </div>
@@ -195,7 +195,7 @@ const AddEventModal = ({ onClose, onSave, categories = [], initialValues }) => {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Informations additionnelles, employeur, détails du projet..."
               rows="3"
-              className="w-full bg-dark-900/50 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-neon-purple/50"
+              className="w-full bg-dark-900 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-neon-purple/50"
             />
           </div>
 
