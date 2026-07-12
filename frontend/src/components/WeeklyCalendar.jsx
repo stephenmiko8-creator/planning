@@ -687,12 +687,18 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               animationDelay: animDelay
                             }}
                             onClick={() => onSelectEvent && onSelectEvent(e.isSpill ? e.originalEvent : e)}
-                            title={`${e.titre}\n${e.heure_debut} - ${e.heure_fin}`}
+                            title={`${e.titre}\n${e.heure_debut} - ${e.heure_fin}${e.notes ? `\nNote: ${e.notes}` : ''}`}
                           >
-                            <div className="font-bold truncate" style={{ fontSize: '10px' }}>
-                              {e.isSpill ? `🌙 ${e.titre}` : e.titre}
+                            <div className="font-bold truncate flex items-center gap-1" style={{ fontSize: '10px' }}>
+                              <span className="truncate">{e.isSpill ? `🌙 ${e.titre}` : e.titre}</span>
+                              {e.notes && <span className="text-[8px] flex-shrink-0 animate-pulse" title={e.notes}>📝</span>}
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
+                            {duration >= 50 && e.notes && (
+                              <div className="text-[9px] text-yellow-200/90 italic truncate mt-0.5 border-t border-white/10 pt-0.5" title={e.notes}>
+                                {e.notes}
+                              </div>
+                            )}
                             {onDeleteEvent && (
                               <button
                                 onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.isSpill ? e.originalEvent.id : e.id); }}
@@ -795,12 +801,18 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               zIndex: isConflict ? 10 : 1
                             }}
                             onClick={() => onSelectEvent && onSelectEvent(e.isSpill ? e.originalEvent : e)}
-                            title={`${e.titre}\n${e.heure_debut} - ${e.heure_fin}`}
+                            title={`${e.titre}\n${e.heure_debut} - ${e.heure_fin}${e.notes ? `\nNote: ${e.notes}` : ''}`}
                           >
-                            <div className="font-bold truncate" style={{ fontSize: '10px' }}>
-                              {e.isSpill ? `🌙 ${e.titre}` : e.titre}
+                            <div className="font-bold truncate flex items-center gap-1" style={{ fontSize: '10px' }}>
+                              <span className="truncate">{e.isSpill ? `🌙 ${e.titre}` : e.titre}</span>
+                              {e.notes && <span className="text-[8px] flex-shrink-0 animate-pulse" title={e.notes}>📝</span>}
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
+                            {duration >= 50 && e.notes && (
+                              <div className="text-[9px] text-yellow-200/90 italic truncate mt-0.5 border-t border-white/10 pt-0.5" title={e.notes}>
+                                {e.notes}
+                              </div>
+                            )}
                             {onDeleteEvent && (
                               <button
                                 onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.isSpill ? e.originalEvent.id : e.id); }}
