@@ -642,7 +642,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         const startMin = timeToMinutes(e.heure_debut);
                         const endMin = timeToMinutes(e.heure_fin);
                         const topOffset = startMin;
-                        const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin + endMin), 30);
+                        const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin), 30);
                         const widthPercent = 100 / e.totalCols;
                         const leftPercent = e.colIdx * widthPercent;
                         const animDelay = `${(di * 0.12) + (ei * 0.04)}s`;
@@ -667,7 +667,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         const startMin = timeToMinutes(e.heure_debut);
                         const endMin = timeToMinutes(e.heure_fin);
                         const topOffset = startMin;
-                        const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin + endMin), 30);
+                        const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin), 30);
                         const isConflict = conflictSet.has(e.isSpill ? e.originalEvent.id : e.id);
 
                         const widthPercent = 100 / e.totalCols;
@@ -754,7 +754,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         const startMin = timeToMinutes(e.heure_debut);
                         const endMin = timeToMinutes(e.heure_fin);
                         const topOffset = startMin;
-                        const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin + endMin), 30);
+                        const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin), 30);
                         const widthPercent = 100 / e.totalCols;
                         const leftPercent = e.colIdx * widthPercent;
 
@@ -777,7 +777,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         const startMin = timeToMinutes(e.heure_debut);
                         const endMin = timeToMinutes(e.heure_fin);
                         const topOffset = startMin;
-                        const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin + endMin), 30);
+                        const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin), 30);
                         const isConflict = conflictSet.has(e.isSpill ? e.originalEvent.id : e.id);
 
                         const widthPercent = 100 / e.totalCols;
