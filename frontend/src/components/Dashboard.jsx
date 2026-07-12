@@ -456,36 +456,38 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       </div>
 
       {/* Quick Stats Bar */}
-      <div className="hidden md:grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="glass-panel p-3 flex items-center gap-3">
-          <div className="bg-neon-purple/20 p-2 rounded-lg"><CalendarCheck className="text-neon-purple" size={20} /></div>
-          <div>
-            <p className="text-xs text-gray-400">Evenements</p>
-            <p className="text-xl font-black">{savedEvents.length}</p>
+      {activeView !== 'stats' && (
+        <div className="hidden md:grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="glass-panel p-3 flex items-center gap-3">
+            <div className="bg-neon-purple/20 p-2 rounded-lg"><CalendarCheck className="text-neon-purple" size={20} /></div>
+            <div>
+              <p className="text-xs text-gray-400">Evenements</p>
+              <p className="text-xl font-black">{savedEvents.length}</p>
+            </div>
+          </div>
+          <div className="glass-panel p-3 flex items-center gap-3">
+            <div className="bg-red-500/20 p-2 rounded-lg"><ShieldAlert className="text-red-400" size={20} /></div>
+            <div>
+              <p className="text-xs text-gray-400">Conflits</p>
+              <p className="text-xl font-black text-red-400">{conflicts.length}</p>
+            </div>
+          </div>
+          <div className="glass-panel p-3 flex items-center gap-3">
+            <div className="bg-neon-teal/20 p-2 rounded-lg"><Activity className="text-neon-teal" size={20} /></div>
+            <div>
+              <p className="text-xs text-gray-400">Jours couverts</p>
+              <p className="text-xl font-black">{new Set(savedEvents.map(e => e.date_absolue)).size}</p>
+            </div>
+          </div>
+          <div className="glass-panel p-3 flex items-center gap-3">
+            <div className="bg-white/10 p-2 rounded-lg"><Coffee className="text-gray-300" size={20} /></div>
+            <div>
+              <p className="text-xs text-gray-400">Activités</p>
+              <p className="text-xl font-black">{new Set(savedEvents.map(e => normalizeActivityTitle(e.titre))).size}</p>
+            </div>
           </div>
         </div>
-        <div className="glass-panel p-3 flex items-center gap-3">
-          <div className="bg-red-500/20 p-2 rounded-lg"><ShieldAlert className="text-red-400" size={20} /></div>
-          <div>
-            <p className="text-xs text-gray-400">Conflits</p>
-            <p className="text-xl font-black text-red-400">{conflicts.length}</p>
-          </div>
-        </div>
-        <div className="glass-panel p-3 flex items-center gap-3">
-          <div className="bg-neon-teal/20 p-2 rounded-lg"><Activity className="text-neon-teal" size={20} /></div>
-          <div>
-            <p className="text-xs text-gray-400">Jours couverts</p>
-            <p className="text-xl font-black">{new Set(savedEvents.map(e => e.date_absolue)).size}</p>
-          </div>
-        </div>
-        <div className="glass-panel p-3 flex items-center gap-3">
-          <div className="bg-white/10 p-2 rounded-lg"><Coffee className="text-gray-300" size={20} /></div>
-          <div>
-            <p className="text-xs text-gray-400">Activités</p>
-            <p className="text-xl font-black">{new Set(savedEvents.map(e => normalizeActivityTitle(e.titre))).size}</p>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* View Tabs - Desktop Only */}
       <div className="hidden md:flex gap-2">
