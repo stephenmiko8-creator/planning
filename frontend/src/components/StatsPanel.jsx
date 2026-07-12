@@ -317,27 +317,39 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Stat Cards Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="glass-panel p-4 text-center">
-          <Clock className="mx-auto text-neon-purple mb-2" size={28} />
-          <p className="text-3xl font-black text-white">{stats.totalHours}h</p>
-          <p className="text-xs text-gray-400">Total planifié</p>
-        </div>
-        <div className="glass-panel p-4 text-center">
-          <BookOpen className="mx-auto text-neon-teal mb-2" size={28} />
-          <p className="text-3xl font-black text-white">{events.length}</p>
-          <p className="text-xs text-gray-400">Sessions totales</p>
-        </div>
-        <div className="glass-panel p-4 text-center">
-          <AlertTriangle className="mx-auto text-red-400 mb-2" size={28} />
-          <p className="text-3xl font-black text-red-400">{conflicts.length}</p>
-          <p className="text-xs text-gray-400">Conflits d'agenda</p>
-        </div>
-        <div className="glass-panel p-4 text-center">
-          <TrendingUp className="mx-auto text-green-400 mb-2" size={28} />
-          <p className="text-3xl font-black text-white">{stats.avgPerDay}</p>
-          <p className="text-xs text-gray-400">Activités/jour (moy.)</p>
+      {/* Compact KPI Summary Bar */}
+      <div className="glass-panel p-4 rounded-2xl">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+          <div className="flex items-center gap-2">
+            <Clock size={16} className="text-neon-purple" />
+            <span className="text-sm text-gray-400">Total planifié</span>
+            <span className="text-lg font-black text-white">{stats.totalHours}h</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <BookOpen size={16} className="text-neon-teal" />
+            <span className="text-sm text-gray-400">Sessions</span>
+            <span className="text-lg font-black text-white">{events.length}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={16} className={conflicts.length > 0 ? 'text-red-400' : 'text-green-400'} />
+            <span className="text-sm text-gray-400">Conflits</span>
+            <span className={`text-lg font-black ${conflicts.length > 0 ? 'text-red-400' : 'text-green-400'}`}>{conflicts.length}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar size={16} className="text-blue-400" />
+            <span className="text-sm text-gray-400">Jours</span>
+            <span className="text-lg font-black text-white">{new Set(events.map(e => e.date_absolue)).size}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Activity size={16} className="text-amber-400" />
+            <span className="text-sm text-gray-400">Activités</span>
+            <span className="text-lg font-black text-white">{new Set(events.map(e => e.titre)).size}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <TrendingUp size={16} className="text-green-400" />
+            <span className="text-sm text-gray-400">Moy./jour</span>
+            <span className="text-lg font-black text-white">{stats.avgPerDay}</span>
+          </div>
         </div>
       </div>
 
