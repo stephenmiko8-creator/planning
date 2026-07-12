@@ -231,3 +231,37 @@
   border-color: var(--event-indigo-border) !important;
   color: var(--event-indigo-text) !important;
 }
+
+/* Sticky Calendar Navigation & Day Headers */
+.sticky-calendar-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background-color: var(--bg-color-from);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+@media (min-width: 768px) {
+  .sticky-calendar-header {
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+.sticky-calendar-days {
+  position: sticky;
+  top: 57px;
+  z-index: 30;
+  background-color: var(--bg-color-from);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}

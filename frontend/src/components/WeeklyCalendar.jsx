@@ -345,7 +345,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
   return (
     <div className="flex flex-col gap-4">
       {/* Header navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between sticky-calendar-header">
         <div className="flex gap-2">
           <button
             onClick={() => {
@@ -480,7 +480,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
       {/* Calendar Grid */}
       <div className="glass-panel rounded-2xl overflow-hidden flex flex-col">
         <div 
-          className={`grid border-b border-white/30 ${viewMode === 'day' ? 'hidden md:grid' : ''}`} 
+          className={`grid border-b border-white/30 sticky-calendar-days ${viewMode === 'day' ? 'hidden md:grid' : ''}`} 
           style={{ 
             gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr',
             paddingRight: 'var(--scrollbar-width, 0px)' 
