@@ -121,7 +121,7 @@ const EventModal = ({ event, onClose, onDelete, onAddToCalendar, onUpdate, categ
       
       {/* Modal */}
       <div 
-        className="relative w-full max-w-lg glass-panel rounded-2xl overflow-hidden border border-white/10 animate-in"
+        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto glass-panel rounded-2xl border border-white/10 animate-in custom-scrollbar"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: 'modalIn 0.25s ease-out' }}
       >
