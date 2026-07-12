@@ -12,6 +12,18 @@ import { CalendarCheck, ShieldAlert, CheckCircle2, Clock, LogIn, Activity, Coffe
 import { API_BASE_URL } from '../config';
 import { useToast } from './Toast';
 
+const normalizeActivityTitle = (title) => {
+  if (!title) return 'Sans titre';
+  const t = title.toLowerCase();
+  if (t.includes('macdonald') || t.includes('macdo') || t.includes('mcdonald')) {
+    return "McDonald's";
+  }
+  if (t.includes('sephora')) {
+    return 'Sephora';
+  }
+  return title;
+};
+
 const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const { addToast } = useToast();
   const [events, setEvents] = useState([]);
@@ -467,7 +479,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           <div className="bg-white/10 p-2 rounded-lg"><Coffee className="text-gray-300" size={20} /></div>
           <div>
             <p className="text-xs text-gray-400">Activités</p>
-            <p className="text-xl font-black">{new Set(savedEvents.map(e => e.titre)).size}</p>
+            <p className="text-xl font-black">{new Set(savedEvents.map(e => normalizeActivityTitle(e.titre))).size}</p>
           </div>
         </div>
       </div>

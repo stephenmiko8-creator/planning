@@ -81,6 +81,18 @@ function isEventRealized(e) {
   return eventEnd <= now;
 }
 
+function normalizeActivityTitle(title) {
+  if (!title) return 'Sans titre';
+  const t = title.toLowerCase();
+  if (t.includes('macdonald') || t.includes('macdo') || t.includes('mcdonald')) {
+    return "McDonald's";
+  }
+  if (t.includes('sephora')) {
+    return 'Sephora';
+  }
+  return title;
+}
+
 const StatsPanel = ({ events, conflicts, categories = [], token }) => {
   // Report states
   const [startDate, setStartDate] = useState('');
@@ -115,7 +127,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
       if (!categoryActivities[cat]) {
         categoryActivities[cat] = {};
       }
-      const title = e.titre || 'Sans titre';
+      const title = normalizeActivityTitle(e.titre);
       if (!categoryActivities[cat][title]) {
         categoryActivities[cat][title] = { minutes: 0, count: 0 };
       }
@@ -125,7 +137,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
       // Map courses if categorized as Formation or matches study course name
       if (cat === 'Formation' || matchCourse(e.titre) !== 'default') {
         const course = matchCourse(e.titre);
-        const courseLabel = course === 'default' ? e.titre : course;
+        const courseLabel = course === 'default' ? normalizeActivityTitle(e.titre) : course;
         courseMap[courseLabel] = (courseMap[courseLabel] || 0) + 1;
       }
 
@@ -151,7 +163,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
     const dataMap = {};
     
     events.forEach(e => {
-      const title = e.titre || 'Sans titre';
+      const title = normalizeActivityTitle(e.titre);
       const cat = getEventCategory(e, categories);
       
       const start = e.heure_debut ? e.heure_debut.split(':').map(Number) : [0, 0];
