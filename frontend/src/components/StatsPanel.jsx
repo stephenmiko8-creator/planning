@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { BarChart3, Clock, BookOpen, AlertTriangle, TrendingUp, Calendar, FileText, Sparkles, Copy, Check, PieChart } from 'lucide-react';
+import { BarChart3, Clock, BookOpen, AlertTriangle, TrendingUp, Calendar, FileText, Sparkles, Copy, Check, PieChart, Activity } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const getCategoryColor = (catName, categories = []) => {
@@ -57,6 +57,30 @@ function getEventCategory(e, categories = []) {
   return 'Autre';
 }
 
+function isEventRealized(e) {
+  if (e.status === 'done') return true;
+  if (e.status === 'canceled') return false;
+  
+  const now = new Date();
+  const dateStr = e.date_absolue; // 'YYYY-MM-DD'
+  if (!dateStr) return false;
+  
+  const endTimeStr = e.heure_fin || '00:00';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const [h, min] = endTimeStr.split(':').map(Number);
+  
+  const startMin = e.heure_debut ? e.heure_debut.split(':').map(Number) : [0, 0];
+  const startMinutes = startMin[0] * 60 + startMin[1];
+  const endMinutes = h * 60 + min;
+  
+  let eventEnd = new Date(y, m - 1, d, h, min);
+  if (endMinutes < startMinutes) {
+    // Spans past midnight, so it ends on the following day
+    eventEnd.setDate(eventEnd.getDate() + 1);
+  }
+  return eventEnd <= now;
+}
+
 const StatsPanel = ({ events, conflicts, categories = [], token }) => {
   // Report states
   const [startDate, setStartDate] = useState('');
@@ -65,6 +89,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState('');
+  const [tableFilter, setTableFilter] = useState('realized'); // 'realized', 'pending', 'all'
 
   const stats = useMemo(() => {
     let totalMinutes = 0;
@@ -120,6 +145,48 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
       : 0;
 
     return { totalHours, categoryHours, categoryActivities, courseMap, busiestDay, avgPerDay, totalDays: Object.keys(dayMap).length };
+  }, [events, categories]);
+
+  const tableData = useMemo(() => {
+    const dataMap = {};
+    
+    events.forEach(e => {
+      const title = e.titre || 'Sans titre';
+      const cat = getEventCategory(e, categories);
+      
+      const start = e.heure_debut ? e.heure_debut.split(':').map(Number) : [0, 0];
+      const end = e.heure_fin ? e.heure_fin.split(':').map(Number) : [0, 0];
+      let dur = (end[0] * 60 + end[1]) - (start[0] * 60 + start[1]);
+      if (dur < 0) dur += 24 * 60; // Gérer les horaires de nuit
+      
+      const realized = isEventRealized(e);
+      
+      if (!dataMap[title]) {
+        dataMap[title] = {
+          title,
+          category: cat,
+          totalMinutes: 0,
+          totalCount: 0,
+          realizedMinutes: 0,
+          realizedCount: 0,
+          pendingMinutes: 0,
+          pendingCount: 0
+        };
+      }
+      
+      dataMap[title].totalMinutes += dur;
+      dataMap[title].totalCount += 1;
+      
+      if (realized) {
+        dataMap[title].realizedMinutes += dur;
+        dataMap[title].realizedCount += 1;
+      } else {
+        dataMap[title].pendingMinutes += dur;
+        dataMap[title].pendingCount += 1;
+      }
+    });
+    
+    return Object.values(dataMap);
   }, [events, categories]);
 
   const maxCategoryHours = Math.max(...Object.values(stats.categoryHours), 1);
@@ -383,8 +450,152 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
           )}
         </div>
 
-        {/* Right column - Period Report Generator */}
+        {/* Right column - Tracking Table & Period Report Generator */}
         <div className="lg:col-span-2 flex flex-col gap-6">
+          {/* Real-time Tracking Table */}
+          <div className="glass-panel p-5">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+              <div>
+                <h4 className="text-white font-bold flex items-center gap-2">
+                  <Activity size={18} className="text-neon-teal animate-pulse" /> Suivi des heures & activités en temps réel
+                </h4>
+                <p className="text-xs text-gray-400">Suivi instantané des heures planifiées, travaillées et restantes.</p>
+              </div>
+              
+              {/* Filter Tabs */}
+              <div className="flex bg-white/5 p-1 rounded-xl border border-white/5 self-end sm:self-auto">
+                {[
+                  { id: 'realized', label: 'Réalisées' },
+                  { id: 'pending', label: 'À venir' },
+                  { id: 'all', label: 'Toutes' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setTableFilter(tab.id)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      tableFilter === tab.id 
+                        ? 'bg-neon-teal text-dark-950 shadow-[0_0_10px_rgba(20,184,166,0.3)]' 
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Table wrapper */}
+            <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/5">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/10 bg-white/5 text-gray-300 text-xs font-bold uppercase tracking-wider">
+                    <th className="p-3">Activité</th>
+                    <th className="p-3">Catégorie</th>
+                    {tableFilter === 'realized' && <th className="p-3 text-right">Heures Réalisées</th>}
+                    {tableFilter === 'pending' && <th className="p-3 text-right">Heures À venir</th>}
+                    {tableFilter === 'all' && (
+                      <>
+                        <th className="p-3 text-right">Heures Réalisées</th>
+                        <th className="p-3 text-right">Heures Totales</th>
+                        <th className="p-3 text-center">Progression</th>
+                      </>
+                    )}
+                    <th className="p-3 text-center">Sessions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-sm text-gray-200">
+                  {(() => {
+                    // Filter table data
+                    const filteredRows = tableData.filter(row => {
+                      if (tableFilter === 'realized') return row.realizedMinutes > 0;
+                      if (tableFilter === 'pending') return row.pendingMinutes > 0;
+                      return row.totalMinutes > 0;
+                    }).sort((a, b) => {
+                      if (tableFilter === 'realized') return b.realizedMinutes - a.realizedMinutes;
+                      if (tableFilter === 'pending') return b.pendingMinutes - a.pendingMinutes;
+                      return b.totalMinutes - a.totalMinutes;
+                    });
+
+                    if (filteredRows.length === 0) {
+                      return (
+                        <tr>
+                          <td colSpan={tableFilter === 'all' ? 6 : 4} className="p-8 text-center text-gray-500 text-xs">
+                            Aucune activité correspondant au filtre
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return filteredRows.map(row => {
+                      const totalH = Math.round(row.totalMinutes / 60 * 10) / 10;
+                      const realizedH = Math.round(row.realizedMinutes / 60 * 10) / 10;
+                      const pendingH = Math.round(row.pendingMinutes / 60 * 10) / 10;
+                      const progress = row.totalMinutes > 0 ? (row.realizedMinutes / row.totalMinutes) * 100 : 0;
+                      
+                      return (
+                        <tr key={row.title} className="hover:bg-white/5 transition-colors group">
+                          <td className="p-3 font-bold text-white group-hover:text-neon-teal transition-colors">
+                            {row.title}
+                          </td>
+                          <td className="p-3">
+                            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/5 border border-white/10 text-gray-300`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${getCategoryColor(row.category, categories)}`}></span>
+                              {row.category}
+                            </span>
+                          </td>
+                          
+                          {tableFilter === 'realized' && (
+                            <td className="p-3 text-right font-black text-neon-teal">
+                              {realizedH}h
+                            </td>
+                          )}
+                          {tableFilter === 'pending' && (
+                            <td className="p-3 text-right font-black text-amber-400">
+                              {pendingH}h
+                            </td>
+                          )}
+                          {tableFilter === 'all' && (
+                            <>
+                              <td className="p-3 text-right font-bold text-neon-teal">
+                                {realizedH}h
+                              </td>
+                              <td className="p-3 text-right font-bold text-gray-400">
+                                {totalH}h
+                              </td>
+                              <td className="p-3 align-middle">
+                                <div className="flex items-center gap-2 justify-center max-w-[120px] mx-auto">
+                                  <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                                    <div 
+                                      className="h-full bg-gradient-to-r from-neon-purple to-neon-teal rounded-full"
+                                      style={{ width: `${progress}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-[10px] font-black text-white w-8 text-right">
+                                    {Math.round(progress)}%
+                                  </span>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                          
+                          <td className="p-3 text-center font-bold">
+                            {tableFilter === 'realized' && row.realizedCount}
+                            {tableFilter === 'pending' && row.pendingCount}
+                            {tableFilter === 'all' && (
+                              <span className="text-xs">
+                                {row.realizedCount} <span className="opacity-40">/</span> {row.totalCount}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    });
+                  })()}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div className="glass-panel p-5 border border-neon-purple/20">
             <h4 className="text-white font-bold mb-2 flex items-center gap-2">
               <Sparkles size={18} className="text-neon-purple" /> Générateur de Rapport de Période (IA)
