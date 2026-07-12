@@ -341,6 +341,33 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
         </div>
       </div>
 
+      {/* Detailed Conflicts List */}
+      {conflicts && conflicts.length > 0 && (
+        <div className="glass-panel p-5 border border-red-500/20 rounded-2xl">
+          <h4 className="text-red-400 font-bold mb-4 flex items-center gap-2">
+            <AlertTriangle size={18} /> {conflicts.length} Conflit(s) d'agenda détecté(s)
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {conflicts.map((c, i) => (
+              <div key={i} className="text-xs text-red-300 bg-red-950/20 border border-red-500/10 rounded-xl p-3 flex flex-col gap-1 shadow-sm">
+                <div className="font-bold flex items-center gap-1.5 text-white">
+                  <span>📅 {c.a.date_absolue}</span>
+                </div>
+                <div className="flex flex-col gap-1 mt-1 pl-2 border-l border-red-500/30">
+                  <div className="truncate">
+                    <span className="font-bold text-red-200">1.</span> {c.a.titre} <span className="opacity-75">({c.a.heure_debut} - {c.a.heure_fin})</span>
+                  </div>
+                  <div className="text-[10px] text-red-400 font-bold uppercase my-0.5">chevauchement avec :</div>
+                  <div className="truncate">
+                    <span className="font-bold text-red-200">2.</span> {c.b.titre} <span className="opacity-75">({c.b.heure_debut} - {c.b.heure_fin})</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column - Distribution & Busiest Day */}
         <div className="lg:col-span-1 flex flex-col gap-6">

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Calendar, Clock, AlertTriangle, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i); // 0h -> 23h
 const DAYS_FR = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -336,11 +336,6 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
     return set;
   }, [conflicts]);
 
-  const weekConflicts = conflicts.filter(c =>
-    c.a.date_absolue >= weekStart && c.a.date_absolue <= weekEnd
-  );
-
-  const gridColsClass = viewMode === 'week' ? 'grid-cols-8' : 'grid-cols-2';
 
   return (
     <div className="flex flex-col gap-4">
@@ -401,13 +396,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               `${DAYS_FR[selectedDayIndex]} ${weekDates[selectedDayIndex].getDate()} ${MONTHS_FR[weekDates[selectedDayIndex].getMonth()]} ${weekDates[selectedDayIndex].getFullYear()}`
             )}
           </h3>
-          <p className="text-sm text-gray-400">
-            {viewMode === 'week' ? (
-              `${weekEvents.length} cours • ${weekConflicts.length} conflits`
-            ) : (
-              `${weekEvents.filter(e => e.date_absolue === formatDateKey(weekDates[selectedDayIndex])).length} cours`
-            )}
-          </p>
+
         </div>
         <button
           onClick={() => {
@@ -428,23 +417,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         </button>
       </div>
 
-      {/* Conflicts Alert */}
-      {weekConflicts.length > 0 && (
-        <div className="bg-red-500/10 border border-red-500/40 rounded-xl p-4">
-          <h4 className="text-red-400 font-bold flex items-center gap-2 mb-2">
-            <AlertTriangle size={18} /> {weekConflicts.length} Conflit(s) detecte(s)
-          </h4>
-          <div className="flex flex-col gap-2">
-            {weekConflicts.map((c, i) => (
-              <div key={i} className="text-sm text-red-300 bg-red-500/10 rounded-lg p-2">
-                <span className="font-bold">{c.a.date_absolue}</span> : "{c.a.titre}" ({c.a.heure_debut}-{c.a.heure_fin})
-                <span className="text-red-500 font-bold mx-2">VS</span>
-                "{c.b.titre}" ({c.b.heure_debut}-{c.b.heure_fin})
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* Mobile Day Selector Bar */}
       <div className={`flex md:hidden justify-between bg-dark-900/60 p-2 rounded-xl border border-white/5 gap-1 mb-2 ${viewMode === 'week' ? 'hidden' : ''}`}>
