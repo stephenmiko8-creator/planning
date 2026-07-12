@@ -30,7 +30,9 @@ function getDuration(start, end) {
   if (!start || !end) return null;
   const [sh, sm] = start.split(':').map(Number);
   const [eh, em] = end.split(':').map(Number);
-  const diff = (eh * 60 + em) - (sh * 60 + sm);
+  const startMin = sh * 60 + sm;
+  const endMin = eh * 60 + em;
+  const diff = endMin >= startMin ? (endMin - startMin) : (1440 - startMin + endMin);
   if (diff <= 0) return null;
   const h = Math.floor(diff / 60);
   const m = diff % 60;
@@ -90,8 +92,8 @@ const EventModal = ({ event, onClose, onDelete, onAddToCalendar, onUpdate, categ
     const [eh, em] = endTime.split(':').map(Number);
     const startMin = sh * 60 + sm;
     const endMin = eh * 60 + em;
-    if (endMin <= startMin) {
-      setError("L'heure de fin doit être après l'heure de début.");
+    if (startTime === endTime) {
+      setError("L'heure de fin ne peut pas être identique à l'heure de début.");
       return;
     }
 

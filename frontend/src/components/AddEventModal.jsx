@@ -32,13 +32,8 @@ const AddEventModal = ({ onClose, onSave, categories = [], initialValues }) => {
       setError("Les horaires de début et de fin sont requis.");
       return;
     }
-    // Validate start is before end (unless overnight shift)
-    const [sh, sm] = startTime.split(':').map(Number);
-    const [eh, em] = endTime.split(':').map(Number);
-    const startMin = sh * 60 + sm;
-    const endMin = eh * 60 + em;
-    if (endMin <= startMin) {
-      setError("L'heure de fin doit être après l'heure de début.");
+    if (startTime === endTime) {
+      setError("L'heure de fin ne peut pas être identique à l'heure de début.");
       return;
     }
 
