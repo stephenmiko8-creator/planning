@@ -282,11 +282,11 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
           {/* Course Subject Distribution */}
           <div className="glass-panel p-5">
             <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-              <BarChart3 size={18} className="text-neon-purple" /> Détail des matières (sessions)
+              <BarChart3 size={18} className="text-neon-purple" /> Détail des activités (sessions)
             </h4>
             <div className="flex flex-col gap-3">
               {Object.entries(stats.courseMap).length === 0 ? (
-                <p className="text-sm text-gray-500">Aucune matière enregistrée</p>
+                <p className="text-sm text-gray-500">Aucune activité enregistrée</p>
               ) : (
                 Object.entries(stats.courseMap).map(([course, count]) => (
                   <div key={course} className="flex items-center gap-3">

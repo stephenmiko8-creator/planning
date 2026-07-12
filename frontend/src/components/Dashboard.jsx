@@ -466,7 +466,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         <div className="glass-panel p-3 flex items-center gap-3">
           <div className="bg-white/10 p-2 rounded-lg"><Coffee className="text-gray-300" size={20} /></div>
           <div>
-            <p className="text-xs text-gray-400">Matieres</p>
+            <p className="text-xs text-gray-400">Activités</p>
             <p className="text-xl font-black">{new Set(savedEvents.map(e => e.titre)).size}</p>
           </div>
         </div>
