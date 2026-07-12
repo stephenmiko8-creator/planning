@@ -88,10 +88,6 @@ const EventModal = ({ event, onClose, onDelete, onAddToCalendar, onUpdate, categ
       return;
     }
 
-    const [sh, sm] = startTime.split(':').map(Number);
-    const [eh, em] = endTime.split(':').map(Number);
-    const startMin = sh * 60 + sm;
-    const endMin = eh * 60 + em;
     if (startTime === endTime) {
       setError("L'heure de fin ne peut pas être identique à l'heure de début.");
       return;

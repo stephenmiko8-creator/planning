@@ -139,6 +139,34 @@ function layoutDayEvents(dayEvents) {
   return sorted;
 }
 
+function getDayEventsWithSpillovers(date, weekEvents) {
+  const dateKey = formatDateKey(date);
+  const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
+
+  const previousDate = new Date(date);
+  previousDate.setDate(date.getDate() - 1);
+  const previousDateKey = formatDateKey(previousDate);
+
+  const spillingEvents = weekEvents.filter(e => {
+    if (e.date_absolue !== previousDateKey) return false;
+    const startMin = timeToMinutes(e.heure_debut);
+    const endMin = timeToMinutes(e.heure_fin);
+    return endMin < startMin; // Spills over past midnight
+  }).map(e => {
+    return {
+      ...e,
+      id: `${e.id}_spill`,
+      heure_debut: '00:00',
+      heure_fin: e.heure_fin,
+      date_absolue: dateKey,
+      isSpill: true,
+      originalEvent: e
+    };
+  });
+
+  return [...dayEvents, ...spillingEvents];
+}
+
 const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categories = [], onTimeSlotClick, config, onRefresh }) => {
   const [weekOffset, setWeekOffset] = useState(0);
   const [viewMode, setViewMode] = useState(() => {
@@ -166,7 +194,11 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
   const weekEnd = formatDateKey(weekDates[6]);
 
   const weekEvents = useMemo(() => {
-    return events.filter(e => e.date_absolue >= weekStart && e.date_absolue <= weekEnd);
+    const [y, m, d] = weekStart.split('-').map(Number);
+    const prevDay = new Date(y, m - 1, d);
+    prevDay.setDate(prevDay.getDate() - 1);
+    const prevDayKey = formatDateKey(prevDay);
+    return events.filter(e => e.date_absolue >= prevDayKey && e.date_absolue <= weekEnd);
   }, [events, weekStart, weekEnd]);
 
   // Scroll to active hours on initial mount and when switching weeks
@@ -567,7 +599,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               {viewMode === 'week' ? (
                 weekDates.map((date, di) => {
                   const dateKey = formatDateKey(date);
-                  const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
+                  const dayEvents = getDayEventsWithSpillovers(date, weekEvents);
                   const processedEvents = layoutDayEvents(dayEvents);
                   const freeSlots = showAvailabilities ? getFreeSlots(dayEvents) : [];
 
@@ -636,7 +668,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         const endMin = timeToMinutes(e.heure_fin);
                         const topOffset = startMin;
                         const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin + endMin), 30);
-                        const isConflict = conflictSet.has(e.id);
+                        const isConflict = conflictSet.has(e.isSpill ? e.originalEvent.id : e.id);
 
                         const widthPercent = 100 / e.totalCols;
                         const leftPercent = e.colIdx * widthPercent;
@@ -654,14 +686,16 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               zIndex: isConflict ? 10 : 1,
                               animationDelay: animDelay
                             }}
-                            onClick={() => onSelectEvent && onSelectEvent(e)}
+                            onClick={() => onSelectEvent && onSelectEvent(e.isSpill ? e.originalEvent : e)}
                             title={`${e.titre}\n${e.heure_debut} - ${e.heure_fin}`}
                           >
-                            <div className="font-bold truncate" style={{ fontSize: '10px' }}>{e.titre}</div>
+                            <div className="font-bold truncate" style={{ fontSize: '10px' }}>
+                              {e.isSpill ? `🌙 ${e.titre}` : e.titre}
+                            </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
                             {onDeleteEvent && (
                               <button
-                                onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.id); }}
+                                onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.isSpill ? e.originalEvent.id : e.id); }}
                                 className="absolute top-0.5 right-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-red-600 rounded p-0.5 transition-opacity"
                               >
                                 <Trash2 size={10} />
@@ -677,7 +711,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                 (() => {
                   const date = weekDates[selectedDayIndex];
                   const dateKey = formatDateKey(date);
-                  const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
+                  const dayEvents = getDayEventsWithSpillovers(date, weekEvents);
                   const processedEvents = layoutDayEvents(dayEvents);
                   const freeSlots = showAvailabilities ? getFreeSlots(dayEvents) : [];
 
@@ -744,7 +778,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         const endMin = timeToMinutes(e.heure_fin);
                         const topOffset = startMin;
                         const duration = Math.max(endMin >= startMin ? (endMin - startMin) : (1440 - startMin + endMin), 30);
-                        const isConflict = conflictSet.has(e.id);
+                        const isConflict = conflictSet.has(e.isSpill ? e.originalEvent.id : e.id);
 
                         const widthPercent = 100 / e.totalCols;
                         const leftPercent = e.colIdx * widthPercent;
@@ -760,14 +794,16 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               width: `${widthPercent - 1}%`,
                               zIndex: isConflict ? 10 : 1
                             }}
-                            onClick={() => onSelectEvent && onSelectEvent(e)}
+                            onClick={() => onSelectEvent && onSelectEvent(e.isSpill ? e.originalEvent : e)}
                             title={`${e.titre}\n${e.heure_debut} - ${e.heure_fin}`}
                           >
-                            <div className="font-bold truncate" style={{ fontSize: '10px' }}>{e.titre}</div>
+                            <div className="font-bold truncate" style={{ fontSize: '10px' }}>
+                              {e.isSpill ? `🌙 ${e.titre}` : e.titre}
+                            </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
                             {onDeleteEvent && (
                               <button
-                                onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.id); }}
+                                onClick={(ev) => { ev.stopPropagation(); onDeleteEvent(e.isSpill ? e.originalEvent.id : e.id); }}
                                 className="absolute top-0.5 right-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 bg-red-600 rounded p-0.5 transition-opacity"
                               >
                                 <Trash2 size={10} />
