@@ -69,6 +69,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
   const stats = useMemo(() => {
     let totalMinutes = 0;
     const categoryMinutes = {};
+    const categoryActivities = {};
     const courseMap = {};
     const dayMap = {};
 
@@ -79,13 +80,23 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
       let dur = (end[0] * 60 + end[1]) - (start[0] * 60 + start[1]);
       if (dur < 0) dur += 24 * 60; // Gérer les horaires de nuit
       
+      const cat = getEventCategory(e, categories);
       if (dur > 0) {
         totalMinutes += dur;
-        const cat = getEventCategory(e, categories);
         categoryMinutes[cat] = (categoryMinutes[cat] || 0) + dur;
       }
 
-      const cat = getEventCategory(e, categories);
+      // Group activities by category
+      if (!categoryActivities[cat]) {
+        categoryActivities[cat] = {};
+      }
+      const title = e.titre || 'Sans titre';
+      if (!categoryActivities[cat][title]) {
+        categoryActivities[cat][title] = { minutes: 0, count: 0 };
+      }
+      categoryActivities[cat][title].minutes += dur;
+      categoryActivities[cat][title].count += 1;
+
       // Map courses if categorized as Formation or matches study course name
       if (cat === 'Formation' || matchCourse(e.titre) !== 'default') {
         const course = matchCourse(e.titre);
@@ -108,8 +119,8 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
       ? Math.round(events.length / Object.keys(dayMap).length * 10) / 10 
       : 0;
 
-    return { totalHours, categoryHours, courseMap, busiestDay, avgPerDay, totalDays: Object.keys(dayMap).length };
-  }, [events]);
+    return { totalHours, categoryHours, categoryActivities, courseMap, busiestDay, avgPerDay, totalDays: Object.keys(dayMap).length };
+  }, [events, categories]);
 
   const maxCategoryHours = Math.max(...Object.values(stats.categoryHours), 1);
   const maxCourseCount = Math.max(...Object.values(stats.courseMap), 1);
@@ -275,6 +286,63 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
                     <span className="text-sm font-bold text-white w-12 text-right">{hours}h</span>
                   </div>
                 ))
+              )}
+            </div>
+          </div>
+
+          {/* Detailed Categorized Activities Analysis */}
+          <div className="glass-panel p-5">
+            <h4 className="text-white font-bold mb-3 flex items-center gap-2">
+              <BarChart3 size={18} className="text-neon-purple" /> Analyse par catégorie & activité
+            </h4>
+            <div className="flex flex-col gap-4">
+              {Object.entries(stats.categoryActivities).length === 0 ? (
+                <p className="text-sm text-gray-500">Aucune donnée disponible</p>
+              ) : (
+                Object.entries(stats.categoryActivities).map(([cat, activities]) => {
+                  const totalCatMins = Object.values(activities).reduce((sum, act) => sum + act.minutes, 0);
+                  const totalCatHours = Math.round(totalCatMins / 60 * 10) / 10;
+                  
+                  return (
+                    <div key={cat} className="flex flex-col gap-2.5 bg-white/5 p-3 rounded-xl border border-white/5 text-left">
+                      <div className="flex justify-between items-center border-b border-white/10 pb-1.5">
+                        <span className="text-xs font-black text-white flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${getCategoryColor(cat, categories)}`}></span>
+                          {cat}
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 font-bold text-gray-300">
+                          {totalCatHours}h
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        {Object.entries(activities).map(([title, data]) => {
+                          const actHours = Math.round(data.minutes / 60 * 10) / 10;
+                          const percent = totalCatMins > 0 ? (data.minutes / totalCatMins) * 100 : 0;
+                          
+                          return (
+                            <div key={title} className="flex flex-col gap-1 text-left">
+                              <div className="flex justify-between items-center text-[11px]">
+                                <span className="text-gray-300 truncate max-w-[160px]" title={title}>
+                                  {title}
+                                </span>
+                                <span className="text-gray-400 font-bold text-[10px]">
+                                  {actHours}h <span className="text-[9px] opacity-60 font-normal">({data.count} {data.count > 1 ? 'sessions' : 'session'})</span>
+                                </span>
+                              </div>
+                              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full rounded-full ${getCategoryColor(cat, categories)} transition-all duration-700`}
+                                  style={{ width: `${percent}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
