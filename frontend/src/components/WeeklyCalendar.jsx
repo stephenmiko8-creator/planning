@@ -145,26 +145,22 @@ function getNoteStyles(priority) {
     case 'critique':
       return {
         icon: '🚨',
-        textClass: 'text-red-400 font-bold',
-        borderClass: 'border-red-500/30'
+        badgeClass: 'bg-red-600 text-white font-black animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.5)] border border-red-400/50'
       };
     case 'haute':
       return {
         icon: '⚠️',
-        textClass: 'text-orange-400 font-semibold',
-        borderClass: 'border-orange-500/30'
+        badgeClass: 'bg-orange-500 text-white font-black shadow-[0_0_6px_rgba(249,115,22,0.4)] border border-orange-400/30'
       };
     case 'basse':
       return {
         icon: 'ℹ️',
-        textClass: 'text-green-300 opacity-80',
-        borderClass: 'border-green-500/20'
+        badgeClass: 'bg-green-500/20 text-green-300 border border-green-500/30 font-medium'
       };
     default: // normale
       return {
         icon: '📝',
-        textClass: 'text-cyan-300 font-medium',
-        borderClass: 'border-cyan-500/20'
+        badgeClass: 'bg-cyan-400 text-slate-950 font-black shadow-[0_0_6px_rgba(34,211,238,0.4)]'
       };
   }
 }
@@ -729,8 +725,12 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
                             {duration >= 50 && e.notes && (
-                              <div className={`text-[9px] ${getNoteStyles(e.priorite).textClass} italic truncate mt-0.5 border-t ${getNoteStyles(e.priorite).borderClass} pt-0.5`} title={e.notes}>
-                                {e.notes}
+                              <div 
+                                className={`mt-1.5 px-1 py-0.5 rounded text-[9px] truncate flex items-center gap-1 shadow-sm ${getNoteStyles(e.priorite).badgeClass}`}
+                                title={e.notes}
+                              >
+                                <span className="text-[10px] flex-shrink-0">{getNoteStyles(e.priorite).icon}</span>
+                                <span className="truncate flex-1">{e.notes}</span>
                               </div>
                             )}
                             {onDeleteEvent && (
@@ -847,8 +847,12 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
                             {duration >= 50 && e.notes && (
-                              <div className={`text-[9px] ${getNoteStyles(e.priorite).textClass} italic truncate mt-0.5 border-t ${getNoteStyles(e.priorite).borderClass} pt-0.5`} title={e.notes}>
-                                {e.notes}
+                              <div 
+                                className={`mt-1.5 px-1 py-0.5 rounded text-[9px] truncate flex items-center gap-1 shadow-sm ${getNoteStyles(e.priorite).badgeClass}`}
+                                title={e.notes}
+                              >
+                                <span className="text-[10px] flex-shrink-0">{getNoteStyles(e.priorite).icon}</span>
+                                <span className="truncate flex-1">{e.notes}</span>
                               </div>
                             )}
                             {onDeleteEvent && (
