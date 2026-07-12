@@ -241,6 +241,28 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
     }
   };
 
+  const handleUpdateEvent = async (id, updatedDetails) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/events/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(updatedDetails)
+      });
+      const data = await res.json();
+      if (data.success) {
+        addToast('Événement mis à jour avec succès.', 'success');
+        loadSavedEvents();
+        // Update selectedEvent state to immediately reflect changes in the details modal
+        setSelectedEvent(prev => prev && (prev.id === id || prev.id === undefined) ? { ...prev, ...updatedDetails } : prev);
+      } else {
+        addToast(data.error || 'Erreur lors de la mise à jour.', 'error');
+      }
+    } catch (e) {
+      console.log('Update error', e);
+      addToast('Erreur de connexion au serveur.', 'error');
+    }
+  };
+
   const handleExportCSV = () => {
     if (events.length === 0) return;
     
@@ -649,6 +671,8 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           onClose={() => setSelectedEvent(null)} 
           onDelete={handleDeleteEvent}
           onAddToCalendar={handleAddToCalendar}
+          onUpdate={handleUpdateEvent}
+          categories={categories}
         />
       )}
       {/* Add Event Modal */}

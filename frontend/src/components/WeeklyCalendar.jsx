@@ -617,7 +617,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
                         return (
                           <div
-                            key={`mask-${ei}`}
+                            key={`mask-${e.id || ei}`}
                             className="absolute bg-dark-900 rounded-md animate-sky-panel"
                             style={{
                               top: `${topOffset}px`,
@@ -644,7 +644,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         const animDelay = `${(di * 0.12) + (ei * 0.04)}s`;
                         return (
                           <div
-                            key={ei}
+                            key={e.id || ei}
                             className={`absolute rounded-md border px-1 py-0.5 text-xs overflow-hidden cursor-pointer pointer-events-auto group transition-all hover:z-20 hover:shadow-lg animate-sky-panel ${getCourseColor(e.titre, e.type, e.categorie, categories)} ${isConflict ? 'ring-2 ring-red-500 animate-pulse' : ''}`}
                             style={{
                               top: `${topOffset}px`,
@@ -726,7 +726,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
                         return (
                           <div
-                            key={`mask-${ei}`}
+                            key={`mask-${e.id || ei}`}
                             className="absolute bg-dark-900 rounded-md animate-sky-panel"
                             style={{
                               top: `${topOffset}px`,
@@ -751,7 +751,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
                         return (
                           <div
-                            key={ei}
+                            key={e.id || ei}
                             className={`absolute rounded-md border px-1 py-0.5 text-xs overflow-hidden cursor-pointer pointer-events-auto group transition-all hover:z-20 hover:shadow-lg animate-sky-panel ${getCourseColor(e.titre, e.type, e.categorie, categories)} ${isConflict ? 'ring-2 ring-red-500 animate-pulse' : ''}`}
                             style={{
                               top: `${topOffset}px`,

@@ -38,6 +38,27 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+// Mettre à jour un événement
+router.put('/:id', (req, res) => {
+  const { titre, date_absolue, heure_debut, heure_fin, type, priorite, status, categorie, notes } = req.body;
+  const userId = req.user ? req.user.id : null;
+  const eventId = req.params.id;
+
+  const updateQuery = `
+    UPDATE events 
+    SET titre = ?, date_absolue = ?, heure_debut = ?, heure_fin = ?, type = ?, priorite = ?, status = ?, categorie = ?, notes = ?
+    WHERE id = ? AND (user_id = ? OR (user_id IS NULL AND ? IS NULL))
+  `;
+  db.run(
+    updateQuery,
+    [titre, date_absolue, heure_debut, heure_fin, type, priorite, status || 'pending', categorie || null, notes || null, eventId, userId, userId],
+    function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true, updated: this.changes });
+    }
+  );
+});
+
 // Tout supprimer
 router.post('/purge', (req, res) => {
   const userId = req.user ? req.user.id : null;
