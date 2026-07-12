@@ -267,6 +267,18 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
   }, [viewMode]);
 
   const [showAvailabilities, setShowAvailabilities] = useState(false);
+  const [showNotes, setShowNotes] = useState(() => {
+    try {
+      const saved = localStorage.getItem('calendar_show_notes');
+      return saved !== null ? JSON.parse(saved) : true;
+    } catch {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('calendar_show_notes', JSON.stringify(showNotes));
+  }, [showNotes]);
 
   const minutesToTimeStr = (mins) => {
     const h = Math.floor(mins / 60).toString().padStart(2, '0');
@@ -369,6 +381,16 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
           >
             <Clock size={14} />
             <span>{showAvailabilities ? 'Masquer dispos' : 'Afficher dispos'}</span>
+          </button>
+          <button
+            onClick={() => setShowNotes(!showNotes)}
+            className={`px-3 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 border ${showNotes
+                ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/30 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
+                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-transparent'
+              }`}
+          >
+            <span>📝</span>
+            <span>{showNotes ? 'Masquer notes' : 'Afficher notes'}</span>
           </button>
         </div>
         <div className="text-center px-2">
@@ -717,14 +739,14 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                           >
                             <div className="font-bold truncate flex items-center gap-1" style={{ fontSize: '10px' }}>
                               <span className="truncate">{e.isSpill ? `🌙 ${e.titre}` : e.titre}</span>
-                              {e.notes && (
+                              {showNotes && e.notes && (
                                 <span className="text-[8px] flex-shrink-0 animate-pulse" title={e.notes}>
                                   {getNoteStyles(e.priorite).icon}
                                 </span>
                               )}
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
-                            {duration >= 50 && e.notes && (
+                            {showNotes && duration >= 50 && e.notes && (
                               <div 
                                 className={`mt-1.5 px-1 py-0.5 rounded text-[9px] truncate flex items-center gap-1 shadow-sm ${getNoteStyles(e.priorite).badgeClass}`}
                                 title={e.notes}
@@ -839,14 +861,14 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                           >
                             <div className="font-bold truncate flex items-center gap-1" style={{ fontSize: '10px' }}>
                               <span className="truncate">{e.isSpill ? `🌙 ${e.titre}` : e.titre}</span>
-                              {e.notes && (
+                              {showNotes && e.notes && (
                                 <span className="text-[8px] flex-shrink-0 animate-pulse" title={e.notes}>
                                   {getNoteStyles(e.priorite).icon}
                                 </span>
                               )}
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
-                            {duration >= 50 && e.notes && (
+                            {showNotes && duration >= 50 && e.notes && (
                               <div 
                                 className={`mt-1.5 px-1 py-0.5 rounded text-[9px] truncate flex items-center gap-1 shadow-sm ${getNoteStyles(e.priorite).badgeClass}`}
                                 title={e.notes}
