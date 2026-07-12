@@ -231,6 +231,13 @@ router.post('/', async (req, res) => {
       db.run(`UPDATE users SET scan_count_this_month = scan_count_this_month + 1 WHERE id = ?`, [req.user.id]);
     }
 
+    // Force notes to be null for all auto-extracted events (only user-initiated notes allowed)
+    if (finalData && Array.isArray(finalData.events)) {
+      finalData.events.forEach(e => {
+        e.notes = null;
+      });
+    }
+
     res.json({
       success: true,
       data: finalData
