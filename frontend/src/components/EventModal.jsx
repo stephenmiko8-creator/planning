@@ -53,6 +53,7 @@ const EventModal = ({ event, onClose, onDelete, onAddToCalendar, onUpdate, categ
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState('pending');
   const [error, setError] = useState('');
+  const [isSavingState, setIsSavingState] = useState(false);
 
   useEffect(() => {
     if (event) {
@@ -71,7 +72,7 @@ const EventModal = ({ event, onClose, onDelete, onAddToCalendar, onUpdate, categ
 
   if (!event) return null;
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -93,19 +94,29 @@ const EventModal = ({ event, onClose, onDelete, onAddToCalendar, onUpdate, categ
       return;
     }
 
-    if (onUpdate) {
-      onUpdate(event.id, {
-        titre: titre.trim(),
-        date_absolue: date,
-        heure_debut: startTime,
-        heure_fin: endTime,
-        type,
-        priorite: priority,
-        status,
-        categorie,
-        notes
-      });
-      setIsEditing(false);
+    setIsSavingState(true);
+    try {
+      if (onUpdate) {
+        const success = await onUpdate(event.id, {
+          titre: titre.trim(),
+          date_absolue: date,
+          heure_debut: startTime,
+          heure_fin: endTime,
+          type,
+          priorite: priority,
+          status,
+          categorie,
+          notes
+        });
+        if (success) {
+          onClose();
+        } else {
+          setIsSavingState(false);
+        }
+      }
+    } catch (err) {
+      setError("Erreur lors de la mise à jour de l'activité.");
+      setIsSavingState(false);
     }
   };
 
@@ -293,10 +304,20 @@ const EventModal = ({ event, onClose, onDelete, onAddToCalendar, onUpdate, categ
               </button>
               <button 
                 type="submit"
-                className="flex-1 py-2 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center justify-center gap-1.5"
+                disabled={isSavingState}
+                className="flex-1 py-2 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
-                <Check size={16} />
-                <span>Enregistrer</span>
+                {isSavingState ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-dark-950 border-t-transparent rounded-full animate-spin"></div>
+                    <span>Enregistrement...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check size={16} />
+                    <span>Enregistrer</span>
+                  </>
+                )}
               </button>
             </div>
           </form>

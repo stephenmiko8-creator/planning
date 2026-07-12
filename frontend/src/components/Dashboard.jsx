@@ -266,12 +266,15 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         loadSavedEvents();
         // Update selectedEvent state to immediately reflect changes in the details modal
         setSelectedEvent(prev => prev && (prev.id === id || prev.id === undefined) ? { ...prev, ...updatedDetails } : prev);
+        return true;
       } else {
         addToast(data.error || 'Erreur lors de la mise à jour.', 'error');
+        return false;
       }
     } catch (e) {
       console.log('Update error', e);
       addToast('Erreur de connexion au serveur.', 'error');
+      return false;
     }
   };
 
