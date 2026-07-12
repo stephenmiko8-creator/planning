@@ -139,6 +139,36 @@ function layoutDayEvents(dayEvents) {
   return sorted;
 }
 
+function getNoteStyles(priority) {
+  const p = (priority || '').toLowerCase();
+  switch (p) {
+    case 'critique':
+      return {
+        icon: '🚨',
+        textClass: 'text-red-400 font-bold',
+        borderClass: 'border-red-500/30'
+      };
+    case 'haute':
+      return {
+        icon: '⚠️',
+        textClass: 'text-orange-400 font-semibold',
+        borderClass: 'border-orange-500/30'
+      };
+    case 'basse':
+      return {
+        icon: 'ℹ️',
+        textClass: 'text-green-300 opacity-80',
+        borderClass: 'border-green-500/20'
+      };
+    default: // normale
+      return {
+        icon: '📝',
+        textClass: 'text-cyan-300 font-medium',
+        borderClass: 'border-cyan-500/20'
+      };
+  }
+}
+
 function getDayEventsWithSpillovers(date, weekEvents) {
   const dateKey = formatDateKey(date);
   const dayEvents = weekEvents.filter(e => e.date_absolue === dateKey);
@@ -691,11 +721,15 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                           >
                             <div className="font-bold truncate flex items-center gap-1" style={{ fontSize: '10px' }}>
                               <span className="truncate">{e.isSpill ? `🌙 ${e.titre}` : e.titre}</span>
-                              {e.notes && <span className="text-[8px] flex-shrink-0 animate-pulse" title={e.notes}>📝</span>}
+                              {e.notes && (
+                                <span className="text-[8px] flex-shrink-0 animate-pulse" title={e.notes}>
+                                  {getNoteStyles(e.priorite).icon}
+                                </span>
+                              )}
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
                             {duration >= 50 && e.notes && (
-                              <div className="text-[9px] text-yellow-200/90 italic truncate mt-0.5 border-t border-white/10 pt-0.5" title={e.notes}>
+                              <div className={`text-[9px] ${getNoteStyles(e.priorite).textClass} italic truncate mt-0.5 border-t ${getNoteStyles(e.priorite).borderClass} pt-0.5`} title={e.notes}>
                                 {e.notes}
                               </div>
                             )}
@@ -805,11 +839,15 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                           >
                             <div className="font-bold truncate flex items-center gap-1" style={{ fontSize: '10px' }}>
                               <span className="truncate">{e.isSpill ? `🌙 ${e.titre}` : e.titre}</span>
-                              {e.notes && <span className="text-[8px] flex-shrink-0 animate-pulse" title={e.notes}>📝</span>}
+                              {e.notes && (
+                                <span className="text-[8px] flex-shrink-0 animate-pulse" title={e.notes}>
+                                  {getNoteStyles(e.priorite).icon}
+                                </span>
+                              )}
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
                             {duration >= 50 && e.notes && (
-                              <div className="text-[9px] text-yellow-200/90 italic truncate mt-0.5 border-t border-white/10 pt-0.5" title={e.notes}>
+                              <div className={`text-[9px] ${getNoteStyles(e.priorite).textClass} italic truncate mt-0.5 border-t ${getNoteStyles(e.priorite).borderClass} pt-0.5`} title={e.notes}>
                                 {e.notes}
                               </div>
                             )}
