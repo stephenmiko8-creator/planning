@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Planix</string>
+    <string name="title_activity_main">Planix</string>
+    <string name="package_name">com.planix.app</string>
+    <string name="custom_url_scheme">com.planix.app</string>
+</resources>

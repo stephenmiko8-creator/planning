@@ -113,7 +113,7 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Nos Plans d'Abonnement</h2>
           <p className="text-sm text-gray-400 mt-2 max-w-lg mx-auto">
-            Libérez tout le potentiel de votre assistant de planification et boostez votre productivité quotidienne.
+            Libérez tout le potentiel de Planix et boostez votre productivité quotidienne.
           </p>
         </div>
 

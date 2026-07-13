@@ -11,7 +11,7 @@ bcrypt.hash(newPassword, 10, (err, hash) => {
   }
   
   db.run(
-    'UPDATE users SET password_hash = ? WHERE email = ?',
+    'UPDATE users SET password_hash = ?, subscription_plan = \'premium\', subscription_status = \'active\' WHERE email = ?',
     [hash, email],
     function(err) {
       if (err) {
@@ -21,7 +21,7 @@ bcrypt.hash(newPassword, 10, (err, hash) => {
       if (this.changes === 0) {
         // User doesn't exist, create it
         db.run(
-          `INSERT INTO users (email, password_hash, subscription_plan, subscription_status) VALUES (?, ?, 'pro', 'active')`,
+          `INSERT INTO users (email, password_hash, subscription_plan, subscription_status) VALUES (?, ?, 'premium', 'active')`,
           [email, hash],
           function(err) {
             if (err) {

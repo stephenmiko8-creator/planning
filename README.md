@@ -1,6 +1,6 @@
-# 📅 Planning Assistant
+# 📅 Planix
 
-Planning Assistant is a modern, secure, multi-tenant SaaS application that provides intelligent scheduling, automatic calendar organization, and context-aware planning.
+Planix is a modern, secure, multi-tenant SaaS application that provides intelligent scheduling, automatic calendar organization, and context-aware planning.
 
 The project is split into three main parts:
 - **`backend/`**: A Node.js & Express API using SQLite for data persistence, the Google Calendar API for calendar synchronization, and the Gemini API for smart scheduling context and parsing.

@@ -225,6 +225,17 @@ db.serialize(() => {
       }
     });
   });
+  
+  // Table push_subscriptions
+  db.run(`CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    endpoint TEXT,
+    keys_p256dh TEXT,
+    keys_auth TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
 });
 
 module.exports = db;

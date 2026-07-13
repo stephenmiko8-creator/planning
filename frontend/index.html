@@ -8,20 +8,18 @@
     <meta name="theme-color" content="#0f172a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>AI Planning Assistant</title>
+    <title>Planix</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      // Clear legacy service worker registrations that caused cache-mismatch issues
+      // Register service worker for push notifications
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          for (let registration of registrations) {
-            registration.unregister().then(() => {
-              console.log('Unregistered service worker');
-            });
-          }
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('Service worker registered successfully');
+        }).catch(err => {
+          console.error('Service worker registration failed:', err);
         });
       }
       // Clear caches to ensure new bundle is loaded

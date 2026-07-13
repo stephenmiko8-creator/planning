@@ -8,9 +8,86 @@ import EventModal from './EventModal';
 import AddEventModal from './AddEventModal';
 import AuthPage from './AuthPage';
 import SubscriptionModal from './SubscriptionModal';
-import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown } from 'lucide-react';
+import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Clock, Calendar as CalendarIcon, Zap } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useToast } from './Toast';
+import { Preferences } from '@capacitor/preferences';
+
+const UpcomingEventWidget = ({ events }) => {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextEvent = useMemo(() => {
+    if (!events || events.length === 0) return null;
+    
+    // Sort events by date and time
+    const upcoming = events.filter(e => {
+      const eventDate = new Date(`${e.date_absolue}T${e.heure_debut}`);
+      return eventDate > now;
+    }).sort((a, b) => {
+      const dateA = new Date(`${a.date_absolue}T${a.heure_debut}`);
+      const dateB = new Date(`${b.date_absolue}T${b.heure_debut}`);
+      return dateA - dateB;
+    });
+
+    return upcoming[0] || null;
+  }, [events, now]);
+
+  if (!nextEvent) return null;
+
+  const eventTime = new Date(`${nextEvent.date_absolue}T${nextEvent.heure_debut}`);
+  const diffMs = eventTime - now;
+  const diffMins = Math.floor(diffMs / 60000);
+  
+  let timeStr = '';
+  if (diffMins < 60) {
+    timeStr = `dans ${diffMins} min`;
+  } else {
+    const hours = Math.floor(diffMins / 60);
+    const mins = diffMins % 60;
+    timeStr = `dans ${hours}h ${mins > 0 ? mins + 'm' : ''}`;
+  }
+  
+  // Format the date if it's not today
+  const todayStr = now.toISOString().split('T')[0];
+  const isToday = nextEvent.date_absolue === todayStr;
+
+  return (
+    <div className="w-full bg-gradient-to-r from-neon-purple/20 to-neon-teal/20 border border-white/10 rounded-2xl p-4 flex items-center justify-between mb-2 shadow-[0_0_20px_rgba(168,85,247,0.15)] relative overflow-hidden backdrop-blur-sm group hover:border-neon-purple/40 transition-all">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-neon-teal/10 transition-all"></div>
+      <div className="flex items-center gap-4 z-10">
+        <div className="h-12 w-12 rounded-xl bg-dark-900/80 border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
+          <Clock className="text-neon-teal" size={24} />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-neon-purple flex items-center gap-1">
+            <Zap size={10} /> Prochain Événement
+          </span>
+          <span className="text-white font-bold text-lg truncate max-w-[200px] md:max-w-[400px]">
+            {nextEvent.titre}
+          </span>
+          <span className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+            <CalendarIcon size={12} />
+            {isToday ? "Aujourd'hui à " : `${new Date(nextEvent.date_absolue).toLocaleDateString('fr-FR')} à `}
+            <strong className="text-gray-200">{nextEvent.heure_debut}</strong>
+          </span>
+        </div>
+      </div>
+      <div className="z-10 flex flex-col items-end">
+        <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+          {timeStr}
+        </span>
+        <span className={`text-[10px] px-2 py-0.5 rounded-full mt-1 font-bold ${nextEvent.color_class || 'bg-gray-500/20 border border-gray-500/40 text-gray-300'}`}>
+          {nextEvent.categorie || 'Général'}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 
 const Dashboard = ({ currentTheme, onChangeTheme }) => {
@@ -104,19 +181,21 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    try { await Preferences.remove({ key: 'token' }); } catch (e) {}
     addToast('Déconnexion réussie.', 'info');
   };
 
-  const handleAuthSuccess = (newToken, newUser) => {
+  const handleAuthSuccess = async (newToken, newUser) => {
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
+    try { await Preferences.set({ key: 'token', value: newToken }); } catch (e) {}
   };
 
   // Calcul intelligent des conflits (chevauchements reels)
@@ -362,7 +441,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-teal">
-            Planning Assistant
+            Planix
           </h1>
           <p className="text-xs md:text-sm text-gray-400 mt-1">Votre agent personnel d'extraction et d'optimisation de temps.</p>
         </div>
@@ -444,6 +523,9 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         </div>
       </div>
 
+      {activeView === 'calendar' && (
+        <UpcomingEventWidget events={savedEvents} />
+      )}
 
       {/* View Tabs - Desktop Only */}
       <div className="hidden md:flex gap-2">

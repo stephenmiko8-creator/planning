@@ -18,7 +18,7 @@ const authRoutes = require('./routes/authRoutes');
 
 // Base route
 app.get('/', (req, res) => {
-  res.send({ status: 'Planning Assistant API is running' });
+  res.send({ status: 'Planix API is running' });
 });
 
 // API Routes
@@ -27,6 +27,14 @@ app.use('/api/scan', scanRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/settings', settingsRoutes);
+
+const pushRoutes = require('./routes/pushRoutes');
+const notificationService = require('./services/notificationService');
+
+app.use('/api/push', pushRoutes);
+
+// Start notification cron job
+notificationService.startNotificationCron();
 
 // Start server
 if (require.main === module) {

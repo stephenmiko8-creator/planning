@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Planning Assistant - Eye",
+  "name": "Planix - Eye",
   "version": "1.3",
   "description": "Scan any web page to extract planning events securely.",
   "permissions": [

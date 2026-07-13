@@ -24,6 +24,68 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSuccessMsg, setConfigSuccessMsg] = useState(false);
 
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.pushManager.getSubscription().then(sub => {
+          if (sub) setPushEnabled(true);
+        });
+      });
+    }
+  }, []);
+
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  const handleTogglePush = async () => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert("Les notifications Push ne sont pas supportées par votre navigateur.");
+      return;
+    }
+    if (pushEnabled) return; // Unsubscribe logic can be added later
+
+    setPushLoading(true);
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') throw new Error('Permission refusée');
+
+      const res = await fetch(`${API_BASE_URL}/api/push/public-key`, { headers: getHeaders(false) });
+      const { publicKey } = await res.json();
+
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      });
+
+      await fetch(`${API_BASE_URL}/api/push/subscribe`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(subscription)
+      });
+
+      setPushEnabled(true);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de l'activation des notifications.");
+    } finally {
+      setPushLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (config) {
       setTimezone(config.timezone || 'Europe/Paris');
@@ -414,6 +476,33 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
               <span>Ajouter</span>
             </button>
           </form>
+        </div>
+
+        {/* Notifications Push */}
+        <div className="glass-panel p-5 border border-neon-purple/20">
+          <h4 className="text-white font-bold mb-2 flex items-center gap-2">
+            <AlertCircle size={18} className="text-neon-purple" /> Notifications Push
+          </h4>
+          <p className="text-xs text-gray-400 mb-4">
+            Recevez une alerte sur cet appareil 15 minutes avant le début de votre prochain événement.
+          </p>
+          <button
+            onClick={handleTogglePush}
+            disabled={pushLoading}
+            className={`w-full py-2 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 ${
+              pushEnabled 
+                ? 'bg-green-500/20 text-green-400 border border-green-500/50' 
+                : 'bg-neon-purple text-active-day-text hover:shadow-[0_0_15px_rgba(168,85,247,0.4)]'
+            }`}
+          >
+            {pushLoading ? (
+               <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+            ) : pushEnabled ? (
+              <><Check size={14} /> Notifications Activées</>
+            ) : (
+              <>Activer les notifications</>
+            )}
+          </button>
         </div>
       </div>
     </div>
