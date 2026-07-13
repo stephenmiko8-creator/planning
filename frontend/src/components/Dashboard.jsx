@@ -184,6 +184,8 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const handleLogout = async () => {
     setToken(null);
     setUser(null);
+    setSavedEvents([]);
+    setCategories([]);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     try { await Preferences.remove({ key: 'token' }); } catch (e) {}
