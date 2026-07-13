@@ -56,7 +56,7 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
       desc: 'Pour tester les fonctionnalités de base de l\'assistant.',
       glow: 'shadow-lg border-white/10 hover:border-white/20',
       features: [
-        '10 scans intelligents par mois',
+        '5 scans intelligents par mois',
         'Jusqu\'à 3 catégories personnalisées',
         'Interface calendrier dynamique',
         'Analyses de statistiques de base'
@@ -65,12 +65,13 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
     {
       id: 'pro',
       name: 'Pro',
-      price: '9.99€',
-      period: 'par mois',
+      price: '4.99€',
+      originalPrice: '9.99€',
+      period: '/ mois (pendant 3 mois, puis 9.99€)',
       icon: <Zap className="text-neon-teal animate-pulse" size={24} />,
       desc: 'Pour optimiser votre productivité hebdomadaire sans limite.',
       glow: 'shadow-[0_0_30px_rgba(45,212,191,0.2)] border-neon-teal/40 hover:border-neon-teal/70',
-      tag: 'Le plus populaire',
+      tag: 'Promo -50%',
       features: [
         'Scans intelligents ILLIMITÉS',
         'Catégories illimitées',
@@ -143,7 +144,10 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
 
                   <p className="text-xs text-gray-400 leading-relaxed min-h-[40px]">{plan.desc}</p>
 
-                  <div className="flex items-baseline gap-1 mt-2">
+                  <div className="flex items-baseline gap-1 mt-2 flex-wrap">
+                    {plan.originalPrice && (
+                      <span className="text-xl font-bold text-gray-500 line-through mr-1">{plan.originalPrice}</span>
+                    )}
                     <span className="text-4xl font-extrabold text-white">{plan.price}</span>
                     <span className="text-xs text-gray-400">{plan.period}</span>
                   </div>

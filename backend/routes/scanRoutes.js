@@ -57,11 +57,11 @@ router.post('/', async (req, res) => {
       if (user) {
         if (user.subscription_plan === 'free') {
           isFreeUser = true;
-          if (user.scan_count_this_month >= 10) {
+          if (user.scan_count_this_month >= 5) {
             return res.status(403).json({ 
               success: false, 
               error: 'quota_exceeded',
-              message: 'Vous avez atteint la limite de 10 scans ce mois-ci avec votre forfait Gratuit. Veuillez passer à un forfait supérieur (Pro ou Premium).' 
+              message: 'Vous avez atteint la limite de 5 scans ce mois-ci avec votre forfait Gratuit. Veuillez passer à un forfait supérieur (Pro ou Premium).' 
             });
           }
         }
