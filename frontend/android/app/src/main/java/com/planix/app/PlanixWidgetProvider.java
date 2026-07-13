@@ -43,8 +43,8 @@ public class PlanixWidgetProvider extends AppWidgetProvider {
                     return;
                 }
 
-                // Using 10.0.2.2 for Android Emulator to host machine, or change to prod URL
-                URL url = new URL("http://10.0.2.2:3001/api/events/all");
+                // Using production Render URL for real device
+                URL url = new URL("https://planning-backend-w5of.onrender.com/api/events/all");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
