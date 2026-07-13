@@ -232,6 +232,25 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
     return h * 60 + m;
   }
 
+  // Charger le token sauvegardé au démarrage de l'application (spécifique aux mobiles)
+  useEffect(() => {
+    const loadStoredAuth = async () => {
+      try {
+        const { value: storedToken } = await Preferences.get({ key: 'token' });
+        if (storedToken) {
+          setToken(storedToken);
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+          }
+        }
+      } catch (e) {
+        console.error('Erreur lors du chargement du token:', e);
+      }
+    };
+    loadStoredAuth();
+  }, []);
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const sharedText = urlParams.get('text') || urlParams.get('title') || urlParams.get('url');
