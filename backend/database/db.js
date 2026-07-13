@@ -236,6 +236,29 @@ db.serialize(() => {
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
   )`);
+
+  // Seed default admin account if it does not exist
+  const adminEmail = 'admin@admin.com';
+  db.get('SELECT id FROM users WHERE email = ?', [adminEmail], (err, row) => {
+    if (!err && !row) {
+      const bcrypt = require('bcryptjs');
+      bcrypt.hash('admin123', 10, (err, hash) => {
+        if (!err && hash) {
+          db.run(
+            `INSERT INTO users (email, password_hash, subscription_plan, subscription_status) VALUES (?, ?, 'premium', 'active')`,
+            [adminEmail, hash],
+            (err) => {
+              if (err) {
+                console.error('Error auto-seeding admin account:', err);
+              } else {
+                console.log(`Auto-seeded default admin account (${adminEmail}) successfully.`);
+              }
+            }
+          );
+        }
+      });
+    }
+  });
 });
 
 module.exports = db;
