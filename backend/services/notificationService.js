@@ -3,11 +3,21 @@ const webpush = require('web-push');
 const db = require('../database/db');
 
 // Setup web-push
-webpush.setVapidDetails(
-  'mailto:test@example.com',
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-);
+let pushConfigured = false;
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  try {
+    webpush.setVapidDetails(
+      'mailto:test@example.com',
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+    pushConfigured = true;
+  } catch (e) {
+    console.error('Erreur lors de la configuration de Web-Push:', e);
+  }
+} else {
+  console.warn('VAPID_PUBLIC_KEY ou VAPID_PRIVATE_KEY manquantes dans .env. Les notifications Push seront désactivées.');
+}
 
 const startNotificationCron = () => {
   // Check every minute
