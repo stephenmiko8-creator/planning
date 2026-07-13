@@ -1,4 +1,4 @@
-package com.planix.app;
+package com.mikiplan.app;
 
 import com.getcapacitor.BridgeActivity;
 

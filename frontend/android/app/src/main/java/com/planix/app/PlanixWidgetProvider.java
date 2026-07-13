@@ -1,4 +1,4 @@
-package com.planix.app;
+package com.mikiplan.app;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class PlanixWidgetProvider extends AppWidgetProvider {
+public class MikiplanWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -27,7 +27,7 @@ public class PlanixWidgetProvider extends AppWidgetProvider {
     }
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_planix);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_mikiplan);
         views.setTextViewText(R.id.widget_event_name, "Chargement...");
         appWidgetManager.updateAppWidget(appWidgetId, views);
 

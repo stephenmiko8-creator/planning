@@ -462,9 +462,9 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-teal">
-            Planix
+            Mikiplan
           </h1>
-          <p className="text-xs md:text-sm text-gray-400 mt-1">Votre agent personnel d'extraction et d'optimisation de temps.</p>
+          <p className="text-xs md:text-sm text-gray-400 mt-1">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
         </div>
         <div className="flex gap-2 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
           {/* User Auth Section */}
@@ -474,7 +474,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
                 <span className="text-xs font-semibold text-gray-300 max-w-[120px] truncate">{user.email}</span>
                 {user.subscription_plan === 'free' ? (
                   <span className="text-[10px] text-gray-500 font-bold">
-                    {user.scan_count_this_month || 0}/10 scans
+                    {user.scan_count_this_month || 0}/5 scans
                   </span>
                 ) : (
                   <span className="text-[10px] text-neon-teal font-bold">

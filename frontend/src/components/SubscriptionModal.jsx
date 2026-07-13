@@ -53,7 +53,7 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
       price: '0€',
       period: 'à vie',
       icon: <Sparkles className="text-gray-400" size={24} />,
-      desc: 'Pour tester les fonctionnalités de base de l\'assistant.',
+      desc: 'Idéal pour découvrir la puissance de Mikiplan.',
       glow: 'shadow-lg border-white/10 hover:border-white/20',
       features: [
         '5 scans intelligents par mois',
@@ -69,7 +69,7 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
       originalPrice: '9.99€',
       period: '/ mois (pendant 3 mois, puis 9.99€)',
       icon: <Zap className="text-neon-teal animate-pulse" size={24} />,
-      desc: 'Pour optimiser votre productivité hebdomadaire sans limite.',
+      desc: 'La solution complète pour les professionnels exigeants.',
       glow: 'shadow-[0_0_30px_rgba(45,212,191,0.2)] border-neon-teal/40 hover:border-neon-teal/70',
       tag: 'Promo -50%',
       features: [
@@ -86,7 +86,7 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
       price: '19.99€',
       period: 'par mois',
       icon: <Flame className="text-neon-purple animate-bounce" size={24} />,
-      desc: 'La puissance ultime de planification assistée par IA.',
+      desc: 'L\'expérience ultime de planification assistée par l\'IA.',
       glow: 'shadow-[0_0_30px_rgba(192,132,252,0.2)] border-neon-purple/40 hover:border-neon-purple/70',
       features: [
         'Tout ce qui est dans le plan Pro',
@@ -112,9 +112,9 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
 
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Nos Plans d'Abonnement</h2>
+          <h2 className="text-3xl font-extrabold text-white tracking-tight">Choisissez votre formule</h2>
           <p className="text-sm text-gray-400 mt-2 max-w-lg mx-auto">
-            Libérez tout le potentiel de Planix et boostez votre productivité quotidienne.
+            Libérez tout le potentiel de Mikiplan et transformez votre manière de planifier.
           </p>
         </div>
 

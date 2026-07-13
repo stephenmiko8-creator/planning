@@ -18,7 +18,7 @@ const authRoutes = require('./routes/authRoutes');
 
 // Base route
 app.get('/', (req, res) => {
-  res.send({ status: 'Planix API is running' });
+  res.send({ status: 'Mikiplan API is running' });
 });
 
 // API Routes

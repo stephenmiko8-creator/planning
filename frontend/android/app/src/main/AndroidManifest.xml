@@ -34,7 +34,7 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
-        <receiver android:name=".PlanixWidgetProvider" android:exported="true">
+        <receiver android:name=".MikiplanWidgetProvider" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

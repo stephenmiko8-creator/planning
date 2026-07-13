@@ -1,7 +1,7 @@
 {
-  "name": "Planix",
-  "short_name": "Planning",
-  "description": "Votre assistant de planification personnel IA",
+  "name": "Mikiplan — Assistant de planification IA",
+  "short_name": "Mikiplan",
+  "description": "Votre assistant de planification intelligent propulsé par l'IA. Scannez, organisez et optimisez votre emploi du temps en un instant.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
