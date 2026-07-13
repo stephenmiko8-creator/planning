@@ -9,11 +9,11 @@ router.use(authMiddleware);
 // Sauvegarder un événement (avec anti-duplication)
 router.post('/add', (req, res) => {
   const { titre, date_absolue, heure_debut, heure_fin, type, priorite, status, categorie, notes } = req.body;
-  const userId = req.user ? req.user.id : null;
+  const userId = req.user.id;
   
   // Vérifier si un événement identique existe déjà
-  const checkQuery = `SELECT id FROM events WHERE titre = ? AND date_absolue = ? AND heure_debut = ? AND (user_id = ? OR (user_id IS NULL AND ? IS NULL))`;
-  db.get(checkQuery, [titre, date_absolue, heure_debut, userId, userId], (err, existing) => {
+  const checkQuery = `SELECT id FROM events WHERE titre = ? AND date_absolue = ? AND heure_debut = ? AND user_id = ?`;
+  db.get(checkQuery, [titre, date_absolue, heure_debut, userId], (err, existing) => {
     if (err) return res.status(500).json({ error: err.message });
     
     if (existing) {
@@ -31,8 +31,8 @@ router.post('/add', (req, res) => {
 
 // Supprimer un evenement
 router.delete('/:id', (req, res) => {
-  const userId = req.user ? req.user.id : null;
-  db.run(`DELETE FROM events WHERE id = ? AND (user_id = ? OR (user_id IS NULL AND ? IS NULL))`, [req.params.id, userId, userId], function(err) {
+  const userId = req.user.id;
+  db.run(`DELETE FROM events WHERE id = ? AND user_id = ?`, [req.params.id, userId], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ success: true, deleted: this.changes });
   });
@@ -41,17 +41,17 @@ router.delete('/:id', (req, res) => {
 // Mettre à jour un événement
 router.put('/:id', (req, res) => {
   const { titre, date_absolue, heure_debut, heure_fin, type, priorite, status, categorie, notes } = req.body;
-  const userId = req.user ? req.user.id : null;
+  const userId = req.user.id;
   const eventId = req.params.id;
 
   const updateQuery = `
     UPDATE events 
     SET titre = ?, date_absolue = ?, heure_debut = ?, heure_fin = ?, type = ?, priorite = ?, status = ?, categorie = ?, notes = ?
-    WHERE id = ? AND (user_id = ? OR (user_id IS NULL AND ? IS NULL))
+    WHERE id = ? AND user_id = ?
   `;
   db.run(
     updateQuery,
-    [titre, date_absolue, heure_debut, heure_fin, type, priorite, status || 'pending', categorie || null, notes || null, eventId, userId, userId],
+    [titre, date_absolue, heure_debut, heure_fin, type, priorite, status || 'pending', categorie || null, notes || null, eventId, userId],
     function(err) {
       if (err) return res.status(500).json({ error: err.message });
       res.json({ success: true, updated: this.changes });
@@ -61,8 +61,8 @@ router.put('/:id', (req, res) => {
 
 // Tout supprimer
 router.post('/purge', (req, res) => {
-  const userId = req.user ? req.user.id : null;
-  db.run(`DELETE FROM events WHERE user_id = ? OR (user_id IS NULL AND ? IS NULL)`, [userId, userId], function(err) {
+  const userId = req.user.id;
+  db.run(`DELETE FROM events WHERE user_id = ?`, [userId], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ success: true, removed: this.changes });
   });
@@ -70,8 +70,8 @@ router.post('/purge', (req, res) => {
 
 // Récupérer TOUS les événements
 router.get('/all', (req, res) => {
-  const userId = req.user ? req.user.id : null;
-  db.all(`SELECT * FROM events WHERE user_id = ? OR (user_id IS NULL AND ? IS NULL) ORDER BY date_absolue ASC, heure_debut ASC`, [userId, userId], (err, rows) => {
+  const userId = req.user.id;
+  db.all(`SELECT * FROM events WHERE user_id = ? ORDER BY date_absolue ASC, heure_debut ASC`, [userId], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ success: true, events: rows });
   });
@@ -79,13 +79,13 @@ router.get('/all', (req, res) => {
 
 // Supprimer les doublons existants
 router.post('/cleanup', (req, res) => {
-  const userId = req.user ? req.user.id : null;
+  const userId = req.user.id;
   const cleanupQuery = `
-    DELETE FROM events WHERE (user_id = ? OR (user_id IS NULL AND ? IS NULL)) AND id NOT IN (
-      SELECT MIN(id) FROM events WHERE (user_id = ? OR (user_id IS NULL AND ? IS NULL)) GROUP BY titre, date_absolue, heure_debut
+    DELETE FROM events WHERE user_id = ? AND id NOT IN (
+      SELECT MIN(id) FROM events WHERE user_id = ? GROUP BY titre, date_absolue, heure_debut
     )
   `;
-  db.run(cleanupQuery, [userId, userId, userId, userId], function(err) {
+  db.run(cleanupQuery, [userId, userId], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ success: true, removed: this.changes });
   });
@@ -94,9 +94,9 @@ router.post('/cleanup', (req, res) => {
 // Récupérer les KPIs
 router.get('/kpi', (req, res) => {
   const today = new Date().toISOString().split('T')[0];
-  const userId = req.user ? req.user.id : null;
+  const userId = req.user.id;
   
-  db.all(`SELECT * FROM events WHERE user_id = ? OR (user_id IS NULL AND ? IS NULL)`, [userId, userId], (err, rows) => {
+  db.all(`SELECT * FROM events WHERE user_id = ?`, [userId], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     
     const totalEvents = rows.length;
