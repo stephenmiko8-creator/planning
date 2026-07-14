@@ -398,7 +398,7 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
               Analyser ma semaine
             </button>
           </div>
-        )}
+        ) : null}
 
         {isGeneratingCoach && (
           <div className="flex flex-col items-center justify-center py-8 text-center gap-3">
