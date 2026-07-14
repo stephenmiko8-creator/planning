@@ -11,7 +11,8 @@ import SubscriptionModal from './SubscriptionModal';
 import TaskPanel from './TaskPanel';
 import AIChatPanel from './AIChatPanel';
 import ProjectBreakdown from './ProjectBreakdown';
-import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Clock, Calendar as CalendarIcon, Zap, Bot, Target } from 'lucide-react';
+import GuidePanel from './GuidePanel';
+import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Clock, Calendar as CalendarIcon, Zap, Bot, Target, HelpCircle } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useToast } from './Toast';
 import { Preferences } from '@capacitor/preferences';
@@ -92,6 +93,45 @@ const UpcomingEventWidget = ({ events }) => {
   );
 };
 
+const Paywall = ({ requiredPlan, title, description, features, onUpgrade }) => {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center max-w-xl mx-auto space-y-6 animate-[fadeIn_0.5s_ease-out]">
+      <div className="relative">
+        <div className="w-20 h-20 bg-neon-purple/10 rounded-2xl border border-neon-purple/20 flex items-center justify-center text-neon-purple shadow-[0_0_30px_rgba(168,85,247,0.2)] animate-pulse">
+          <Zap size={36} className={requiredPlan === 'premium' ? 'text-neon-purple' : 'text-neon-teal'} />
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <h2 className="text-2xl font-black text-white">{title}</h2>
+        <p className="text-sm text-gray-400 leading-relaxed">{description}</p>
+      </div>
+
+      <div className="w-full bg-white/5 border border-white/5 rounded-2xl p-5 text-left space-y-3">
+        <span className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider">Avantages débloqués :</span>
+        <ul className="space-y-2.5 text-xs text-gray-300">
+          {features.map((feat, idx) => (
+            <li key={idx} className="flex items-start gap-2">
+              <span className={requiredPlan === 'premium' ? 'text-neon-purple' : 'text-neon-teal'}>✔</span>
+              <span>{feat}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <button
+        onClick={onUpgrade}
+        className={`w-full py-3 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg cursor-pointer ${
+          requiredPlan === 'premium'
+            ? 'bg-gradient-to-r from-neon-purple to-neon-blue text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+            : 'bg-neon-teal text-dark-950 shadow-[0_0_15px_rgba(20,184,166,0.3)]'
+        }`}
+      >
+        Débloquer la formule {requiredPlan.toUpperCase()}
+      </button>
+    </div>
+  );
+};
 
 const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const { addToast } = useToast();
@@ -537,6 +577,14 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
               </button>
 
               <button 
+                onClick={() => setActiveView('guide')}
+                title="Guide d'utilisation"
+                className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-xl"
+              >
+                <HelpCircle size={14} />
+              </button>
+
+              <button 
                 onClick={() => setActiveView('settings')}
                 title="Paramètres"
                 className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-xl"
@@ -777,7 +825,29 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       )}
 
       {activeView === 'stats' && (
-        <StatsPanel events={savedEvents} conflicts={conflicts} categories={categories} token={token} />
+        user?.subscription_plan === 'free' ? (
+          <Paywall 
+            requiredPlan="pro"
+            title="Statistiques de Performance Verrouillées"
+            description="Analysez votre charge horaire, suivez l'évolution de vos sessions et générez des rapports professionnels par e-mail."
+            features={[
+              "Accès aux statistiques détaillées de productivité",
+              "Générateur de rapports d'activité sur-mesure",
+              "Détection des conflits et chevauchements d'agenda",
+              "Exportation au format CSV de vos plannings"
+            ]}
+            onUpgrade={() => setIsSubOpen(true)}
+          />
+        ) : (
+          <StatsPanel 
+            events={savedEvents} 
+            conflicts={conflicts} 
+            categories={categories} 
+            token={token} 
+            user={user}
+            setIsSubOpen={setIsSubOpen}
+          />
+        )
       )}
       {activeView === 'settings' && (
         <SettingsPanel 
@@ -790,38 +860,89 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         />
       )}
       {activeView === 'tasks' && (
-        <TaskPanel 
-          API_BASE_URL={API_BASE_URL}
-          getHeaders={getHeaders}
-          addToast={addToast}
-          config={config}
-          user={user}
-          onScheduleComplete={() => {
-            loadSavedEvents();
-            setActiveView('calendar');
-          }}
-        />
+        user?.subscription_plan !== 'premium' ? (
+          <Paywall 
+            requiredPlan="premium"
+            title="Auto-Schedule IA Verrouillé"
+            description="Laissez l'intelligence artificielle organiser vos corvées et tâches libres dans les créneaux disponibles de votre calendrier."
+            features={[
+              "Algorithme d'organisation automatique (Auto-Scheduling)",
+              "Respect intelligent de vos temps de pause et priorités",
+              "Optimisation de votre équilibre pro/perso",
+              "Placement intelligent des tâches en un clic"
+            ]}
+            onUpgrade={() => setIsSubOpen(true)}
+          />
+        ) : (
+          <TaskPanel 
+            API_BASE_URL={API_BASE_URL}
+            getHeaders={getHeaders}
+            addToast={addToast}
+            config={config}
+            user={user}
+            onScheduleComplete={() => {
+              loadSavedEvents();
+              setActiveView('calendar');
+            }}
+          />
+        )
       )}
       {activeView === 'breakdown' && (
-        <ProjectBreakdown 
-          API_BASE_URL={API_BASE_URL}
-          getHeaders={getHeaders}
-          addToast={addToast}
-          config={config}
-          user={user}
-          onTasksAdded={() => {
-            setActiveView('tasks');
-          }}
-        />
+        user?.subscription_plan !== 'premium' ? (
+          <Paywall 
+            requiredPlan="premium"
+            title="Découpeur de Projets IA Verrouillé"
+            description="Décomposez vos grands objectifs (ex: apprendre une langue, préparer un examen) en étapes actionnables prêtes à être planifiées."
+            features={[
+              "Décomposition d'objectifs complexes par l'IA",
+              "Création automatique d'étapes hebdomadaires structurées",
+              "Calcul d'estimations horaires réalistes",
+              "Ajout direct à votre liste de planification"
+            ]}
+            onUpgrade={() => setIsSubOpen(true)}
+          />
+        ) : (
+          <ProjectBreakdown 
+            API_BASE_URL={API_BASE_URL}
+            getHeaders={getHeaders}
+            addToast={addToast}
+            config={config}
+            user={user}
+            onTasksAdded={() => {
+              setActiveView('tasks');
+            }}
+          />
+        )
       )}
       {activeView === 'chat' && (
-        <AIChatPanel 
-          API_BASE_URL={API_BASE_URL}
-          getHeaders={getHeaders}
-          addToast={addToast}
-          config={config}
+        user?.subscription_plan !== 'premium' ? (
+          <Paywall 
+            requiredPlan="premium"
+            title="Assistant Chatbot IA Verrouillé"
+            description="Pilotez Mikiplan en discutant en langage naturel. Planifiez des événements ou posez des questions sur votre emploi du temps."
+            features={[
+              "Planification d'événements par simple message",
+              "Recherche intelligente d'événements dans le calendrier",
+              "Compréhension fluide du langage naturel",
+              "Modifications à la voix ou par message instantané"
+            ]}
+            onUpgrade={() => setIsSubOpen(true)}
+          />
+        ) : (
+          <AIChatPanel 
+            API_BASE_URL={API_BASE_URL}
+            getHeaders={getHeaders}
+            addToast={addToast}
+            config={config}
+            user={user}
+            onRefreshCalendar={loadSavedEvents}
+          />
+        )
+      )}
+      {activeView === 'guide' && (
+        <GuidePanel 
           user={user}
-          onRefreshCalendar={loadSavedEvents}
+          setIsSubOpen={setIsSubOpen}
         />
       )}
       {/* Event Detail Modal */}

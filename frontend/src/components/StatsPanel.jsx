@@ -93,7 +93,7 @@ function normalizeActivityTitle(title) {
   return title;
 }
 
-const StatsPanel = ({ events, conflicts, categories = [], token }) => {
+const StatsPanel = ({ events, conflicts, categories = [], token, user, setIsSubOpen }) => {
   // Report states
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -377,6 +377,25 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
             >
               <LogIn size={14} />
               Se connecter
+            </button>
+          </div>
+        ) : user?.subscription_plan !== 'premium' ? (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-neon-purple/20 flex items-center justify-center text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0">
+                <Sparkles size={24} className="animate-pulse" />
+              </div>
+              <div>
+                <h4 className="font-bold text-white text-lg">Coach de Vie Personnel (IA)</h4>
+                <p className="text-gray-400 text-xs mt-0.5">Le Coach IA est exclusif aux membres **Premium**. Il analyse votre équilibre de vie.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsSubOpen && setIsSubOpen(true)}
+              className="px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-white font-bold rounded-xl text-xs hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+            >
+              <Sparkles size={14} />
+              Passer à Premium
             </button>
           </div>
         ) : !coachInsights && !isGeneratingCoach ? (
