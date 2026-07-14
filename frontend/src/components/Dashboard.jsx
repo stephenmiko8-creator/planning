@@ -61,32 +61,26 @@ const UpcomingEventWidget = ({ events }) => {
   const isToday = nextEvent.date_absolue === todayStr;
 
   return (
-    <div className="w-full bg-gradient-to-r from-neon-purple/20 to-neon-teal/20 border border-white/10 rounded-2xl p-4 flex items-center justify-between mb-2 shadow-[0_0_20px_rgba(168,85,247,0.15)] relative overflow-hidden backdrop-blur-sm group hover:border-neon-purple/40 transition-all">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-neon-teal/10 transition-all"></div>
-      <div className="flex items-center gap-4 z-10">
-        <div className="h-12 w-12 rounded-xl bg-dark-900/80 border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
-          <Clock className="text-neon-teal" size={24} />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-neon-purple flex items-center gap-1">
-            <Zap size={10} /> Prochain Événement
-          </span>
-          <span className="text-white font-bold text-lg truncate max-w-[200px] md:max-w-[400px]">
-            {nextEvent.titre}
-          </span>
-          <span className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-            <CalendarIcon size={12} />
-            {isToday ? "Aujourd'hui à " : `${new Date(nextEvent.date_absolue).toLocaleDateString('fr-FR')} à `}
-            <strong className="text-gray-200">{nextEvent.heure_debut}</strong>
-          </span>
-        </div>
-      </div>
-      <div className="z-10 flex flex-col items-end">
-        <span className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
-          {timeStr}
+    <div className="w-full bg-gradient-to-r from-neon-purple/10 to-neon-teal/10 border border-white/10 rounded-xl px-3 py-2 flex items-center justify-between gap-3 backdrop-blur-sm hover:border-neon-purple/30 transition-all">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <Clock className="text-neon-teal shrink-0" size={16} />
+        <span className="text-[10px] uppercase font-bold tracking-wider text-neon-purple shrink-0 hidden sm:inline">
+          Prochain :
         </span>
-        <span className={`text-[10px] px-2 py-0.5 rounded-full mt-1 font-bold ${nextEvent.color_class || 'bg-gray-500/20 border border-gray-500/40 text-gray-300'}`}>
+        <span className="text-white font-bold text-sm truncate">
+          {nextEvent.titre}
+        </span>
+        <span className="text-xs text-gray-400 shrink-0 hidden sm:flex items-center gap-1">
+          <CalendarIcon size={11} />
+          {isToday ? "Auj." : new Date(nextEvent.date_absolue).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })} {nextEvent.heure_debut}
+        </span>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold hidden md:inline ${nextEvent.color_class || 'bg-gray-500/20 border border-gray-500/40 text-gray-300'}`}>
           {nextEvent.categorie || 'Général'}
+        </span>
+        <span className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 whitespace-nowrap">
+          {timeStr}
         </span>
       </div>
     </div>
