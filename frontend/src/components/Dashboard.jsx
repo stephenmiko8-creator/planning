@@ -158,7 +158,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
   });
 
   const navItems = useMemo(() => [
-    { id: 'calendar', icon: <LayoutGrid size={16} />, label: 'Calendrier' },
+    { id: 'calendar', icon: <LayoutGrid size={16} />, label: 'Planning' },
     { id: 'list', icon: <List size={16} />, label: 'Liste' },
     { id: 'tasks', icon: <CheckCircle2 size={16} />, label: 'Tâches (IA)', locked: user && user.subscription_plan !== 'premium' },
     { id: 'breakdown', icon: <Target size={16} />, label: 'Projets (IA)', locked: user && user.subscription_plan !== 'premium' },
