@@ -136,19 +136,6 @@ const Paywall = ({ requiredPlan, title, description, features, onUpgrade }) => {
 const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const { addToast } = useToast();
   const [events, setEvents] = useState([]);
-
-  const navItems = useMemo(() => [
-    { id: 'calendar', icon: <LayoutGrid size={16} />, label: 'Calendrier' },
-    { id: 'list', icon: <List size={16} />, label: 'Liste' },
-    { id: 'tasks', icon: <CheckCircle2 size={16} />, label: 'Tâches (IA)', locked: user && user.subscription_plan !== 'premium' },
-    { id: 'breakdown', icon: <Target size={16} />, label: 'Projets (IA)', locked: user && user.subscription_plan !== 'premium' },
-    { id: 'chat', icon: <Bot size={16} />, label: 'Chatbot', locked: user && user.subscription_plan !== 'premium' },
-    { id: 'stats', icon: <BarChart3 size={16} />, label: 'Statistiques', locked: user && user.subscription_plan === 'free' },
-    { id: 'settings', icon: <Settings size={16} />, label: 'Paramètres' },
-    { id: 'guide', icon: <HelpCircle size={16} />, label: "Guide d'utilisation" },
-  ], [user]);
-
-  const currentViewItem = useMemo(() => navItems.find(item => item.id === activeView) || navItems[0], [navItems, activeView]);
   const [savedEvents, setSavedEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
@@ -169,6 +156,19 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       return null;
     }
   });
+
+  const navItems = useMemo(() => [
+    { id: 'calendar', icon: <LayoutGrid size={16} />, label: 'Calendrier' },
+    { id: 'list', icon: <List size={16} />, label: 'Liste' },
+    { id: 'tasks', icon: <CheckCircle2 size={16} />, label: 'Tâches (IA)', locked: user && user.subscription_plan !== 'premium' },
+    { id: 'breakdown', icon: <Target size={16} />, label: 'Projets (IA)', locked: user && user.subscription_plan !== 'premium' },
+    { id: 'chat', icon: <Bot size={16} />, label: 'Chatbot', locked: user && user.subscription_plan !== 'premium' },
+    { id: 'stats', icon: <BarChart3 size={16} />, label: 'Statistiques', locked: user && user.subscription_plan === 'free' },
+    { id: 'settings', icon: <Settings size={16} />, label: 'Paramètres' },
+    { id: 'guide', icon: <HelpCircle size={16} />, label: "Guide d'utilisation" },
+  ], [user]);
+
+  const currentViewItem = useMemo(() => navItems.find(item => item.id === activeView) || navItems[0], [navItems, activeView]);
 
   const [config, setConfig] = useState({
     timezone: 'Europe/Paris',
