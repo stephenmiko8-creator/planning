@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { BarChart3, Clock, BookOpen, AlertTriangle, TrendingUp, Calendar, FileText, Sparkles, Copy, Check, PieChart, Activity } from 'lucide-react';
+import { BarChart3, Clock, BookOpen, AlertTriangle, TrendingUp, Calendar, FileText, Sparkles, Copy, Check, PieChart, Activity, LogIn } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const getCategoryColor = (catName, categories = []) => {
@@ -360,7 +360,26 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
       <div className="glass-panel p-5 border border-neon-purple/20 relative overflow-hidden text-left">
         <div className="absolute top-0 right-0 w-48 h-48 bg-neon-purple/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
         
-        {!coachInsights && !isGeneratingCoach && (
+        {!token ? (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-neon-purple/20 flex items-center justify-center text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0">
+                <Sparkles size={24} className="animate-pulse" />
+              </div>
+              <div>
+                <h4 className="font-bold text-white text-lg">Coach de Vie Personnel (IA)</h4>
+                <p className="text-gray-400 text-xs mt-0.5">Veuillez vous connecter pour que le Coach IA puisse analyser votre emploi du temps.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => document.querySelector('[title="Connexion"]')?.click() || document.querySelector('button:has(.lucide-log-in)')?.click() || alert('Veuillez cliquer sur le bouton Connexion en haut à droite.')}
+              className="px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-white font-bold rounded-xl text-xs hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+            >
+              <LogIn size={14} />
+              Se connecter
+            </button>
+          </div>
+        ) : !coachInsights && !isGeneratingCoach ? (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-neon-purple/20 flex items-center justify-center text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0">
