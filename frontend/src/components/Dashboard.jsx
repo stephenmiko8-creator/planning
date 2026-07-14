@@ -147,6 +147,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const [addModalInitialValues, setAddModalInitialValues] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSubOpen, setIsSubOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(() => {
     try {
@@ -166,6 +167,12 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
     { id: 'settings', icon: <Settings size={16} />, label: 'Paramètres' },
     { id: 'guide', icon: <HelpCircle size={16} />, label: "Guide d'utilisation" },
   ], [user]);
+
+  // Primary tabs always visible, secondary tucked into 'Plus' dropdown
+  const primaryTabIds = ['calendar', 'list', 'tasks', 'breakdown', 'chat'];
+  const primaryTabs = useMemo(() => navItems.filter(item => primaryTabIds.includes(item.id)), [navItems]);
+  const secondaryTabs = useMemo(() => navItems.filter(item => !primaryTabIds.includes(item.id)), [navItems]);
+  const isSecondaryActive = useMemo(() => secondaryTabs.some(item => item.id === activeView), [secondaryTabs, activeView]);
 
   const currentViewItem = useMemo(() => navItems.find(item => item.id === activeView) || navItems[0], [navItems, activeView]);
 
@@ -308,6 +315,17 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
     };
     loadStoredAuth();
   }, []);
+
+  // Close 'More' dropdown on click-outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMoreOpen && !event.target.closest('.more-dropdown-container')) {
+        setIsMoreOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isMoreOpen]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -640,9 +658,9 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         <UpcomingEventWidget events={savedEvents} />
       )}
 
-      {/* View Tabs - Desktop Only */}
-      <div className="hidden md:flex gap-2">
-        {navItems.map(tab => (
+      {/* View Tabs - Desktop: Primary tabs + 'Plus' dropdown for secondary */}
+      <div className="hidden md:flex gap-2 items-center">
+        {primaryTabs.map(tab => (
           <button 
             key={tab.id}
             onClick={() => setActiveView(tab.id)}
@@ -655,6 +673,47 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
             {tab.icon} {tab.label} {tab.locked && <span className="text-[10px] text-gray-500 font-extrabold uppercase">🔒</span>}
           </button>
         ))}
+
+        {/* 'Plus' dropdown for secondary items */}
+        <div className="relative more-dropdown-container">
+          <button
+            onClick={() => setIsMoreOpen(!isMoreOpen)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+              isSecondaryActive
+                ? 'bg-neon-purple/30 text-neon-purple border border-neon-purple/50'
+                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <ChevronDown size={14} className={`transition-transform duration-200 ${isMoreOpen ? 'rotate-180' : ''}`} />
+            Plus
+          </button>
+          {isMoreOpen && (
+            <div className="absolute right-0 mt-2 w-52 bg-dark-900/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-[fadeIn_0.2s_ease-out]">
+              {secondaryTabs.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveView(item.id);
+                    setIsMoreOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 text-left text-sm font-semibold transition-all hover:bg-white/5 cursor-pointer ${
+                    activeView === item.id
+                      ? 'text-neon-purple bg-neon-purple/5'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                  {item.locked && (
+                    <span className="text-[10px] text-gray-500 font-extrabold uppercase">🔒</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Main Content */}
