@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { BarChart3, Clock, BookOpen, AlertTriangle, TrendingUp, Calendar, FileText, Sparkles, Copy, Check, PieChart, Activity, LogIn } from 'lucide-react';
+import { BarChart3, Clock, BookOpen, AlertTriangle, TrendingUp, Calendar, FileText, Sparkles, Copy, Check, PieChart, Activity, LogIn, RefreshCw } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const getCategoryColor = (catName, categories = []) => {
