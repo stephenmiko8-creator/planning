@@ -722,7 +722,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         return (
                           <div
                             key={e.id || ei}
-                            className={`absolute rounded-md border px-1 py-0.5 text-xs overflow-hidden cursor-pointer pointer-events-auto group transition-all hover:z-20 hover:shadow-lg animate-sky-panel ${getCourseColor(e.titre, e.type, e.categorie, categories)} ${isConflict ? 'ring-2 ring-red-500 animate-pulse' : ''}`}
+                            className={`absolute rounded-md border px-1 py-0.5 text-xs overflow-hidden cursor-pointer pointer-events-auto group transition-all hover:z-20 hover:shadow-lg animate-sky-panel event-card-hover ${getCourseColor(e.titre, e.type, e.categorie, categories)} ${isConflict ? 'ring-2 ring-red-500 animate-pulse' : ''}`}
                             style={{
                               top: `${topOffset}px`,
                               height: `${duration}px`,
@@ -845,7 +845,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                         return (
                           <div
                             key={e.id || ei}
-                            className={`absolute rounded-md border px-1 py-0.5 text-xs overflow-hidden cursor-pointer pointer-events-auto group transition-all hover:z-20 hover:shadow-lg animate-sky-panel ${getCourseColor(e.titre, e.type, e.categorie, categories)} ${isConflict ? 'ring-2 ring-red-500 animate-pulse' : ''}`}
+                            className={`absolute rounded-md border px-1 py-0.5 text-xs overflow-hidden cursor-pointer pointer-events-auto group transition-all hover:z-20 hover:shadow-lg animate-sky-panel event-card-hover ${getCourseColor(e.titre, e.type, e.categorie, categories)} ${isConflict ? 'ring-2 ring-red-500 animate-pulse' : ''}`}
                             style={{
                               top: `${topOffset}px`,
                               height: `${duration}px`,

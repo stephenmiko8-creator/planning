@@ -102,6 +102,45 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
   const [isCopied, setIsCopied] = useState(false);
   const [error, setError] = useState('');
   const [tableFilter, setTableFilter] = useState('realized'); // 'realized', 'pending', 'all'
+  
+  // Coach states
+  const [coachInsights, setCoachInsights] = useState(null);
+  const [isGeneratingCoach, setIsGeneratingCoach] = useState(false);
+  const [coachError, setCoachError] = useState('');
+
+  const handleGenerateCoachInsights = async () => {
+    setIsGeneratingCoach(true);
+    setCoachError('');
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/api/scan/coach`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          events,
+          currentDate: new Date().toISOString().split('T')[0]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération des conseils');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setCoachInsights(data);
+      } else {
+        throw new Error(data.error || "Aucun conseil généré.");
+      }
+    } catch (err) {
+      console.error(err);
+      setCoachError(err.message);
+    } finally {
+      setIsGeneratingCoach(false);
+    }
+  };
 
   const stats = useMemo(() => {
     let totalMinutes = 0;
@@ -317,6 +356,128 @@ const StatsPanel = ({ events, conflicts, categories = [], token }) => {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Coach de Vie IA Section */}
+      <div className="glass-panel p-5 border border-neon-purple/20 relative overflow-hidden text-left">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-neon-purple/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+        
+        {!coachInsights && !isGeneratingCoach && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-neon-purple/20 flex items-center justify-center text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0">
+                <Sparkles size={24} className="animate-pulse" />
+              </div>
+              <div>
+                <h4 className="font-bold text-white text-lg">Coach de Vie Personnel (IA)</h4>
+                <p className="text-gray-400 text-xs mt-0.5">L'IA analyse votre charge de travail et vos activités pour vous conseiller sur votre équilibre.</p>
+              </div>
+            </div>
+            <button
+              onClick={handleGenerateCoachInsights}
+              className="px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-white font-bold rounded-xl text-xs hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+            >
+              <Sparkles size={14} />
+              Analyser ma semaine
+            </button>
+          </div>
+        )}
+
+        {isGeneratingCoach && (
+          <div className="flex flex-col items-center justify-center py-8 text-center gap-3">
+            <RefreshCw size={24} className="animate-spin text-neon-purple" />
+            <p className="text-sm font-semibold text-gray-300">Le Coach IA étudie vos habitudes et calcule votre score d'équilibre...</p>
+          </div>
+        )}
+
+        {coachError && (
+          <div className="flex flex-col items-center py-4 gap-2">
+            <p className="text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-2.5">{coachError}</p>
+            <button onClick={handleGenerateCoachInsights} className="text-xs text-neon-purple font-bold underline">Réessayer</button>
+          </div>
+        )}
+
+        {coachInsights && !isGeneratingCoach && (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/5 pb-4 gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-neon-purple/20 flex items-center justify-center text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-white">Analyse de votre équilibre</h4>
+                  <p className="text-gray-400 text-xs mt-0.5">Conseils personnalisés basés sur votre planning actuel.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="flex flex-col items-start md:items-end">
+                  <span className="text-[10px] text-gray-500 font-extrabold uppercase">Score d'équilibre</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-black text-neon-teal">{coachInsights.score}/10</span>
+                    <span className="text-xs px-2.5 py-0.5 bg-neon-teal/20 text-neon-teal border border-neon-teal/30 font-bold rounded-full">{coachInsights.score_label}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleGenerateCoachInsights}
+                  className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white border border-white/10 rounded-xl transition-all cursor-pointer ml-auto md:ml-0"
+                  title="Regénérer"
+                >
+                  <RefreshCw size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Positive points */}
+              <div className="bg-green-500/5 border border-green-500/10 rounded-xl p-4">
+                <h5 className="font-bold text-green-400 text-sm mb-3 flex items-center gap-1.5">👍 Ce qui va bien</h5>
+                <ul className="space-y-2 text-xs text-gray-300">
+                  {coachInsights.positifs?.map((p, i) => (
+                    <li key={i} className="flex items-start gap-1.5">
+                      <span className="text-green-500">•</span>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Warnings / Alerts */}
+              <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4">
+                <h5 className="font-bold text-red-400 text-sm mb-3 flex items-center gap-1.5">⚠️ Points d'attention</h5>
+                <ul className="space-y-2 text-xs text-gray-300">
+                  {coachInsights.alertes?.map((a, i) => (
+                    <li key={i} className="flex items-start gap-1.5">
+                      <span className="text-red-500">•</span>
+                      <span>{a}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Recommendations */}
+            <div className="space-y-3">
+              <h5 className="font-bold text-white text-sm">💡 Conseils personnalisés pour la semaine prochaine :</h5>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {coachInsights.conseils?.map((c, i) => (
+                  <div key={i} className="bg-white/5 border border-white/5 rounded-xl p-3.5 hover:bg-white/10 transition-colors">
+                    <span className="text-2xl mb-2 block">
+                      {c.icon === 'rest' ? '🛌' : c.icon === 'sport' ? '🏃‍♂️' : c.icon === 'work' ? '💻' : c.icon === 'social' ? '🍻' : '🩺'}
+                    </span>
+                    <h6 className="font-bold text-sm text-gray-200">{c.titre}</h6>
+                    <p className="text-xs text-gray-400 mt-1">{c.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Motivation Quote */}
+            <p className="text-sm italic text-neon-purple text-center border-t border-white/5 pt-4 mt-2">
+              "{coachInsights.motivation}"
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* Compact KPI Summary Bar */}
       <div className="glass-panel p-4 rounded-2xl">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">

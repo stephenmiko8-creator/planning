@@ -4,8 +4,16 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const stripeRoutes = require('./routes/stripeRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+
 const app = express();
 app.use(cors());
+
+// Webhook Stripe doit parser le body en brut, AVANT express.json()
+// On utilise app.use spécifiquement pour le path du webhook
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
@@ -27,6 +35,8 @@ app.use('/api/scan', scanRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/stripe', stripeRoutes);
+app.use('/api/tasks', taskRoutes);
 
 const pushRoutes = require('./routes/pushRoutes');
 const notificationService = require('./services/notificationService');

@@ -153,10 +153,24 @@ db.serialize(() => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE,
     password_hash TEXT,
+    stripe_customer_id TEXT,
     subscription_plan TEXT DEFAULT 'free',
     subscription_status TEXT DEFAULT 'active',
     scan_count_this_month INTEGER DEFAULT 0,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )`);
+  db.run(`ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`, () => {});
+
+  // Table tasks (for auto-scheduling)
+  db.run(`CREATE TABLE IF NOT EXISTS tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    title TEXT NOT NULL,
+    duration_minutes INTEGER DEFAULT 60,
+    priority TEXT DEFAULT 'normale',
+    status TEXT DEFAULT 'pending',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
   )`);
 
   // Table events
@@ -198,7 +212,7 @@ db.serialize(() => {
           [null, 'Autre', 'bg-indigo-500/30 border-indigo-500/60 text-indigo-200']
         ];
         const stmt = db.prepare(`INSERT OR IGNORE INTO categories (user_id, name, color_class) VALUES (?, ?, ?)`);
-        defaults.forEach(d => stmt.run(d));
+        defaults.forEach(d => stmt.run(d, (err) => {}));
         stmt.finalize();
       }
     });

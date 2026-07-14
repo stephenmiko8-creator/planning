@@ -24,7 +24,7 @@ const EventCard = ({ event, onAdd }) => {
   };
 
   return (
-    <div className={`glass-panel p-4 flex flex-col gap-3 border-l-4 ${getPriorityColor(event.priorite)}`}>
+    <div className={`glass-panel p-4 flex flex-col gap-3 border-l-4 event-card-hover ${getPriorityColor(event.priorite)}`}>
       <div className="flex justify-between items-start">
         <h3 className="text-lg font-bold text-white">{event.titre}</h3>
         <span className="text-xs px-2 py-1 rounded-full bg-white/10 uppercase tracking-wider">

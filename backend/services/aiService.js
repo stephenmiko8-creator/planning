@@ -211,8 +211,258 @@ Utilise des tableaux Markdown pour la présentation des chiffres et des puces cl
   }
 }
 
+async function autoScheduleTasks(tasks, existingEvents, categoriesList, currentDate, timezone, userProfileContext = '') {
+  try {
+    const prompt = `
+=== CONTEXTE ===
+Date de reference (lundi de la semaine actuelle) : ${currentDate}
+Fuseau horaire : ${timezone}
+${userProfileContext ? `Profil utilisateur: ${userProfileContext}` : ''}
+
+Tu es un assistant IA expert en productivite et gestion du temps.
+Ton objectif est de planifier une liste de tâches (qui n'ont pas encore de date/heure) dans la semaine en cours, en evitant les conflits avec les evenements deja existants.
+
+=== EVENEMENTS DEJA PLANIFIES (Ne pas ecraser) ===
+${JSON.stringify(existingEvents.map(e => ({
+  titre: e.titre,
+  date: e.date_absolue,
+  debut: e.heure_debut,
+  fin: e.heure_fin
+})), null, 2)}
+
+=== TACHES A PLANIFIER ===
+${JSON.stringify(tasks.map(t => ({
+  id: t.id,
+  titre: t.title,
+  duree_minutes: t.duration_minutes,
+  priorite: t.priority
+})), null, 2)}
+
+=== CONTRAINTES DE PLANIFICATION ===
+1. Ne planifie des tâches qu'entre 08:00 et 22:00.
+2. Ne mets jamais deux evenements ou tâches en meme temps (pas de chevauchement). Laisse au moins 15 minutes de pause entre chaque element si possible.
+3. Repartis les tâches intelligemment sur la semaine (Lundi a Dimanche a partir de la date de reference). Ne mets pas tout le meme jour.
+4. Les tâches avec la priorite "haute" ou "critique" doivent etre placees le plus tot possible dans la semaine.
+5. Utilise les categories fournies si pertinent: ${categoriesList.map(c => c.name).join(' / ')}. Par defaut, utilise "Travail" ou "Tâche".
+
+=== FORMAT DE SORTIE ATTENDU ===
+Retourne UNIQUEMENT un JSON valide, sans markdown, sans commentaire :
+{
+  "scheduled_tasks": [
+    {
+      "task_id": 1,
+      "titre": "Titre de la tâche",
+      "date_absolue": "YYYY-MM-DD",
+      "heure_debut": "HH:MM",
+      "heure_fin": "HH:MM",
+      "duree_minutes": 60,
+      "categorie": "Tâche"
+    }
+  ]
+}
+`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json'
+      }
+    });
+
+    const rawText = response.text;
+    const cleanedText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error('Error in AI auto-scheduling:', error);
+    throw new Error('Erreur API Gemini (Auto-Schedule): ' + error.message);
+  }
+}
+
+async function chatWithAI(message, existingEvents, currentDate, timezone, userProfileContext = '') {
+  try {
+    const prompt = `
+Tu es un assistant de planning intelligent, amical et efficace. L'utilisateur te parle en langage naturel.
+Date du jour : ${currentDate}
+Fuseau horaire : ${timezone}
+${userProfileContext ? `Profil utilisateur: ${userProfileContext}` : ''}
+
+=== EVENEMENTS ACTUELS DE L'UTILISATEUR ===
+${JSON.stringify(existingEvents.map(e => ({
+  titre: e.titre,
+  date: e.date_absolue,
+  debut: e.heure_debut,
+  fin: e.heure_fin,
+  categorie: e.categorie
+})), null, 2)}
+
+=== MESSAGE DE L'UTILISATEUR ===
+"${message}"
+
+=== INSTRUCTIONS ===
+Analyse le message de l'utilisateur. Tu as 2 modes de reponse possibles :
+
+1. MODE ACTION : Si l'utilisateur demande de creer, ajouter, ou planifier un evenement, retourne un JSON avec "action": "create_events" et la liste des evenements a creer.
+2. MODE REPONSE : Si l'utilisateur pose une question ("quand suis-je libre ?", "combien d'heures ai-je travaille ?"), retourne un JSON avec "action": "answer" et ta reponse textuelle.
+
+Format de sortie (JSON strict) :
+{
+  "action": "create_events" | "answer",
+  "response": "Ta reponse textuelle a afficher a l'utilisateur (toujours present)",
+  "events": [
+    {
+      "titre": "...",
+      "date_absolue": "YYYY-MM-DD",
+      "heure_debut": "HH:MM",
+      "heure_fin": "HH:MM",
+      "duree_minutes": 60,
+      "categorie": "..."
+    }
+  ]
+}
+Si action = "answer", le champ "events" peut etre vide ou absent.
+Reponds TOUJOURS en francais.
+`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json'
+      }
+    });
+
+    const rawText = response.text;
+    const cleanedText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error('Error in AI chat:', error);
+    throw new Error('Erreur API Gemini (Chat): ' + error.message);
+  }
+}
+
+async function breakdownProject(projectDescription, currentDate, timezone, userProfileContext = '') {
+  try {
+    const prompt = `
+Tu es un expert en gestion de projets et planification strategique.
+Date du jour : ${currentDate}
+Fuseau horaire : ${timezone}
+${userProfileContext ? `Profil utilisateur: ${userProfileContext}` : ''}
+
+=== OBJECTIF DU PROJET ===
+"${projectDescription}"
+
+=== INSTRUCTIONS ===
+Decompose cet objectif en sous-taches concretes et actionnables.
+Chaque sous-tache doit avoir :
+- Un titre clair et precis
+- Une duree estimee en minutes (entre 30 et 180 min)
+- Une priorite (haute pour les premieres etapes, normale pour le reste)
+- Un ordre logique de realisation
+
+Genere entre 5 et 15 sous-taches selon la complexite du projet.
+Repartis-les sur 1 a 8 semaines a partir de la date du jour.
+
+Format de sortie (JSON strict) :
+{
+  "project_title": "Titre du projet",
+  "summary": "Resume du plan en 2-3 phrases",
+  "total_estimated_hours": 10,
+  "tasks": [
+    {
+      "titre": "Nom de la sous-tache",
+      "duree_minutes": 60,
+      "priorite": "haute" | "normale" | "basse",
+      "semaine": 1,
+      "description": "Breve description de ce qu'il faut faire"
+    }
+  ]
+}
+`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json'
+      }
+    });
+
+    const rawText = response.text;
+    const cleanedText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error('Error in AI project breakdown:', error);
+    throw new Error('Erreur API Gemini (Breakdown): ' + error.message);
+  }
+}
+
+async function generateCoachInsights(events, currentDate, userProfileContext = '') {
+  try {
+    const prompt = `
+Tu es un coach de vie bienveillant mais honnete, expert en equilibre vie pro/perso, productivite et bien-etre.
+Date du jour : ${currentDate}
+${userProfileContext ? `Profil de l'utilisateur: ${userProfileContext}` : ''}
+
+=== EVENEMENTS DES 7 DERNIERS JOURS ===
+${JSON.stringify(events.map(e => ({
+  titre: e.titre,
+  date: e.date_absolue,
+  debut: e.heure_debut,
+  fin: e.heure_fin,
+  categorie: e.categorie,
+  type: e.type
+})), null, 2)}
+
+=== INSTRUCTIONS ===
+Analyse la semaine de l'utilisateur et genere des conseils personnalises.
+Ton analyse doit couvrir :
+1. Score d'equilibre (sur 10) avec justification
+2. Points positifs (ce qui va bien)
+3. Points d'attention (surmenage, manque de repos, etc.)
+4. 3 conseils concrets et actionnables pour la semaine prochaine
+5. Une phrase de motivation personnalisee
+
+Format de sortie (JSON strict) :
+{
+  "score": 7,
+  "score_label": "Bon equilibre",
+  "positifs": ["Point 1", "Point 2"],
+  "alertes": ["Alerte 1"],
+  "conseils": [
+    {
+      "titre": "Titre du conseil",
+      "description": "Description detaillee",
+      "icon": "rest" | "sport" | "work" | "social" | "health"
+    }
+  ],
+  "motivation": "Phrase de motivation"
+}
+`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json'
+      }
+    });
+
+    const rawText = response.text;
+    const cleanedText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error('Error in AI coach:', error);
+    throw new Error('Erreur API Gemini (Coach): ' + error.message);
+  }
+}
+
 module.exports = {
   extractEventsFromText,
   extractEventsFromImage,
-  generatePeriodReport
+  generatePeriodReport,
+  autoScheduleTasks,
+  chatWithAI,
+  breakdownProject,
+  generateCoachInsights
 };

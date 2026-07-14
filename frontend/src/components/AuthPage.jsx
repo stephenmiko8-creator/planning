@@ -51,11 +51,13 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-md glass-panel p-8 border border-white/10 shadow-[0_0_50px_rgba(192,132,252,0.15)] flex flex-col gap-6 overflow-hidden">
-        {/* Decorative Neon Blur */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-neon-purple/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-neon-teal/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark-950/80 backdrop-blur-md animate-fadeIn overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
+      <div className="absolute top-0 -right-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
+      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
+
+      <div className="relative w-full max-w-md glass-panel p-8 border border-white/20 shadow-2xl flex flex-col gap-6 z-10 backdrop-blur-xl bg-white/5">
 
         {/* Close Button */}
         <button 
@@ -142,8 +144,10 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full py-3 bg-gradient-to-r from-neon-purple to-neon-teal text-active-day-text font-bold rounded-xl text-base hover:shadow-[0_0_25px_rgba(45,212,191,0.4)] hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+            className="mt-4 relative group w-full py-3.5 bg-gradient-to-r from-purple-500 to-teal-400 text-white font-bold rounded-xl text-base shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(45,212,191,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all overflow-hidden disabled:opacity-50 flex items-center justify-center gap-2"
           >
+            {/* Shimmer effect inside button */}
+            <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)] -translate-x-[150%] group-hover:animate-[shimmer_2s_infinite]" />
             {loading ? (
               <span className="h-5 w-5 border-2 border-active-day-text border-t-transparent rounded-full animate-spin" />
             ) : activeTab === 'login' ? (

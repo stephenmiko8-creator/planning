@@ -66,7 +66,8 @@ const ScannerInput = ({ onScan }) => {
   const isBtnDisabled = isScanning || (activeTab === 'image' ? !imageFile : !content.trim());
 
   return (
-    <div className="glass-panel p-6 flex flex-col gap-4 border border-neon-purple/30 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+    <div className="magical-border rounded-xl">
+      <div className="magical-border-content glass-panel p-6 flex flex-col gap-4 shadow-[0_0_30px_rgba(192,132,252,0.15)] rounded-xl">
       <div className="flex items-center gap-2 md:gap-4 border-b border-white/10 pb-4 overflow-x-auto">
         <button 
           onClick={() => setActiveTab('text')}
@@ -188,12 +189,16 @@ const ScannerInput = ({ onScan }) => {
         <button 
           onClick={handleScan}
           disabled={isBtnDisabled}
-          className={`flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.3)] ${
+          className={`relative group flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all duration-300 overflow-hidden ${
             isBtnDisabled 
               ? 'bg-white/5 text-gray-500 cursor-not-allowed shadow-none' 
-              : 'bg-neon-purple text-active-day-text hover:bg-neon-purple/80 hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]'
+              : 'bg-gradient-to-r from-neon-purple to-neon-teal text-active-day-text hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:scale-[1.02] active:scale-[0.98]'
           }`}
         >
+          {/* Shimmer effect inside button */}
+          {!isBtnDisabled && (
+            <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] -translate-x-[150%] group-hover:animate-[shimmer_2s_infinite]" />
+          )}
           {isScanning ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-active-day-text border-t-transparent rounded-full animate-spin"></div>
@@ -207,6 +212,7 @@ const ScannerInput = ({ onScan }) => {
           )}
         </button>
       </div>
+    </div>
     </div>
   );
 };

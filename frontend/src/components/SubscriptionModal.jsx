@@ -22,7 +22,28 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
 
     setLoadingPlan(plan);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/subscribe`, {
+      // Si c'est un downgrade vers gratuit, on utilise l'ancienne route
+      if (plan === 'free') {
+        const response = await fetch(`${API_BASE_URL}/api/auth/subscribe`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ plan })
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Erreur lors de la mise à jour.');
+
+        addToast(`Vous êtes repassé au plan GRATUIT.`, 'info');
+        onPlanUpdated(plan);
+        onClose();
+        return;
+      }
+
+      // Pour les plans payants, on crée une session Stripe Checkout
+      const response = await fetch(`${API_BASE_URL}/api/stripe/create-checkout-session`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -32,9 +53,10 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
       });
 
       const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error || 'Erreur lors de la mise à jour.');
-      }
+      if (!response.ok) throw new Error(result.error || 'Erreur lors de la création de la session Stripe.');
+
+      // Redirection vers Stripe
+      window.location.href = result.url;
 
       addToast(`Félicitations ! Vous êtes passé au plan ${plan.toUpperCase()}.`, 'success');
       onPlanUpdated(plan);
@@ -43,6 +65,23 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
       addToast(err.message, 'error');
     } finally {
       setLoadingPlan(null);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/stripe/create-portal-session`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Erreur lors de l\'accès au portail.');
+      
+      window.location.href = result.url;
+    } catch (err) {
+      addToast(err.message, 'error');
     }
   };
 
@@ -116,6 +155,14 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
           <p className="text-sm text-gray-400 mt-2 max-w-lg mx-auto">
             Libérez tout le potentiel de Mikiplan et transformez votre manière de planifier.
           </p>
+          {(currentPlan === 'pro' || currentPlan === 'premium') && (
+            <button 
+              onClick={handleManageSubscription}
+              className="mt-4 px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-bold rounded-lg border border-white/20 transition-all"
+            >
+              Gérer mon abonnement (Facturation / Annulation)
+            </button>
+          )}
         </div>
 
         {/* Grid */}

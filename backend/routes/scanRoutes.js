@@ -263,4 +263,16 @@ router.post('/report', async (req, res) => {
   }
 });
 
+router.post('/coach', async (req, res) => {
+  try {
+    const { events, currentDate } = req.body;
+    const userId = req.user ? req.user.id : null;
+    const userProfileContext = await getProfile(userId);
+    const insights = await aiService.generateCoachInsights(events, currentDate || new Date().toISOString().split('T')[0], userProfileContext);
+    res.json({ success: true, ...insights });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;

@@ -8,7 +8,10 @@ import EventModal from './EventModal';
 import AddEventModal from './AddEventModal';
 import AuthPage from './AuthPage';
 import SubscriptionModal from './SubscriptionModal';
-import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Clock, Calendar as CalendarIcon, Zap } from 'lucide-react';
+import TaskPanel from './TaskPanel';
+import AIChatPanel from './AIChatPanel';
+import ProjectBreakdown from './ProjectBreakdown';
+import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Clock, Calendar as CalendarIcon, Zap, Bot, Target } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useToast } from './Toast';
 import { Preferences } from '@capacitor/preferences';
@@ -260,6 +263,37 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       window.history.replaceState({}, document.title, "/");
       handleScan(sharedText);
     }
+    
+    if (urlParams.get('stripe_success')) {
+      const sessionId = urlParams.get('session_id');
+      window.history.replaceState({}, document.title, "/");
+      
+      if (sessionId && token) {
+        fetch(`${API_BASE_URL}/api/stripe/verify-session`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ sessionId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            addToast(`Abonnement ${data.plan.toUpperCase()} activé avec succès !`, 'success', 5000);
+            loadProfile(); // Refresh profile explicitly
+          }
+        })
+        .catch(console.error);
+      } else {
+        addToast('Abonnement activé avec succès !', 'success', 5000);
+        loadProfile();
+      }
+    }
+    if (urlParams.get('stripe_cancel')) {
+      window.history.replaceState({}, document.title, "/");
+      addToast('Paiement annulé.', 'info');
+    }
 
     loadSavedEvents();
     loadCategories();
@@ -466,7 +500,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           </h1>
           <p className="text-xs md:text-sm text-gray-400 mt-1">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
         </div>
-        <div className="flex gap-2 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
+        <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
           {/* User Auth Section */}
           {user ? (
             <div className="flex items-center gap-2 bg-dark-800/40 border border-white/5 p-1.5 pl-3 rounded-2xl shrink-0">
@@ -486,17 +520,28 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
               {/* Plan badge, clickable to change subscription */}
               <button
                 onClick={() => setIsSubOpen(true)}
-                className={`px-2 py-0.5 text-[10px] font-extrabold uppercase rounded-full transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                className={`relative overflow-hidden group px-3 py-1 text-[10px] font-extrabold uppercase rounded-full transition-all flex items-center gap-1.5 cursor-pointer shrink-0 hover:scale-105 ${
                   user.subscription_plan === 'premium'
-                    ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/50 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                    ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/50 shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)]'
                     : user.subscription_plan === 'pro'
-                    ? 'bg-neon-teal/20 text-neon-teal border border-neon-teal/50 shadow-[0_0_10px_rgba(20,184,166,0.3)]'
-                    : 'bg-white/5 text-gray-400 border border-white/10'
+                    ? 'bg-neon-teal/20 text-neon-teal border border-neon-teal/50 shadow-[0_0_15px_rgba(20,184,166,0.4)] hover:shadow-[0_0_25px_rgba(20,184,166,0.6)]'
+                    : 'bg-white/5 text-gray-400 border border-white/10 hover:border-white/30'
                 }`}
               >
-                {user.subscription_plan === 'premium' && <Crown size={10} className="animate-pulse" />}
-                {user.subscription_plan === 'pro' && <Sparkles size={10} className="animate-pulse" />}
-                <span>{user.subscription_plan}</span>
+                {(user.subscription_plan === 'premium' || user.subscription_plan === 'pro') && (
+                  <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-[150%] animate-[shimmer_3s_infinite]" />
+                )}
+                {user.subscription_plan === 'premium' && <Crown size={12} className="animate-pulse relative z-10" />}
+                {user.subscription_plan === 'pro' && <Sparkles size={12} className="animate-pulse relative z-10" />}
+                <span className="relative z-10">{user.subscription_plan}</span>
+              </button>
+
+              <button 
+                onClick={() => setActiveView('settings')}
+                title="Paramètres"
+                className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-xl"
+              >
+                <Settings size={14} />
               </button>
 
               <button 
@@ -522,10 +567,11 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
               setAddModalInitialValues(null);
               setIsAddModalOpen(true);
             }}
-            className="hidden md:flex px-4 py-2 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all items-center gap-2 shrink-0"
+            className="hidden md:flex relative group overflow-hidden px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-active-day-text font-bold rounded-xl text-sm shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)] hover:scale-105 active:scale-95 transition-all items-center gap-2 shrink-0"
           >
-            <PlusCircle size={18} />
-            <span>Planifier un bloc</span>
+            <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] -translate-x-[150%] group-hover:animate-[shimmer_2s_infinite]" />
+            <PlusCircle size={18} className="relative z-10" />
+            <span className="relative z-10">Planifier un bloc</span>
           </button>
           
           {(user && user.subscription_plan === 'premium') && (
@@ -553,6 +599,9 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         {[
           { id: 'calendar', icon: <LayoutGrid size={16} />, label: 'Calendrier' },
           { id: 'list', icon: <List size={16} />, label: 'Liste' },
+          { id: 'tasks', icon: <CheckCircle2 size={16} />, label: 'Tâches (IA)' },
+          { id: 'breakdown', icon: <Target size={16} />, label: 'Projets (IA)' },
+          { id: 'chat', icon: <Bot size={16} />, label: 'Chatbot' },
           { id: 'stats', icon: <BarChart3 size={16} />, label: 'Statistiques' },
           { id: 'settings', icon: <Settings size={16} />, label: 'Paramètres' },
         ].map(tab => (
@@ -740,6 +789,41 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           onChangeTheme={onChangeTheme}
         />
       )}
+      {activeView === 'tasks' && (
+        <TaskPanel 
+          API_BASE_URL={API_BASE_URL}
+          getHeaders={getHeaders}
+          addToast={addToast}
+          config={config}
+          user={user}
+          onScheduleComplete={() => {
+            loadSavedEvents();
+            setActiveView('calendar');
+          }}
+        />
+      )}
+      {activeView === 'breakdown' && (
+        <ProjectBreakdown 
+          API_BASE_URL={API_BASE_URL}
+          getHeaders={getHeaders}
+          addToast={addToast}
+          config={config}
+          user={user}
+          onTasksAdded={() => {
+            setActiveView('tasks');
+          }}
+        />
+      )}
+      {activeView === 'chat' && (
+        <AIChatPanel 
+          API_BASE_URL={API_BASE_URL}
+          getHeaders={getHeaders}
+          addToast={addToast}
+          config={config}
+          user={user}
+          onRefreshCalendar={loadSavedEvents}
+        />
+      )}
       {/* Event Detail Modal */}
       {selectedEvent && (
         <EventModal 
@@ -792,10 +876,11 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Bottom Nav Bar for Mobile */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-dark-950/95 backdrop-blur-md border-t border-white/10 flex justify-around p-2 pb-safe md:hidden shadow-[0_-5px_15px_rgba(0,0,0,0.5)]">
         {[
-          { id: 'calendar', icon: <LayoutGrid size={20} />, label: 'Calendrier' },
-          { id: 'list', icon: <List size={20} />, label: 'Liste' },
+          { id: 'calendar', icon: <LayoutGrid size={20} />, label: 'Agenda' },
+          { id: 'tasks', icon: <CheckCircle2 size={20} />, label: 'Tâches' },
+          { id: 'breakdown', icon: <Target size={20} />, label: 'Projets' },
+          { id: 'chat', icon: <Bot size={20} />, label: 'Chat' },
           { id: 'stats', icon: <BarChart3 size={20} />, label: 'Stats' },
-          { id: 'settings', icon: <Settings size={20} />, label: 'Paramètres' },
         ].map(tab => (
           <button 
             key={tab.id}
