@@ -147,7 +147,6 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const [addModalInitialValues, setAddModalInitialValues] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSubOpen, setIsSubOpen] = useState(false);
-  const [isNavOpen, setIsNavOpen] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(() => {
     try {
@@ -309,16 +308,6 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
     };
     loadStoredAuth();
   }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isNavOpen && !event.target.closest('.nav-dropdown-container')) {
-        setIsNavOpen(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [isNavOpen]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -565,44 +554,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           <p className="text-xs md:text-sm text-gray-400 mt-1">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
         </div>
         <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
-          {/* Navigation Dropdown Menu */}
-          <div className="relative nav-dropdown-container shrink-0">
-            <button
-              onClick={() => setIsNavOpen(!isNavOpen)}
-              className="flex items-center gap-2 px-4 py-2 bg-dark-800/60 border border-white/5 hover:border-white/10 text-white rounded-2xl font-bold text-sm transition-all cursor-pointer shadow-md select-none"
-            >
-              {currentViewItem.icon}
-              <span>{currentViewItem.label}</span>
-              <ChevronDown size={14} className={`transition-transform duration-200 ${isNavOpen ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {isNavOpen && (
-              <div className="absolute left-0 mt-2 w-56 bg-dark-900/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-[fadeIn_0.2s_ease-out]">
-                {navItems.map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveView(item.id);
-                      setIsNavOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left text-sm font-semibold transition-all hover:bg-white/5 cursor-pointer ${
-                      activeView === item.id 
-                        ? 'text-neon-purple bg-neon-purple/5' 
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </div>
-                    {item.locked && (
-                      <span className="text-[10px] text-gray-500 font-extrabold uppercase">🔒</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+
           {/* User Auth Section */}
           {user ? (
             <div className="flex items-center gap-2 bg-dark-800/40 border border-white/5 p-1.5 pl-3 rounded-2xl shrink-0">
@@ -688,7 +640,22 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         <UpcomingEventWidget events={savedEvents} />
       )}
 
-
+      {/* View Tabs - Desktop Only */}
+      <div className="hidden md:flex gap-2">
+        {navItems.map(tab => (
+          <button 
+            key={tab.id}
+            onClick={() => setActiveView(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+              activeView === tab.id 
+                ? 'bg-neon-purple/30 text-neon-purple border border-neon-purple/50' 
+                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            {tab.icon} {tab.label} {tab.locked && <span className="text-[10px] text-gray-500 font-extrabold uppercase">🔒</span>}
+          </button>
+        ))}
+      </div>
 
       {/* Main Content */}
       {activeView === 'calendar' && (
@@ -1011,11 +978,29 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           setAddModalInitialValues(null);
           setIsAddModalOpen(true);
         }}
-        className="fixed bottom-4 right-4 z-40 md:hidden p-4 bg-neon-purple text-active-day-text rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
+        className="fixed bottom-20 right-4 z-40 md:hidden p-4 bg-neon-purple text-active-day-text rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
         aria-label="Planifier un bloc"
       >
         <PlusCircle size={24} />
       </button>
+
+      {/* Bottom Nav Bar for Mobile */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-dark-950/95 backdrop-blur-md border-t border-white/10 flex justify-around p-2 pb-safe md:hidden shadow-[0_-5px_15px_rgba(0,0,0,0.5)]">
+        {navItems.filter(item => ['calendar', 'tasks', 'breakdown', 'chat', 'stats'].includes(item.id)).map(tab => (
+          <button 
+            key={tab.id}
+            onClick={() => setActiveView(tab.id)}
+            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
+              activeView === tab.id 
+                ? 'text-neon-purple' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            {tab.icon}
+            <span className="text-[10px] font-bold">{tab.label}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
