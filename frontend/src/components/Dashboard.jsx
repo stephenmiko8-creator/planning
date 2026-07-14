@@ -12,7 +12,7 @@ import TaskPanel from './TaskPanel';
 import AIChatPanel from './AIChatPanel';
 import ProjectBreakdown from './ProjectBreakdown';
 import GuidePanel from './GuidePanel';
-import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Clock, Calendar as CalendarIcon, Zap, Bot, Target, HelpCircle } from 'lucide-react';
+import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Clock, Calendar as CalendarIcon, Zap, Bot, Target, HelpCircle, ChevronDown } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useToast } from './Toast';
 import { Preferences } from '@capacitor/preferences';
@@ -136,6 +136,19 @@ const Paywall = ({ requiredPlan, title, description, features, onUpgrade }) => {
 const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const { addToast } = useToast();
   const [events, setEvents] = useState([]);
+
+  const navItems = useMemo(() => [
+    { id: 'calendar', icon: <LayoutGrid size={16} />, label: 'Calendrier' },
+    { id: 'list', icon: <List size={16} />, label: 'Liste' },
+    { id: 'tasks', icon: <CheckCircle2 size={16} />, label: 'Tâches (IA)', locked: user && user.subscription_plan !== 'premium' },
+    { id: 'breakdown', icon: <Target size={16} />, label: 'Projets (IA)', locked: user && user.subscription_plan !== 'premium' },
+    { id: 'chat', icon: <Bot size={16} />, label: 'Chatbot', locked: user && user.subscription_plan !== 'premium' },
+    { id: 'stats', icon: <BarChart3 size={16} />, label: 'Statistiques', locked: user && user.subscription_plan === 'free' },
+    { id: 'settings', icon: <Settings size={16} />, label: 'Paramètres' },
+    { id: 'guide', icon: <HelpCircle size={16} />, label: "Guide d'utilisation" },
+  ], [user]);
+
+  const currentViewItem = useMemo(() => navItems.find(item => item.id === activeView) || navItems[0], [navItems, activeView]);
   const [savedEvents, setSavedEvents] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
@@ -147,6 +160,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const [addModalInitialValues, setAddModalInitialValues] = useState(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSubOpen, setIsSubOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(() => {
     try {
@@ -295,6 +309,16 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
     };
     loadStoredAuth();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isNavOpen && !event.target.closest('.nav-dropdown-container')) {
+        setIsNavOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isNavOpen]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -541,6 +565,44 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           <p className="text-xs md:text-sm text-gray-400 mt-1">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
         </div>
         <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
+          {/* Navigation Dropdown Menu */}
+          <div className="relative nav-dropdown-container shrink-0">
+            <button
+              onClick={() => setIsNavOpen(!isNavOpen)}
+              className="flex items-center gap-2 px-4 py-2 bg-dark-800/60 border border-white/5 hover:border-white/10 text-white rounded-2xl font-bold text-sm transition-all cursor-pointer shadow-md select-none"
+            >
+              {currentViewItem.icon}
+              <span>{currentViewItem.label}</span>
+              <ChevronDown size={14} className={`transition-transform duration-200 ${isNavOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {isNavOpen && (
+              <div className="absolute left-0 mt-2 w-56 bg-dark-900/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-[fadeIn_0.2s_ease-out]">
+                {navItems.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveView(item.id);
+                      setIsNavOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left text-sm font-semibold transition-all hover:bg-white/5 cursor-pointer ${
+                      activeView === item.id 
+                        ? 'text-neon-purple bg-neon-purple/5' 
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </div>
+                    {item.locked && (
+                      <span className="text-[10px] text-gray-500 font-extrabold uppercase">🔒</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           {/* User Auth Section */}
           {user ? (
             <div className="flex items-center gap-2 bg-dark-800/40 border border-white/5 p-1.5 pl-3 rounded-2xl shrink-0">
@@ -577,25 +639,9 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
               </button>
 
               <button 
-                onClick={() => setActiveView('guide')}
-                title="Guide d'utilisation"
-                className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-xl"
-              >
-                <HelpCircle size={14} />
-              </button>
-
-              <button 
-                onClick={() => setActiveView('settings')}
-                title="Paramètres"
-                className="p-1.5 text-gray-400 hover:text-white transition-colors rounded-xl"
-              >
-                <Settings size={14} />
-              </button>
-
-              <button 
                 onClick={handleLogout}
                 title="Déconnexion"
-                className="p-1.5 text-gray-400 hover:text-red-400 transition-colors rounded-xl"
+                className="p-1.5 text-gray-400 hover:text-red-400 transition-colors rounded-xl cursor-pointer"
               >
                 <LogOut size={14} />
               </button>
@@ -642,30 +688,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         <UpcomingEventWidget events={savedEvents} />
       )}
 
-      {/* View Tabs - Desktop Only */}
-      <div className="hidden md:flex gap-2">
-        {[
-          { id: 'calendar', icon: <LayoutGrid size={16} />, label: 'Calendrier' },
-          { id: 'list', icon: <List size={16} />, label: 'Liste' },
-          { id: 'tasks', icon: <CheckCircle2 size={16} />, label: 'Tâches (IA)' },
-          { id: 'breakdown', icon: <Target size={16} />, label: 'Projets (IA)' },
-          { id: 'chat', icon: <Bot size={16} />, label: 'Chatbot' },
-          { id: 'stats', icon: <BarChart3 size={16} />, label: 'Statistiques' },
-          { id: 'settings', icon: <Settings size={16} />, label: 'Paramètres' },
-        ].map(tab => (
-          <button 
-            key={tab.id}
-            onClick={() => setActiveView(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-              activeView === tab.id 
-                ? 'bg-neon-purple/30 text-neon-purple border border-neon-purple/50' 
-                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
-      </div>
+
 
       {/* Main Content */}
       {activeView === 'calendar' && (
@@ -988,35 +1011,11 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           setAddModalInitialValues(null);
           setIsAddModalOpen(true);
         }}
-        className="fixed bottom-20 right-4 z-40 md:hidden p-4 bg-neon-purple text-active-day-text rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
+        className="fixed bottom-4 right-4 z-40 md:hidden p-4 bg-neon-purple text-active-day-text rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
         aria-label="Planifier un bloc"
       >
         <PlusCircle size={24} />
       </button>
-
-      {/* Bottom Nav Bar for Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-dark-950/95 backdrop-blur-md border-t border-white/10 flex justify-around p-2 pb-safe md:hidden shadow-[0_-5px_15px_rgba(0,0,0,0.5)]">
-        {[
-          { id: 'calendar', icon: <LayoutGrid size={20} />, label: 'Agenda' },
-          { id: 'tasks', icon: <CheckCircle2 size={20} />, label: 'Tâches' },
-          { id: 'breakdown', icon: <Target size={20} />, label: 'Projets' },
-          { id: 'chat', icon: <Bot size={20} />, label: 'Chat' },
-          { id: 'stats', icon: <BarChart3 size={20} />, label: 'Stats' },
-        ].map(tab => (
-          <button 
-            key={tab.id}
-            onClick={() => setActiveView(tab.id)}
-            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
-              activeView === tab.id 
-                ? 'text-neon-purple' 
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            {tab.icon}
-            <span className="text-[10px] font-bold">{tab.label}</span>
-          </button>
-        ))}
-      </div>
     </div>
   );
 };
