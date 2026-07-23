@@ -453,23 +453,13 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          {/* Mikiplan Official Brand Logo Icon: Stylized Hen Crest Emblem */}
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-400 to-purple-600 p-[2px] shadow-[0_0_16px_rgba(45,212,191,0.45)] shrink-0">
-            <div className="w-full h-full bg-[#0d1322] rounded-[10px] flex items-center justify-center relative overflow-hidden">
-              <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* 3-Pill Hen Comb / Crest at Top (Cyan) */}
-                <circle cx="6" cy="5" r="3" fill="#38f0d8" />
-                <rect x="11" y="2" width="13" height="6.5" rx="3.25" fill="#38f0d8" />
-                <rect x="2" y="10" width="12" height="6.5" rx="3.25" fill="#38f0d8" />
-                
-                {/* Hen Beak / Head Curve (Light Cyan) */}
-                <path d="M14 10 L23 13.5 L14 17 Z" fill="#67e8f9" />
-                
-                {/* Magenta Wattle / Accent Dot at Bottom Left */}
-                <circle cx="6" cy="22" r="3.5" fill="#d946ef" />
-              </svg>
-            </div>
-          </div>
+          {/* Mikiplan Official Logo: Sparkle/Starburst Icon (matching promo image) */}
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+            {/* 4-pointed sparkle star */}
+            <path d="M12 2L13.5 9.5L20 8L14.5 12L20 16L13.5 14.5L12 22L10.5 14.5L4 16L9.5 12L4 8L10.5 9.5L12 2Z" fill="#38f0d8" />
+            {/* Small accent sparkle */}
+            <path d="M19 2L19.5 4.5L22 5L19.5 5.5L19 8L18.5 5.5L16 5L18.5 4.5L19 2Z" fill="#67e8f9" />
+          </svg>
 
           {/* Two-Tone Brand Typography: 'Miki' in vibrant teal, 'plan' in dark navy/white */}
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-baseline">
