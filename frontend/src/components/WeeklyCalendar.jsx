@@ -319,22 +319,52 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
       const start = timeToMinutes(e.heure_debut);
       const end = timeToMinutes(e.heure_fin);
       if (start > currentStart) {
-        const gap = start - currentStart;
-        if (gap >= 30) {
-          slots.push({ start: currentStart, end: start });
-        }
+        slots.push({ start: currentStart, end: Math.min(start, activeEnd) });
       }
-      currentStart = Math.max(currentStart, end);
+      if (end > currentStart) {
+        currentStart = Math.max(currentStart, end);
+      }
     });
 
     if (currentStart < activeEnd) {
-      const gap = activeEnd - currentStart;
-      if (gap >= 30) {
-        slots.push({ start: currentStart, end: activeEnd });
-      }
+      slots.push({ start: currentStart, end: activeEnd });
     }
-    return slots;
+
+    return slots.filter(s => (s.end - s.start) >= 30);
   };
+
+  // Cache processed events layout per week to avoid recalculating overlapping columns on every re-render
+  const processedWeekDays = useMemo(() => {
+    return weekDates.map((date) => {
+      const dateKey = formatDateKey(date);
+      const dayEvents = getDayEventsWithSpillovers(date, weekEvents);
+      const processedEvents = layoutDayEvents(dayEvents);
+      const freeSlots = showAvailabilities ? getFreeSlots(dayEvents) : [];
+      return {
+        date,
+        dateKey,
+        dayEvents,
+        processedEvents,
+        freeSlots
+      };
+    });
+  }, [weekDates, weekEvents, showAvailabilities, config]);
+
+  const processedSingleDay = useMemo(() => {
+    const date = weekDates[selectedDayIndex];
+    if (!date) return null;
+    const dateKey = formatDateKey(date);
+    const dayEvents = getDayEventsWithSpillovers(date, weekEvents);
+    const processedEvents = layoutDayEvents(dayEvents);
+    const freeSlots = showAvailabilities ? getFreeSlots(dayEvents) : [];
+    return {
+      date,
+      dateKey,
+      dayEvents,
+      processedEvents,
+      freeSlots
+    };
+  }, [weekDates, selectedDayIndex, weekEvents, showAvailabilities, config]);
 
   // Calendar variables already declared above for useEffect use
 
@@ -642,12 +672,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
               {/* columns for events */}
               {viewMode === 'week' ? (
-                weekDates.map((date, di) => {
-                  const dateKey = formatDateKey(date);
-                  const dayEvents = getDayEventsWithSpillovers(date, weekEvents);
-                  const processedEvents = layoutDayEvents(dayEvents);
-                  const freeSlots = showAvailabilities ? getFreeSlots(dayEvents) : [];
-
+                processedWeekDays.map(({ dateKey, processedEvents, freeSlots }, di) => {
                   return (
                     <div key={di} className="relative h-full pointer-events-none">
                       {/* Render Free Slots */}
@@ -768,11 +793,8 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                 })
               ) : (
                 (() => {
-                  const date = weekDates[selectedDayIndex];
-                  const dateKey = formatDateKey(date);
-                  const dayEvents = getDayEventsWithSpillovers(date, weekEvents);
-                  const processedEvents = layoutDayEvents(dayEvents);
-                  const freeSlots = showAvailabilities ? getFreeSlots(dayEvents) : [];
+                  if (!processedSingleDay) return null;
+                  const { dateKey, processedEvents, freeSlots } = processedSingleDay;
 
                   return (
                     <div className="relative h-full pointer-events-none">
