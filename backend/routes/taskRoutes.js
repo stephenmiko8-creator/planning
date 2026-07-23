@@ -7,54 +7,66 @@ const aiService = require('../services/aiService');
 router.use(authMiddleware);
 
 // Get all pending tasks for a user
-router.get('/', (req, res) => {
-  db.all(`SELECT * FROM tasks WHERE user_id = ? AND status = 'pending' ORDER BY created_at DESC`, [req.user.id], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+router.get('/', async (req, res) => {
+  try {
+    const rows = await db.asyncAll(
+      `SELECT * FROM tasks WHERE user_id = ? AND status = 'pending' ORDER BY created_at DESC`,
+      [req.user.id]
+    );
     res.json(rows);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Add a new task
-router.post('/', (req, res) => {
-  const { title, duration_minutes, priority } = req.body;
-  if (!title) return res.status(400).json({ error: 'Le titre est requis.' });
-  
-  const duration = duration_minutes || 60;
-  const prio = priority || 'normale';
+router.post('/', async (req, res) => {
+  try {
+    const { title, duration_minutes, priority } = req.body;
+    if (!title) return res.status(400).json({ error: 'Le titre est requis.' });
+    
+    const duration = duration_minutes || 60;
+    const prio = priority || 'normale';
 
-  db.run(`INSERT INTO tasks (user_id, title, duration_minutes, priority, status) VALUES (?, ?, ?, ?, 'pending')`, 
-    [req.user.id, title, duration, prio], 
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      
-      const id = this.lastID;
-      
-      db.get(`SELECT * FROM tasks WHERE id = ?`, [id], (err, row) => {
-        if (err || !row) return res.status(500).json({ error: 'Erreur lors de la récupération de la tâche créée.' });
-        res.status(201).json(row);
-      });
-  });
+    const result = await db.asyncRun(
+      `INSERT INTO tasks (user_id, title, duration_minutes, priority, status) VALUES (?, ?, ?, ?, 'pending')`, 
+      [req.user.id, title, duration, prio]
+    );
+
+    const row = await db.asyncGet(`SELECT * FROM tasks WHERE id = ?`, [result.lastID]);
+    if (!row) return res.status(500).json({ error: 'Erreur lors de la récupération de la tâche créée.' });
+    res.status(201).json(row);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Update a task (e.g. status)
-router.put('/:id', (req, res) => {
-  const { title, duration_minutes, priority, status } = req.body;
-  
-  db.run(`UPDATE tasks SET title = COALESCE(?, title), duration_minutes = COALESCE(?, duration_minutes), priority = COALESCE(?, priority), status = COALESCE(?, status) WHERE id = ? AND user_id = ?`,
-    [title, duration_minutes, priority, status, req.params.id, req.user.id],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ success: true });
-    }
-  );
+router.put('/:id', async (req, res) => {
+  try {
+    const { title, duration_minutes, priority, status } = req.body;
+    
+    await db.asyncRun(
+      `UPDATE tasks SET title = COALESCE(?, title), duration_minutes = COALESCE(?, duration_minutes), priority = COALESCE(?, priority), status = COALESCE(?, status) WHERE id = ? AND user_id = ?`,
+      [title, duration_minutes, priority, status, req.params.id, req.user.id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Delete a task
-router.delete('/:id', (req, res) => {
-  db.run(`DELETE FROM tasks WHERE id = ? AND user_id = ?`, [req.params.id, req.user.id], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
+router.delete('/:id', async (req, res) => {
+  try {
+    await db.asyncRun(
+      `DELETE FROM tasks WHERE id = ? AND user_id = ?`,
+      [req.params.id, req.user.id]
+    );
     res.json({ success: true });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Auto-schedule tasks using AI
