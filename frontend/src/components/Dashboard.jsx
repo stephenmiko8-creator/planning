@@ -453,14 +453,23 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-teal-500 border border-purple-400/40 flex items-center justify-center text-white shadow-[0_0_20px_rgba(99,102,241,0.4)] shrink-0">
-            <Sparkles size={22} className="text-white" />
+          {/* Mikiplan Brand Logo Icon */}
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 via-cyan-400 to-purple-500 p-[1.5px] shadow-[0_0_15px_rgba(45,212,191,0.4)] shrink-0">
+            <div className="w-full h-full bg-[#0d1322] rounded-[10px] flex items-center justify-center relative overflow-hidden">
+              <div className="flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#2dd4bf]" />
+                <div className="flex flex-col gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_6px_#c084fc]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-300 shadow-[0_0_6px_#67e8f9]" />
+                </div>
+              </div>
+            </div>
           </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-indigo-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-neon-purple dark:via-neon-blue dark:to-neon-teal tracking-tight flex items-center gap-2">
+            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight flex items-center gap-2">
               Mikiplan
             </h1>
-            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-0.5 font-medium">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
+            <p className="text-xs md:text-sm text-gray-400 mt-0.5">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
           </div>
         </div>
         <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
