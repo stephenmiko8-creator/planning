@@ -453,12 +453,16 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          {/* Mikiplan Official Logo: Sparkle/Starburst Icon (matching promo image) */}
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-            {/* 4-pointed sparkle star */}
-            <path d="M12 2L13.5 9.5L20 8L14.5 12L20 16L13.5 14.5L12 22L10.5 14.5L4 16L9.5 12L4 8L10.5 9.5L12 2Z" fill="#38f0d8" />
-            {/* Small accent sparkle */}
-            <path d="M19 2L19.5 4.5L22 5L19.5 5.5L19 8L18.5 5.5L16 5L18.5 4.5L19 2Z" fill="#67e8f9" />
+          {/* Mikiplan Official Logo: Stylized Rooster Face (eyes, beak, wattle) */}
+          <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+            {/* Left eye */}
+            <circle cx="7" cy="6" r="3.5" fill="#38f0d8" />
+            {/* Right eye */}
+            <circle cx="17" cy="6" r="3.5" fill="#38f0d8" />
+            {/* Beak (downward triangle) */}
+            <path d="M8 13L12 20L16 13Z" fill="#67e8f9" />
+            {/* Wattle / Barbillon (red/magenta hanging drop below beak) */}
+            <circle cx="12" cy="24" r="3" fill="#d946ef" />
           </svg>
 
           {/* Two-Tone Brand Typography: 'Miki' in vibrant teal, 'plan' in dark navy/white */}
