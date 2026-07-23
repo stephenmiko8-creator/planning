@@ -453,14 +453,14 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-neon-purple/30 via-neon-blue/20 to-neon-teal/30 border border-neon-purple/40 flex items-center justify-center text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.35)] shrink-0 animate-pulse">
-            <Sparkles size={22} className="text-neon-teal" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-teal-500 border border-purple-400/40 flex items-center justify-center text-white shadow-[0_0_20px_rgba(99,102,241,0.4)] shrink-0">
+            <Sparkles size={22} className="text-white" />
           </div>
           <div>
-            <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-purple via-neon-blue to-neon-teal tracking-tight flex items-center gap-2">
+            <h1 className="text-3xl md:text-4xl font-black text-indigo-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-neon-purple dark:via-neon-blue dark:to-neon-teal tracking-tight flex items-center gap-2">
               Mikiplan
             </h1>
-            <p className="text-xs md:text-sm text-gray-400 mt-0.5">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
+            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-0.5 font-medium">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
           </div>
         </div>
         <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
