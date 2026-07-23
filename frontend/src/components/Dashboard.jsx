@@ -453,21 +453,23 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          {/* Mikiplan Official Logo: Glowing Shield Checkmark Badge from Promo Image */}
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-500/20 via-cyan-400/20 to-emerald-400/20 border border-teal-400/50 flex items-center justify-center text-teal-300 shadow-[0_0_15px_rgba(45,212,191,0.4)] shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="9" stroke="#38f0d8" strokeWidth="2.2" strokeDasharray="4 2" />
-              <path d="M8.5 12.5L11 15L15.5 9.5" stroke="#38f0d8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          {/* Mikiplan Official Brand Logo Icon */}
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-teal-500 p-[2px] shadow-[0_0_15px_rgba(45,212,191,0.4)] shrink-0">
+            <div className="w-full h-full bg-[#0f172a] rounded-[10px] flex items-center justify-center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="9" stroke="#38f0d8" strokeWidth="2.2" strokeDasharray="4 2" />
+                <path d="M8.5 12.5L11 15L15.5 9.5" stroke="#38f0d8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
 
-          {/* Exact Two-Tone Typography: 'Miki' in cyan, 'plan' in light gray/white */}
+          {/* Two-Tone Brand Typography: 'Miki' in vibrant teal, 'plan' in dark navy/white */}
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-baseline">
-            <span className="text-[#38f0d8]">Miki</span>
-            <span className="text-[#e2e8f0]">plan</span>
+            <span className="text-[#0d9488] dark:text-[#38f0d8]">Miki</span>
+            <span className="text-[#0f172a] dark:text-[#f8fafc]">plan</span>
           </h1>
-          <span className="hidden lg:inline-block w-px h-6 bg-white/10 mx-1" />
-          <p className="hidden lg:block text-xs text-gray-400">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
+          <span className="hidden lg:inline-block w-px h-6 bg-gray-300 dark:bg-white/10 mx-1" />
+          <p className="hidden lg:block text-xs text-gray-500 dark:text-gray-400">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
         </div>
         <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
 
