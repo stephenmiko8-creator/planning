@@ -452,11 +452,16 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
     <div className="w-full max-w-full px-4 md:px-8 py-4 md:py-6 pb-24 md:pb-6 flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-teal">
-            Mikiplan
-          </h1>
-          <p className="text-xs md:text-sm text-gray-400 mt-1">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-neon-purple/30 via-neon-blue/20 to-neon-teal/30 border border-neon-purple/40 flex items-center justify-center text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.35)] shrink-0 animate-pulse">
+            <Sparkles size={22} className="text-neon-teal" />
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-purple via-neon-blue to-neon-teal tracking-tight flex items-center gap-2">
+              Mikiplan
+            </h1>
+            <p className="text-xs md:text-sm text-gray-400 mt-0.5">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
+          </div>
         </div>
         <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
 
