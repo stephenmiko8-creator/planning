@@ -453,24 +453,27 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          {/* Mikiplan Brand Logo Icon */}
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 via-cyan-400 to-purple-500 p-[1.5px] shadow-[0_0_15px_rgba(45,212,191,0.4)] shrink-0">
-            <div className="w-full h-full bg-[#0d1322] rounded-[10px] flex items-center justify-center relative overflow-hidden">
-              <div className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#2dd4bf]" />
-                <div className="flex flex-col gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_6px_#c084fc]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-300 shadow-[0_0_6px_#67e8f9]" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight flex items-center gap-2">
-              Mikiplan
+          {/* Exact Brand Logo SVG matching the screenshot */}
+          <div className="flex items-center gap-2.5">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+              {/* Top-left cyan dot */}
+              <circle cx="5" cy="5" r="4.5" fill="#38f0d8" />
+              {/* Top-right cyan capsule */}
+              <rect x="13" y="1" width="16" height="8.5" rx="4.25" fill="#38f0e4" />
+              {/* Center cyan arch/wedge */}
+              <path d="M1 14 C1 14 1 21 8 21 C15 21 15 14 15 14 Z" fill="#38bdf8" />
+              {/* Bottom-left magenta dot */}
+              <circle cx="5" cy="27" r="4.5" fill="#d946ef" />
+            </svg>
+
+            {/* Exact Two-Tone Typography: 'Miki' in cyan, 'plan' in light gray/white */}
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-baseline">
+              <span className="text-[#38f0d8]">Miki</span>
+              <span className="text-[#e2e8f0]">plan</span>
             </h1>
-            <p className="text-xs md:text-sm text-gray-400 mt-0.5">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
           </div>
+          <span className="hidden lg:inline-block w-px h-6 bg-white/10 mx-1" />
+          <p className="hidden lg:block text-xs text-gray-400">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
         </div>
         <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
 
