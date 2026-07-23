@@ -453,12 +453,20 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          {/* Mikiplan Official Brand Logo Icon */}
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-teal-500 p-[2px] shadow-[0_0_15px_rgba(45,212,191,0.4)] shrink-0">
-            <div className="w-full h-full bg-[#0f172a] rounded-[10px] flex items-center justify-center">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="9" stroke="#38f0d8" strokeWidth="2.2" strokeDasharray="4 2" />
-                <path d="M8.5 12.5L11 15L15.5 9.5" stroke="#38f0d8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Mikiplan Official Brand Logo Icon: Stylized Hen Crest Emblem */}
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-400 to-purple-600 p-[2px] shadow-[0_0_16px_rgba(45,212,191,0.45)] shrink-0">
+            <div className="w-full h-full bg-[#0d1322] rounded-[10px] flex items-center justify-center relative overflow-hidden">
+              <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* 3-Pill Hen Comb / Crest at Top (Cyan) */}
+                <circle cx="6" cy="5" r="3" fill="#38f0d8" />
+                <rect x="11" y="2" width="13" height="6.5" rx="3.25" fill="#38f0d8" />
+                <rect x="2" y="10" width="12" height="6.5" rx="3.25" fill="#38f0d8" />
+                
+                {/* Hen Beak / Head Curve (Light Cyan) */}
+                <path d="M14 10 L23 13.5 L14 17 Z" fill="#67e8f9" />
+                
+                {/* Magenta Wattle / Accent Dot at Bottom Left */}
+                <circle cx="6" cy="22" r="3.5" fill="#d946ef" />
               </svg>
             </div>
           </div>
