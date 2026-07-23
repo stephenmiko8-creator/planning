@@ -455,15 +455,18 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         <div className="flex items-center gap-3">
           {/* Exact Brand Logo SVG matching the screenshot */}
           <div className="flex items-center gap-2.5">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
               {/* Top-left cyan dot */}
-              <circle cx="5" cy="5" r="4.5" fill="#38f0d8" />
-              {/* Top-right cyan capsule */}
-              <rect x="13" y="1" width="16" height="8.5" rx="4.25" fill="#38f0e4" />
-              {/* Center cyan arch/wedge */}
-              <path d="M1 14 C1 14 1 21 8 21 C15 21 15 14 15 14 Z" fill="#38bdf8" />
+              <circle cx="5" cy="5" r="4" fill="#38f0d8" />
+              
+              {/* Top-right horizontal cyan pill */}
+              <rect x="12" y="1" width="15" height="8" rx="4" fill="#38f0d8" />
+              
+              {/* Mid-left horizontal cyan pill */}
+              <rect x="1" y="11" width="14" height="8" rx="4" fill="#38f0d8" />
+              
               {/* Bottom-left magenta dot */}
-              <circle cx="5" cy="27" r="4.5" fill="#d946ef" />
+              <circle cx="5" cy="23" r="4" fill="#d946ef" />
             </svg>
 
             {/* Exact Two-Tone Typography: 'Miki' in cyan, 'plan' in light gray/white */}
