@@ -10,7 +10,7 @@ router.use(authMiddleware);
 
 const logFile = path.join(__dirname, '../debug.log');
 function logDebug(msg) {
-  fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${msg}\n`);
+  fs.appendFile(logFile, `[${new Date().toISOString()}] ${msg}\n`, () => {});
 }
 
 function getCategories(userId) {

@@ -37,7 +37,42 @@ const ScannerInput = ({ onScan }) => {
     reader.readAsText(file);
   };
 
-  const handleImageUpload = (e) => {
+  const compressImage = (file, maxWidth = 1600, quality = 0.82) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.src = e.target.result;
+      };
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        const base64String = compressedDataUrl.split(',')[1];
+        resolve({
+          base64: base64String,
+          mimeType: 'image/jpeg',
+          previewUrl: compressedDataUrl
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -46,16 +81,16 @@ const ScannerInput = ({ onScan }) => {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64String = event.target.result.split(',')[1];
+    try {
+      const compressed = await compressImage(file);
       setImageFile({
-        base64: base64String,
-        mimeType: file.type
+        base64: compressed.base64,
+        mimeType: compressed.mimeType
       });
-      setImagePreview(event.target.result);
-    };
-    reader.readAsDataURL(file);
+      setImagePreview(compressed.previewUrl);
+    } catch {
+      addToast("Erreur lors du traitement de l'image.", 'error');
+    }
   };
 
   const clearImage = () => {
