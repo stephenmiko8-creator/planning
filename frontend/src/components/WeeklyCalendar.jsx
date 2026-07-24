@@ -484,47 +484,56 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         </div>
       </div>
 
-      {/* Mobile Day Selector Bar (Horizontal strip matching promo image) */}
-      <div className="flex md:hidden items-center justify-between bg-dark-950/90 p-1.5 rounded-2xl border border-white/10 gap-1 overflow-x-auto no-scrollbar shadow-lg">
-        <div className="px-1.5 shrink-0 text-center flex flex-col items-center justify-center border-r border-white/10 pr-2">
-          <span className="text-[8px] font-black uppercase text-neon-purple tracking-widest">
-            {weekDates[0].toLocaleDateString('en-US', { month: 'short' })}
-          </span>
-          <span className="text-[10px] font-extrabold text-white">
-            {weekDates[0].getDate()}
-          </span>
-        </div>
-        {weekDates.map((date, i) => {
-          const isSelected = selectedDayIndex === i;
-          const isToday = formatDateKey(date) === todayKey;
-          return (
+      {/* Calendar Grid Container */}
+      <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
+        <div className="glass-panel rounded-2xl overflow-hidden flex flex-col min-w-full">
+          {/* Mobile Date Bar Incorporated Directly Inside Calendar Panel Header */}
+          <div className="flex md:hidden items-center justify-between bg-[#0b1222]/90 p-2 border-b border-white/10 gap-1 overflow-x-auto no-scrollbar shadow-inner">
+            {/* View Mode Toggle Pill (Semaine vs Jour) */}
             <button
-              key={i}
-              onClick={() => {
-                setSelectedDayIndex(i);
-              }}
-              className={`flex-1 min-w-[38px] py-1 px-0.5 flex flex-col items-center justify-center transition-all rounded-xl cursor-pointer ${
-                isSelected
-                  ? 'neon-day-pill-active scale-105'
-                  : isToday
-                  ? 'border border-neon-purple/50 text-neon-purple bg-neon-purple/5'
-                  : 'bg-white/3 border border-white/5 text-gray-400 hover:text-white'
+              onClick={() => setViewMode(v => v === 'week' ? 'day' : 'week')}
+              className={`px-2 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all border shrink-0 ${
+                viewMode === 'week'
+                  ? 'bg-neon-purple text-white border-neon-purple/50 shadow-[0_0_8px_rgba(168,85,247,0.4)]'
+                  : 'bg-white/5 text-cyan-400 border-cyan-400/40'
               }`}
             >
-              <span className={`text-[8px] uppercase font-bold tracking-wider ${isSelected ? 'text-neon-purple font-black' : 'text-gray-400'}`}>
-                {DAYS_FR[i]}
-              </span>
-              <span className={`text-[11px] font-black mt-0.5 ${isSelected ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : isToday ? 'text-neon-purple' : 'text-gray-200'}`}>
-                {date.getDate()}
-              </span>
+              {viewMode === 'week' ? '7 Jours' : '1 Jour'}
             </button>
-          );
-        })}
-      </div>
 
-      {/* Calendar Grid Container (Horizontally Scrollable on Mobile) */}
-      <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
-        <div className="glass-panel rounded-2xl overflow-hidden flex flex-col min-w-[600px] md:min-w-full">
+            {/* 7 Day Pills inside Calendar */}
+            <div className="flex items-center gap-1 flex-1 overflow-x-auto no-scrollbar justify-around">
+              {weekDates.map((date, i) => {
+                const isSelected = selectedDayIndex === i && viewMode === 'day';
+                const isToday = formatDateKey(date) === todayKey;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setSelectedDayIndex(i);
+                      setViewMode('day');
+                    }}
+                    className={`flex-1 min-w-[36px] py-1 px-0.5 flex flex-col items-center justify-center transition-all rounded-xl cursor-pointer ${
+                      isSelected
+                        ? 'neon-day-pill-active scale-105'
+                        : isToday
+                        ? 'border border-neon-purple/60 text-neon-purple bg-neon-purple/10'
+                        : 'bg-white/3 border border-white/5 text-gray-400 hover:text-white'
+                    }`}
+                    title={`Voir le programme du ${DAYS_FR[i]} ${date.getDate()}`}
+                  >
+                    <span className={`text-[8px] uppercase font-bold tracking-wider ${isSelected ? 'text-neon-purple font-black' : 'text-gray-400'}`}>
+                      {DAYS_FR[i]}
+                    </span>
+                    <span className={`text-[11px] font-black mt-0.5 ${isSelected ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : isToday ? 'text-neon-purple' : 'text-gray-200'}`}>
+                      {date.getDate()}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Table Header — Desktop Only to prevent duplicate day headers on mobile */}
           <div 
             className={`hidden md:grid border-b border-white/30 sticky-calendar-days ${viewMode === 'day' ? 'md:hidden' : ''}`} 
