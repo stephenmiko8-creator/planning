@@ -484,162 +484,139 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         </div>
       </div>
 
-      {/* Calendar Grid Container */}
+      {/* Calendar Grid Container (Horizontally Scrollable Container for 100% Aligned Columns) */}
       <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
-        <div className="glass-panel rounded-2xl overflow-hidden flex flex-col min-w-full">
-          {/* Mobile Date Bar Incorporated Directly Inside Calendar Panel Header */}
-          <div className="flex md:hidden items-center justify-between bg-[#0b1222]/95 p-2 border-b border-white/10 gap-2 shadow-inner">
-            {/* Left: Month Badge + Micro View Mode Toggle */}
-            <div className="flex items-center gap-1.5 shrink-0 pr-1.5 border-r border-white/10">
-              <span className="text-[9px] font-black uppercase text-neon-purple tracking-wider">
-                {weekDates[0].toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
-              </span>
-              <button
-                onClick={() => setViewMode(v => v === 'week' ? 'day' : 'week')}
-                className={`px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all border shrink-0 ${
-                  viewMode === 'week'
-                    ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/40 shadow-[0_0_6px_rgba(168,85,247,0.3)]'
-                    : 'bg-cyan-500/20 text-cyan-400 border-cyan-400/40'
-                }`}
-                title={viewMode === 'week' ? "Vue 7 Jours (Cliquer pour 1 Jour)" : "Vue 1 Jour (Cliquer pour 7 Jours)"}
-              >
-                {viewMode === 'week' ? '7D' : '1D'}
-              </button>
-            </div>
-
-            {/* 7 Day Pills inside Calendar (Generously Sized & Horizontally Scrollable) */}
-            <div className="flex items-center gap-1.5 flex-1 overflow-x-auto no-scrollbar scroll-smooth py-0.5">
-              {weekDates.map((date, i) => {
-                const isSelected = selectedDayIndex === i && viewMode === 'day';
-                const isToday = formatDateKey(date) === todayKey;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      setSelectedDayIndex(i);
-                      setViewMode('day');
-                    }}
-                    className={`shrink-0 min-w-[46px] py-1.5 px-2 flex flex-col items-center justify-center transition-all rounded-xl cursor-pointer ${
-                      isSelected
-                        ? 'neon-day-pill-active scale-105 shadow-md'
-                        : isToday
-                        ? 'border border-neon-purple/60 text-neon-purple bg-neon-purple/10'
-                        : 'bg-white/4 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10'
-                    }`}
-                    title={`Voir le programme du ${DAYS_FR[i]} ${date.getDate()}`}
-                  >
-                    <span className={`text-[9px] uppercase font-bold tracking-wider ${isSelected ? 'text-neon-purple font-black' : 'text-gray-400'}`}>
-                      {DAYS_FR[i]}
-                    </span>
-                    <span className={`text-xs font-black mt-0.5 ${isSelected ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : isToday ? 'text-neon-purple' : 'text-gray-200'}`}>
-                      {date.getDate()}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Table Header — Desktop Only to prevent duplicate day headers on mobile */}
+        <div className={`glass-panel rounded-2xl overflow-hidden flex flex-col ${viewMode === 'week' ? 'min-w-[640px] md:min-w-full' : 'min-w-full'}`}>
+          {/* Unified Aligned Table Grid Header */}
           <div 
-            className={`hidden md:grid border-b border-white/30 sticky-calendar-days ${viewMode === 'day' ? 'md:hidden' : ''}`} 
+            className="grid border-b border-white/20 sticky-calendar-days bg-[#0b1222]/95 shadow-sm" 
             style={{ 
               gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr',
               paddingRight: 'var(--scrollbar-width, 0px)' 
             }}
           >
-          {/* Hour column header — shows month/year and handles refresh */}
-          <div 
-            className="sticky left-0 bg-[#0b1222] z-30 p-2 text-center border-r border-white/20 cursor-pointer flex flex-col items-center justify-center group"
-            onClick={() => {
-              if (!scrollContainerRef.current) return;
-              setIsRefreshing(true);
-              if (onRefresh) onRefresh();
-              
-              // Find the earliest event time in the current week
-              const earliestMinutes = weekEvents.reduce((earliest, e) => {
-                const mins = timeToMinutes(e.heure_debut);
-                return mins < earliest ? mins : earliest;
-              }, 24 * 60);
-              
-              if (earliestMinutes < 24 * 60) {
-                // Scroll to 1 hour before the first event for context
-                const targetScroll = Math.max((earliestMinutes - 60), 0);
-                scrollContainerRef.current.scrollTo({ top: targetScroll, behavior: 'smooth' });
-              } else {
-                // No events — scroll to active start hour
-                const startHourStr = config?.active_start_hour || '08:00';
-                const [h] = startHourStr.split(':').map(Number);
-                scrollContainerRef.current.scrollTo({ top: Math.max(h - 1, 0) * 60, behavior: 'smooth' });
-              }
-              
-              setTimeout(() => setIsRefreshing(false), 800);
-            }}
-            title="Aller aux événements"
-          >
-            {isRefreshing ? (
-              <span className="text-[10px] text-white animate-spin">↻</span>
-            ) : (
-              <div className="flex flex-col items-center justify-center leading-none">
-                <span className="text-[10px] font-black uppercase text-neon-purple tracking-wider">
-                  {weekDates[0].toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
-                </span>
-                <span className="text-[10px] font-bold text-gray-500 mt-0.5">
-                  {weekDates[0].getFullYear().toString().slice(-2)}
-                </span>
+            {/* Hour column header — shows month/year, 7D/1D toggle, and handles refresh */}
+            <div 
+              className="sticky left-0 bg-[#0b1222] z-30 p-1.5 text-center border-r border-white/20 flex flex-col items-center justify-center gap-1 shrink-0"
+              title="Aller aux événements"
+            >
+              <div 
+                className="cursor-pointer flex flex-col items-center justify-center leading-none"
+                onClick={() => {
+                  if (!scrollContainerRef.current) return;
+                  setIsRefreshing(true);
+                  if (onRefresh) onRefresh();
+                  
+                  const earliestMinutes = weekEvents.reduce((earliest, e) => {
+                    const mins = timeToMinutes(e.heure_debut);
+                    return mins < earliest ? mins : earliest;
+                  }, 24 * 60);
+                  
+                  if (earliestMinutes < 24 * 60) {
+                    const targetScroll = Math.max((earliestMinutes - 60), 0);
+                    scrollContainerRef.current.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                  } else {
+                    const startHourStr = config?.active_start_hour || '08:00';
+                    const [h] = startHourStr.split(':').map(Number);
+                    scrollContainerRef.current.scrollTo({ top: Math.max(h - 1, 0) * 60, behavior: 'smooth' });
+                  }
+                  
+                  setTimeout(() => setIsRefreshing(false), 800);
+                }}
+              >
+                {isRefreshing ? (
+                  <span className="text-[10px] text-white animate-spin">↻</span>
+                ) : (
+                  <>
+                    <span className="text-[9px] font-black uppercase text-neon-purple tracking-wider">
+                      {weekDates[0].toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
+                    </span>
+                    <span className="text-[9px] font-bold text-gray-500 mt-0.5">
+                      {weekDates[0].getFullYear().toString().slice(-2)}
+                    </span>
+                  </>
+                )}
               </div>
+
+              {/* View Mode Toggle Pill (7D vs 1D) */}
+              <button
+                onClick={() => setViewMode(v => v === 'week' ? 'day' : 'week')}
+                className={`px-1 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter transition-all border shrink-0 ${
+                  viewMode === 'week'
+                    ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/40 shadow-[0_0_6px_rgba(168,85,247,0.3)]'
+                    : 'bg-cyan-500/20 text-cyan-400 border-cyan-400/40'
+                }`}
+                title={viewMode === 'week' ? "Afficher 1 Jour (Cliquez pour zoomer)" : "Afficher 7 Jours"}
+              >
+                {viewMode === 'week' ? '7D' : '1D'}
+              </button>
+            </div>
+
+            {/* Day headers — Perfectly 1-to-1 aligned with calendar columns directly below */}
+            {viewMode === 'week' ? (
+              weekDates.map((date, i) => {
+                const isToday = formatDateKey(date) === todayKey;
+                const isSelected = selectedDayIndex === i;
+                const isWeekend = i >= 5; // Sam=5, Dim=6
+                return (
+                  <div
+                    key={i}
+                    onClick={() => {
+                      setSelectedDayIndex(i);
+                      // Tapping a day switches to single day schedule plan view on mobile
+                      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                        setViewMode('day');
+                      }
+                    }}
+                    className={`p-1.5 md:p-2 text-center border-r border-white/20 cursor-pointer hover:bg-white/5 transition-all flex flex-col items-center justify-center ${isToday && !isSelected ? 'bg-neon-purple/5' : ''}`}
+                    title={`Programme du ${DAYS_FR[i]} ${date.getDate()}`}
+                  >
+                    <div className={`flex flex-col items-center justify-center w-full py-1 px-1 transition-all ${
+                      isSelected 
+                        ? 'border-2 border-neon-purple bg-neon-purple/20 rounded-xl shadow-[0_0_12px_rgba(168,85,247,0.3)] font-bold scale-105' 
+                        : isToday
+                        ? 'border border-neon-purple/40 rounded-xl bg-neon-purple/5'
+                        : 'rounded-xl'
+                    }`}>
+                      <span className={`text-[9px] md:text-[10px] uppercase tracking-wider notranslate ${
+                        isSelected ? 'text-neon-purple font-extrabold' : 'text-gray-400'
+                      }`} translate="no">
+                        {DAYS_FR[i]}
+                      </span>
+                      <span className={`text-xs md:text-base font-bold mt-0.5 notranslate ${
+                        isSelected ? 'text-white font-black' : isToday ? 'text-neon-purple font-extrabold' : isWeekend ? 'text-gray-400' : 'text-white'
+                      }`} translate="no">
+                        {date.getDate()}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              (() => {
+                const date = weekDates[selectedDayIndex];
+                const isToday = formatDateKey(date) === todayKey;
+                return (
+                  <div 
+                    className={`p-2 text-center border-r border-white/20 flex items-center justify-between px-4 ${isToday ? 'bg-neon-purple/10' : ''}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400 uppercase font-bold notranslate" translate="no">{DAYS_FR[selectedDayIndex]}</span>
+                      <span className={`text-base font-extrabold notranslate ${isToday ? 'text-neon-purple' : 'text-white'}`} translate="no">
+                        {date.getDate()} {MONTHS_FR[date.getMonth()]}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setViewMode('week')}
+                      className="px-2 py-1 bg-white/5 hover:bg-white/10 text-cyan-400 border border-cyan-400/30 rounded-xl text-[10px] font-bold transition-all"
+                    >
+                      ← Voir les 7 Jours
+                    </button>
+                  </div>
+                );
+              })()
             )}
           </div>
-          {/* Day headers */}
-          {viewMode === 'week' ? (
-            weekDates.map((date, i) => {
-              const isToday = formatDateKey(date) === todayKey;
-              const isSelected = selectedDayIndex === i;
-              const isWeekend = i >= 5; // Sam=5, Dim=6
-              return (
-                <div
-                  key={i}
-                  onClick={() => {
-                    setSelectedDayIndex(i);
-                  }}
-                  className={`p-2 text-center border-r border-white/20 cursor-pointer hover:bg-white/5 transition-all flex flex-col items-center justify-center ${isToday && !isSelected ? 'bg-neon-purple/5' : ''}`}
-                >
-                  <div className={`flex flex-col items-center justify-center w-full max-w-[55px] py-1 px-1.5 transition-all ${
-                    isSelected 
-                      ? 'border-2 border-neon-purple bg-neon-purple/20 rounded-xl shadow-[0_0_12px_rgba(168,85,247,0.3)] font-bold' 
-                      : isToday
-                      ? 'border border-neon-purple/40 rounded-xl'
-                      : 'rounded-xl'
-                  }`}>
-                    <span className={`text-[10px] uppercase tracking-wider notranslate ${
-                      isSelected ? 'text-neon-purple font-extrabold' : 'text-gray-400'
-                    }`} translate="no">
-                      {DAYS_FR[i]}
-                    </span>
-                    <span className={`text-base font-bold mt-0.5 notranslate ${
-                      isSelected ? 'text-white font-black' : isToday ? 'text-neon-purple' : isWeekend ? 'text-gray-500' : 'text-white'
-                    }`} translate="no">
-                      {date.getDate()}
-                    </span>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            (() => {
-              const date = weekDates[selectedDayIndex];
-              const isToday = formatDateKey(date) === todayKey;
-              return (
-                <div className={`p-3 text-center border-r border-white/20 ${isToday ? 'bg-neon-purple/20' : ''}`}>
-                  <div className="text-xs text-gray-400 notranslate" translate="no">{DAYS_FR[selectedDayIndex]}</div>
-                  <div className={`text-lg font-bold notranslate ${isToday ? 'text-neon-purple' : 'text-white'}`} translate="no">
-                    {date.getDate()}
-                  </div>
-                </div>
-              );
-            })()
-          )}
-        </div>
 
         {/* Scrollable container for time rows grid */}
         <div
@@ -971,8 +948,13 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                   );
                 })()
               )}
-            </div></div>
-        </div></div></div><style>{`
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <style>{`
         @keyframes skyPanelIn {
           0% {
             opacity: 0;
