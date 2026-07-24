@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Calendar, Clock, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, ChevronRight, Trash2, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i); // 0h -> 23h
 const DAYS_FR = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -204,6 +204,21 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
     return 0;
   }); // 0 = Lun, 6 = Dim
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDisplayMenuOpen, setIsDisplayMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDisplayMenuOpen && !event.target.closest('.display-menu-container')) {
+        setIsDisplayMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isDisplayMenuOpen]);
 
   const scrollContainerRef = useRef(null);
 
@@ -474,31 +489,63 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
             </button>
           </div>
 
-          {/* Availability Dispos Toggle */}
-          <button
-            onClick={() => setShowAvailabilities(!showAvailabilities)}
-            className={`px-2 py-1 md:px-3 md:py-1.5 rounded-xl font-extrabold text-[9px] md:text-xs transition-all flex items-center gap-1 border shrink-0 cursor-pointer ${showAvailabilities
-                ? 'event-green border-solid shadow-[0_0_10px_var(--event-green-border)]'
-                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-transparent'
+          {/* Display Options Dropdown (Dispos & Notes inside 1 Dropdown) */}
+          <div className="relative shrink-0 display-menu-container">
+            <button
+              onClick={() => setIsDisplayMenuOpen(!isDisplayMenuOpen)}
+              className={`px-2.5 py-1.5 rounded-xl font-extrabold text-[10px] md:text-xs transition-all flex items-center gap-1.5 border cursor-pointer ${
+                isDisplayMenuOpen || showAvailabilities || showNotes
+                  ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/40 shadow-[0_0_12px_rgba(168,85,247,0.3)]'
+                  : 'glass-panel text-gray-300 hover:text-white hover:bg-white/10 border-white/10'
               }`}
-            title={showAvailabilities ? "Masquer les créneaux disponibles" : "Afficher les créneaux disponibles"}
-          >
-            <Clock size={12} className="shrink-0" />
-            <span className="notranslate whitespace-nowrap" translate="no">{showAvailabilities ? 'Dispos' : '+Dispos'}</span>
-          </button>
+            >
+              <SlidersHorizontal size={13} className="shrink-0 text-neon-purple" />
+              <span className="notranslate whitespace-nowrap" translate="no">Affichage</span>
+              <ChevronDown size={11} className={`transition-transform duration-200 ${isDisplayMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-          {/* Priority Notes Toggle */}
-          <button
-            onClick={() => setShowNotes(!showNotes)}
-            className={`px-2 py-1 md:px-3 md:py-1.5 rounded-xl font-extrabold text-[9px] md:text-xs transition-all flex items-center gap-1 border shrink-0 cursor-pointer ${showNotes
-                ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/30 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
-                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-transparent'
-              }`}
-            title={showNotes ? "Masquer les notes" : "Afficher les notes"}
-          >
-            <span className="text-[10px] shrink-0">📝</span>
-            <span className="notranslate whitespace-nowrap" translate="no">{showNotes ? 'Notes' : '+Notes'}</span>
-          </button>
+            {isDisplayMenuOpen && (
+              <div className="absolute right-0 mt-2 w-52 bg-[#0b1222]/95 backdrop-blur-xl border border-white/15 rounded-2xl shadow-2xl p-2 z-50 animate-[fadeIn_0.15s_ease-out] flex flex-col gap-1">
+                <div className="px-2 py-1 border-b border-white/10 mb-1">
+                  <span className="text-[9px] font-black uppercase text-gray-400 tracking-wider">Options d'Affichage</span>
+                </div>
+
+                <button
+                  onClick={() => setShowAvailabilities(!showAvailabilities)}
+                  className={`w-full px-2.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                    showAvailabilities
+                      ? 'event-green text-white font-extrabold shadow-sm'
+                      : 'text-gray-300 hover:bg-white/5'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Clock size={14} className={showAvailabilities ? 'text-white' : 'text-neon-teal'} />
+                    <span>Disponibilités</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${showAvailabilities ? 'bg-white/20 text-white' : 'bg-white/5 text-gray-400'}`}>
+                    {showAvailabilities ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setShowNotes(!showNotes)}
+                  className={`w-full px-2.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                    showNotes
+                      ? 'bg-neon-purple/30 text-white font-extrabold border border-neon-purple/40 shadow-sm'
+                      : 'text-gray-300 hover:bg-white/5'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>📝</span>
+                    <span>Notes de cours</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${showNotes ? 'bg-neon-purple/40 text-white' : 'bg-white/5 text-gray-400'}`}>
+                    {showNotes ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
