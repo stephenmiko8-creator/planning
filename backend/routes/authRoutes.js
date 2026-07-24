@@ -141,4 +141,46 @@ router.post('/subscribe', authMiddleware, (req, res) => {
   );
 });
 
+// POST /change-password
+router.post('/change-password', authMiddleware, (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, error: 'Non authentifié.' });
+  }
+
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ success: false, error: 'Mot de passe actuel et nouveau mot de passe requis.' });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, error: 'Le nouveau mot de passe doit contenir au moins 6 caractères.' });
+  }
+
+  // Fetch user password hash
+  db.get(`SELECT password_hash FROM users WHERE id = ?`, [req.user.id], (err, user) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    if (!user) return res.status(404).json({ success: false, error: 'Utilisateur non trouvé.' });
+
+    // Verify current password
+    bcrypt.compare(currentPassword, user.password_hash, (err, isMatch) => {
+      if (err) return res.status(500).json({ success: false, error: err.message });
+      if (!isMatch) return res.status(400).json({ success: false, error: 'Le mot de passe actuel est incorrect.' });
+
+      // Hash new password
+      bcrypt.hash(newPassword, 10, (err, newHash) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+
+        db.run(`UPDATE users SET password_hash = ? WHERE id = ?`, [newHash, req.user.id], (err) => {
+          if (err) return res.status(500).json({ success: false, error: err.message });
+
+          res.json({
+            success: true,
+            message: 'Mot de passe mis à jour avec succès.'
+          });
+        });
+      });
+    });
+  });
+});
+
 module.exports = router;

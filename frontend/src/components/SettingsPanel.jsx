@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Tag, Plus, Trash2, Save, Check, AlertCircle, Settings, Palette } from 'lucide-react';
+import { User, Tag, Plus, Trash2, Save, Check, AlertCircle, Settings, Palette, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const COLOR_PRESETS = [
@@ -26,6 +26,59 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
 
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
+
+  // Change Password state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('Veuillez remplir tous les champs.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Le nouveau mot de passe et sa confirmation ne correspondent pas.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordError('Le nouveau mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+        method: 'POST',
+        headers: getHeaders(true),
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Erreur lors du changement de mot de passe.');
+      }
+
+      setPasswordSuccess('Mot de passe mis à jour avec succès !');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      setPasswordError(err.message);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -504,6 +557,105 @@ const SettingsPanel = ({ onSettingsChange, config, onConfigChange, token, curren
             )}
           </button>
         </div>
+
+        {/* Change Password Panel (When Connected) */}
+        {token && (
+          <div className="glass-panel p-5 border border-cyan-500/20">
+            <h4 className="text-white font-bold mb-3 flex items-center gap-2">
+              <ShieldCheck size={18} className="text-cyan-400" /> Sécurité & Mot de Passe
+            </h4>
+
+            {passwordError && (
+              <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-2.5 mb-3 text-center animate-pulse">
+                {passwordError}
+              </p>
+            )}
+
+            {passwordSuccess && (
+              <p className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded-xl p-2.5 mb-3 text-center animate-pulse">
+                {passwordSuccess}
+              </p>
+            )}
+
+            <form onSubmit={handleChangePassword} className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Mot de passe actuel</label>
+                <div className="relative">
+                  <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type={showCurrentPass ? 'text' : 'password'}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-dark-900 border border-white/10 rounded-xl py-2 pl-9 pr-9 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400/50"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPass(!showCurrentPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                  >
+                    {showCurrentPass ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Nouveau mot de passe</label>
+                <div className="relative">
+                  <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type={showNewPass ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Au moins 6 caractères"
+                    className="w-full bg-dark-900 border border-white/10 rounded-xl py-2 pl-9 pr-9 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400/50"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPass(!showNewPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                  >
+                    {showNewPass ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Confirmer le mot de passe</label>
+                <div className="relative">
+                  <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type={showNewPass ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Répétez le nouveau mot de passe"
+                    className="w-full bg-dark-900 border border-white/10 rounded-xl py-2 pl-9 pr-9 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400/50"
+                    required
+                    minLength={6}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={passwordLoading}
+                className="w-full mt-1 py-2.5 bg-gradient-to-r from-cyan-500 to-neon-purple text-white font-bold rounded-xl text-xs shadow-md hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {passwordLoading ? (
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Save size={14} />
+                    <span>Mettre à jour le mot de passe</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
