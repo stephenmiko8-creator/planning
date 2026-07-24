@@ -373,9 +373,9 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
   return (
     <div className="flex flex-col gap-4">
       {/* Header navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-3 sticky-calendar-header">
+      <div className="flex items-center justify-between gap-2 sticky-calendar-header">
         {/* Left: Navigation Controls */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => {
               if (viewMode === 'week') {
@@ -389,7 +389,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                 }
               }
             }}
-            className="glass-panel p-2 hover:bg-white/10 transition-all rounded-xl"
+            className="glass-panel p-1.5 hover:bg-white/10 transition-all rounded-xl cursor-pointer"
             title="Précédent"
           >
             <ChevronLeft size={16} />
@@ -397,7 +397,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
           
           <button
             onClick={handleGoToToday}
-            className="px-3 py-2 glass-panel text-xs font-bold hover:bg-white/10 text-white rounded-xl transition-all"
+            className="px-2.5 py-1.5 glass-panel text-[11px] font-extrabold hover:bg-white/10 text-white rounded-xl transition-all cursor-pointer"
           >
             Aujourd'hui
           </button>
@@ -415,19 +415,19 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                 }
               }
             }}
-            className="glass-panel p-2 hover:bg-white/10 transition-all rounded-xl"
+            className="glass-panel p-1.5 hover:bg-white/10 transition-all rounded-xl cursor-pointer"
             title="Suivant"
           >
             <ChevronRight size={16} />
           </button>
         </div>
 
-        {/* Center: Date title formatted like the promo image */}
+        {/* Center: Date title formatted concisely */}
         <div className="text-center flex flex-col items-center">
-          <span className="text-[10px] md:text-xs font-black tracking-[0.2em] text-neon-purple uppercase drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">
+          <span className="text-[9px] md:text-xs font-black tracking-[0.15em] text-neon-purple uppercase drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">
             {viewMode === 'week' ? 'Weekly View' : 'Daily View'}
           </span>
-          <h3 className="text-xs md:text-sm font-semibold text-gray-400 mt-0.5 notranslate" translate="no">
+          <h3 className="text-[11px] md:text-sm font-bold text-gray-300 mt-0.5 notranslate truncate max-w-[140px] md:max-w-none" translate="no">
             {viewMode === 'week' ? (
               `${weekDates[0].getDate()} - ${weekDates[6].getDate()} ${MONTHS_FR[weekDates[6].getMonth()]} ${weekDates[6].getFullYear()}`
             ) : (
@@ -436,8 +436,8 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
           </h3>
         </div>
 
-        {/* Right: Toggle actions */}
-        <div className="flex items-center gap-2">
+        {/* Right: Desktop actions (hidden on mobile to save vertical space) */}
+        <div className="hidden md:flex items-center gap-2">
           {/* Segmented view mode toggle */}
           <div className="flex bg-white/5 border border-white/10 p-0.5 rounded-xl">
             <button
@@ -484,37 +484,37 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         </div>
       </div>
 
-
-
-      {/* Mobile Day Selector Bar */}
-      <div className={`flex md:hidden items-center justify-between bg-dark-900/60 p-2 rounded-xl border border-white/5 gap-1 mb-2 ${viewMode === 'week' ? 'hidden' : ''}`}>
-        <div className="w-[50px] shrink-0 text-center flex flex-col items-center justify-center leading-none">
-          <span className="text-[10px] font-black uppercase text-neon-purple tracking-wider">
-            {weekDates[0].toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
+      {/* Mobile Day Selector Bar (Horizontal strip matching promo image) */}
+      <div className="flex md:hidden items-center justify-between bg-dark-950/90 p-1.5 rounded-2xl border border-white/10 gap-1 overflow-x-auto no-scrollbar shadow-lg">
+        <div className="px-1.5 shrink-0 text-center flex flex-col items-center justify-center border-r border-white/10 pr-2">
+          <span className="text-[8px] font-black uppercase text-neon-purple tracking-widest">
+            {weekDates[0].toLocaleDateString('en-US', { month: 'short' })}
+          </span>
+          <span className="text-[10px] font-extrabold text-white">
+            {weekDates[0].getDate()}
           </span>
         </div>
         {weekDates.map((date, i) => {
-          const isSelected = selectedDayIndex === i && viewMode === 'day';
+          const isSelected = selectedDayIndex === i;
           const isToday = formatDateKey(date) === todayKey;
           return (
             <button
               key={i}
               onClick={() => {
                 setSelectedDayIndex(i);
-                setViewMode('day');
               }}
-              className={`flex-1 py-1.5 px-0.5 flex flex-col items-center justify-center transition-all rounded-lg ${
-                isSelected ? 'text-neon-purple' : 'text-gray-400 hover:text-white'
+              className={`flex-1 min-w-[38px] py-1 px-0.5 flex flex-col items-center justify-center transition-all rounded-xl cursor-pointer ${
+                isSelected
+                  ? 'neon-day-pill-active scale-105'
+                  : isToday
+                  ? 'border border-neon-purple/50 text-neon-purple bg-neon-purple/5'
+                  : 'bg-white/3 border border-white/5 text-gray-400 hover:text-white'
               }`}
             >
-              <span className="text-[10px] uppercase font-semibold mb-1">{DAYS_FR[i]}</span>
-              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                isSelected 
-                  ? 'bg-neon-purple text-btn-text-accent shadow-md font-black ring-2 ring-neon-purple/30' 
-                  : isToday
-                  ? 'border border-neon-purple/50 text-neon-purple font-bold'
-                  : ''
-              }`}>
+              <span className={`text-[8px] uppercase font-bold tracking-wider ${isSelected ? 'text-neon-purple font-black' : 'text-gray-400'}`}>
+                {DAYS_FR[i]}
+              </span>
+              <span className={`text-[11px] font-black mt-0.5 ${isSelected ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : isToday ? 'text-neon-purple' : 'text-gray-200'}`}>
                 {date.getDate()}
               </span>
             </button>
@@ -524,9 +524,10 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
       {/* Calendar Grid Container (Horizontally Scrollable on Mobile) */}
       <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
-        <div className="glass-panel rounded-2xl overflow-hidden flex flex-col min-w-[700px] md:min-w-full">
+        <div className="glass-panel rounded-2xl overflow-hidden flex flex-col min-w-[600px] md:min-w-full">
+          {/* Table Header — Desktop Only to prevent duplicate day headers on mobile */}
           <div 
-            className={`grid border-b border-white/30 sticky-calendar-days ${viewMode === 'day' ? 'hidden md:grid' : ''}`} 
+            className={`hidden md:grid border-b border-white/30 sticky-calendar-days ${viewMode === 'day' ? 'md:hidden' : ''}`} 
             style={{ 
               gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr',
               paddingRight: 'var(--scrollbar-width, 0px)' 

@@ -451,37 +451,154 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
   };
 
   return (
-    <div className="w-full max-w-full px-4 md:px-8 py-4 md:py-6 pb-24 md:pb-6 flex flex-col gap-6">
+    <div className="w-full max-w-full px-2 md:px-8 py-2 md:py-6 pb-20 md:pb-6 flex flex-col gap-2 md:gap-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center gap-3">
-          {/* Mikiplan Official Logo: 4 organic blob shapes adapted to active theme */}
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0" style={{filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))'}}>
+      <div className="flex justify-between items-center gap-3 w-full border-b border-white/5 pb-3 md:pb-0 md:border-none">
+        {/* Left: User Profile Avatar button on mobile & desktop */}
+        <div className="relative profile-dropdown-container shrink-0">
+          <button
+            onClick={() => {
+              setIsProfileOpen(!isProfileOpen);
+              setIsMenuOpen(false);
+            }}
+            className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-neon-purple p-[1.5px] shadow-[0_0_10px_rgba(45,212,191,0.2)] hover:shadow-[0_0_15px_rgba(45,212,191,0.4)] transition-all flex items-center justify-center cursor-pointer shrink-0"
+            title="Mon Compte"
+          >
+            <div className="w-full h-full bg-[#0d1322] rounded-full flex items-center justify-center text-white">
+              {user ? (
+                <span className="text-[10px] font-black uppercase text-cyan-400">
+                  {user.email.slice(0, 2)}
+                </span>
+              ) : (
+                <User size={16} className="text-gray-400" />
+              )}
+            </div>
+          </button>
+
+          {isProfileOpen && (
+            <div className="absolute left-0 md:right-0 md:left-auto mt-2 w-64 bg-dark-950/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-3 z-50 animate-[fadeIn_0.15s_ease-out]">
+              {user ? (
+                <div className="px-4 py-2 border-b border-white/10 mb-2 flex flex-col gap-1">
+                  <span className="text-[9px] text-gray-500 font-black uppercase tracking-wider">Mon Profil</span>
+                  <span className="text-xs font-bold text-white truncate" title={user.email}>{user.email}</span>
+                  <div className="flex justify-between items-center mt-2 text-[10px] bg-white/3 p-2 rounded-xl border border-white/5">
+                    <span className="text-gray-400">Scans restants :</span>
+                    <span className={`font-extrabold ${user.subscription_plan === 'free' ? 'text-gray-300' : 'text-neon-teal'}`}>
+                      {user.subscription_plan === 'free' ? `${user.scan_count_this_month || 0}/5` : 'Illimités'}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="px-4 py-2 border-b border-white/10 mb-2">
+                  <p className="text-[10px] text-gray-400">Connectez-vous pour sauvegarder vos plannings.</p>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-1 px-2">
+                {user ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        setIsSubOpen(true);
+                        setIsProfileOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all hover:bg-white/5 ${
+                        user.subscription_plan === 'premium'
+                          ? 'text-neon-purple'
+                          : user.subscription_plan === 'pro'
+                          ? 'text-neon-teal'
+                          : 'text-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        {user.subscription_plan === 'premium' && <Crown size={12} className="animate-pulse" />}
+                        {user.subscription_plan === 'pro' && <Sparkles size={12} className="animate-pulse" />}
+                        <span>Plan : {user.subscription_plan}</span>
+                      </div>
+                      <span className="text-[9px] text-gray-500 font-bold border border-white/10 px-2 py-0.5 rounded-full">Changer</span>
+                    </button>
+
+                    {user.subscription_plan === 'premium' && (
+                      <button
+                        onClick={() => {
+                          handleGoogleConnect();
+                          setIsProfileOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold transition-all hover:bg-white/5 ${
+                          isGoogleConnected ? 'text-green-400' : 'text-gray-300'
+                        }`}
+                      >
+                        <LogIn size={12} />
+                        <span>{isGoogleConnected ? 'Google Calendar connecté' : 'Lier Google Calendar'}</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        setActiveView('settings');
+                        setIsProfileOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold transition-all hover:bg-white/5 ${
+                        activeView === 'settings' ? 'text-neon-purple bg-neon-purple/5' : 'text-gray-300'
+                      }`}
+                    >
+                      <Settings size={12} />
+                      <span>Paramètres</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsProfileOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all mt-1"
+                    >
+                      <LogOut size={12} />
+                      <span>Déconnexion</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsAuthOpen(true);
+                      setIsProfileOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-neon-purple to-neon-blue text-btn-text-accent font-bold rounded-xl text-xs hover:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all justify-center cursor-pointer"
+                  >
+                    <LogIn size={12} />
+                    <span>Se connecter</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Center: Mikiplan Official Logo & Typography (Matching promo image layout) */}
+        <div className="flex items-center gap-2 mx-auto md:mx-0">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0" style={{filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))'}}>
             <defs>
               <linearGradient id="themeGradient" x1="0" y1="1" x2="0.5" y2="0">
                 <stop offset="0%" stopColor="var(--logo-color-1)" />
                 <stop offset="100%" stopColor="var(--logo-color-2)" />
               </linearGradient>
             </defs>
-            {/* Bottom-left dot */}
             <circle cx="8" cy="24" r="5" fill="var(--logo-color-1)" />
-            {/* Center-bottom connected blob */}
             <rect x="4" y="13" width="14" height="9" rx="4.5" fill="url(#themeGradient)" />
-            {/* Top-left dot */}
             <circle cx="8" cy="6" r="4.5" fill="var(--logo-color-3)" />
-            {/* Top-right dot */}
             <circle cx="22" cy="6" r="4.5" fill="var(--logo-color-2)" />
           </svg>
 
-          {/* Two-Tone Brand Typography adapted to active theme */}
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-baseline select-none">
+          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight flex items-baseline select-none">
             <span style={{ color: 'var(--logo-text-miki)' }}>Miki</span>
             <span style={{ color: 'var(--logo-text-plan)' }}>plan</span>
           </h1>
           <span className="hidden lg:inline-block w-px h-6 bg-gray-300 dark:bg-white/10 mx-1" />
-          <p className="hidden lg:block text-xs text-gray-500 dark:text-gray-400">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
+          <p className="hidden lg:block text-xs text-gray-500 dark:text-gray-400">Planifiez plus intelligemment grâce à l'IA</p>
         </div>
-        <div className="flex gap-3 items-center ml-auto shrink-0 py-1">
+
+        {/* Right: Actions & Main Hamburger Menu */}
+        <div className="flex gap-2 items-center shrink-0">
           {/* Quick Event Planner Button (Desktop) */}
           <button 
             onClick={() => {
@@ -490,136 +607,11 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
             }}
             className="hidden md:flex relative group overflow-hidden px-4 py-2 bg-gradient-to-r from-neon-purple to-neon-blue text-btn-text-accent font-bold rounded-xl text-xs shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:scale-105 active:scale-95 transition-all items-center gap-1.5 shrink-0 cursor-pointer"
           >
-            <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] -translate-x-[150%] group-hover:animate-[shimmer_2s_infinite]" />
             <PlusCircle size={14} className="relative z-10" />
             <span className="relative z-10">Planifier un bloc</span>
           </button>
 
-          {/* Account/Profile Dropdown Logo */}
-          <div className="relative profile-dropdown-container">
-            <button
-              onClick={() => {
-                setIsProfileOpen(!isProfileOpen);
-                setIsMenuOpen(false);
-              }}
-              className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-neon-purple p-[1.5px] shadow-[0_0_10px_rgba(45,212,191,0.2)] hover:shadow-[0_0_15px_rgba(45,212,191,0.4)] transition-all flex items-center justify-center cursor-pointer shrink-0"
-              title="Mon Compte"
-            >
-              <div className="w-full h-full bg-[#0d1322] rounded-full flex items-center justify-center text-white">
-                {user ? (
-                  <span className="text-[10px] font-black uppercase text-cyan-400">
-                    {user.email.slice(0, 2)}
-                  </span>
-                ) : (
-                  <User size={16} className="text-gray-400" />
-                )}
-              </div>
-            </button>
-
-            {isProfileOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-dark-950/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-3 z-50 animate-[fadeIn_0.15s_ease-out]">
-                {user ? (
-                  <div className="px-4 py-2 border-b border-white/10 mb-2 flex flex-col gap-1">
-                    <span className="text-[9px] text-gray-500 font-black uppercase tracking-wider">Mon Profil</span>
-                    <span className="text-xs font-bold text-white truncate" title={user.email}>{user.email}</span>
-                    <div className="flex justify-between items-center mt-2 text-[10px] bg-white/3 p-2 rounded-xl border border-white/5">
-                      <span className="text-gray-400">Scans restants :</span>
-                      <span className={`font-extrabold ${user.subscription_plan === 'free' ? 'text-gray-300' : 'text-neon-teal'}`}>
-                        {user.subscription_plan === 'free' ? `${user.scan_count_this_month || 0}/5` : 'Illimités'}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="px-4 py-2 border-b border-white/10 mb-2">
-                    <p className="text-[10px] text-gray-400">Connectez-vous pour sauvegarder vos plannings.</p>
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-1 px-2">
-                  {user ? (
-                    <>
-                      {/* Subscription Status & Upgrade */}
-                      <button
-                        onClick={() => {
-                          setIsSubOpen(true);
-                          setIsProfileOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all hover:bg-white/5 ${
-                          user.subscription_plan === 'premium'
-                            ? 'text-neon-purple'
-                            : user.subscription_plan === 'pro'
-                            ? 'text-neon-teal'
-                            : 'text-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          {user.subscription_plan === 'premium' && <Crown size={12} className="animate-pulse" />}
-                          {user.subscription_plan === 'pro' && <Sparkles size={12} className="animate-pulse" />}
-                          <span>Plan : {user.subscription_plan}</span>
-                        </div>
-                        <span className="text-[9px] text-gray-500 font-bold border border-white/10 px-2 py-0.5 rounded-full">Changer</span>
-                      </button>
-
-                      {/* Google Calendar Link (for premium) */}
-                      {user.subscription_plan === 'premium' && (
-                        <button
-                          onClick={() => {
-                            handleGoogleConnect();
-                            setIsProfileOpen(false);
-                          }}
-                          className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold transition-all hover:bg-white/5 ${
-                            isGoogleConnected ? 'text-green-400' : 'text-gray-300'
-                          }`}
-                        >
-                          <LogIn size={12} />
-                          <span>{isGoogleConnected ? 'Google Calendar connecté' : 'Lier Google Calendar'}</span>
-                        </button>
-                      )}
-
-                      {/* Settings tab link */}
-                      <button
-                        onClick={() => {
-                          setActiveView('settings');
-                          setIsProfileOpen(false);
-                        }}
-                        className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold transition-all hover:bg-white/5 ${
-                          activeView === 'settings' ? 'text-neon-purple bg-neon-purple/5' : 'text-gray-300'
-                        }`}
-                      >
-                        <Settings size={12} />
-                        <span>Paramètres</span>
-                      </button>
-
-                      {/* Log Out */}
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsProfileOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all mt-1"
-                      >
-                        <LogOut size={12} />
-                        <span>Déconnexion</span>
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setIsAuthOpen(true);
-                        setIsProfileOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-neon-purple to-neon-blue text-btn-text-accent font-bold rounded-xl text-xs hover:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all justify-center cursor-pointer"
-                    >
-                      <LogIn size={12} />
-                      <span>Se connecter</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Hamburger Menu Dropdown (Triple Horizontal Lines) */}
+          {/* Hamburger Menu Dropdown */}
           <div className="relative menu-dropdown-container">
             <button
               onClick={() => {
@@ -990,11 +982,40 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           setAddModalInitialValues(null);
           setIsAddModalOpen(true);
         }}
-        className="fixed bottom-6 right-4 z-40 md:hidden p-4 bg-neon-purple text-btn-text-accent rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
+        className="fixed bottom-20 right-4 z-40 md:hidden p-3.5 bg-neon-purple text-btn-text-accent rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] active:scale-95 transition-all cursor-pointer"
         aria-label="Planifier un bloc"
       >
-        <PlusCircle size={24} />
+        <PlusCircle size={22} />
       </button>
+
+      {/* Fixed Glassmorphism Bottom Navigation Bar for Mobile (Matching Promo Image) */}
+      <div className="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 md:hidden px-3 py-2 flex justify-around items-center">
+        {[
+          { id: 'calendar', icon: <LayoutGrid size={20} />, label: 'Planning' },
+          { id: 'list', icon: <List size={20} />, label: 'Liste' },
+          { id: 'tasks', icon: <CheckCircle2 size={20} />, label: 'Tâches' },
+          { id: 'chat', icon: <Bot size={20} />, label: 'Assistant' },
+          { id: 'settings', icon: <Settings size={20} />, label: 'Options' }
+        ].map(tab => {
+          const isActive = activeView === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveView(tab.id)}
+              className={`flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl transition-all ${
+                isActive
+                  ? 'text-neon-teal drop-shadow-[0_0_8px_rgba(45,212,191,0.5)] scale-105'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {tab.icon}
+              <span className={`text-[9px] font-bold ${isActive ? 'text-neon-teal font-black' : 'text-gray-400'}`}>
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };
