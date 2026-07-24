@@ -474,30 +474,30 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
             </button>
           </div>
 
-          {/* Availability Dispos Toggle (Mobile & Desktop) */}
+          {/* Availability Dispos Toggle */}
           <button
             onClick={() => setShowAvailabilities(!showAvailabilities)}
-            className={`px-2 md:px-3 py-1.5 md:py-2 rounded-xl font-extrabold text-[10px] md:text-xs transition-all flex items-center gap-1 border cursor-pointer ${showAvailabilities
+            className={`px-2 py-1 md:px-3 md:py-1.5 rounded-xl font-extrabold text-[9px] md:text-xs transition-all flex items-center gap-1 border shrink-0 cursor-pointer ${showAvailabilities
                 ? 'event-green border-solid shadow-[0_0_10px_var(--event-green-border)]'
                 : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-transparent'
               }`}
             title={showAvailabilities ? "Masquer les créneaux disponibles" : "Afficher les créneaux disponibles"}
           >
-            <Clock size={13} />
-            <span className="notranslate" translate="no">{showAvailabilities ? 'Dispos' : '+Dispos'}</span>
+            <Clock size={12} className="shrink-0" />
+            <span className="notranslate whitespace-nowrap" translate="no">{showAvailabilities ? 'Dispos' : '+Dispos'}</span>
           </button>
 
-          {/* Priority Notes Toggle (Mobile & Desktop) */}
+          {/* Priority Notes Toggle */}
           <button
             onClick={() => setShowNotes(!showNotes)}
-            className={`px-2 md:px-3 py-1.5 md:py-2 rounded-xl font-extrabold text-[10px] md:text-xs transition-all flex items-center gap-1 border cursor-pointer ${showNotes
+            className={`px-2 py-1 md:px-3 md:py-1.5 rounded-xl font-extrabold text-[9px] md:text-xs transition-all flex items-center gap-1 border shrink-0 cursor-pointer ${showNotes
                 ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/30 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
                 : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-transparent'
               }`}
             title={showNotes ? "Masquer les notes" : "Afficher les notes"}
           >
-            <span className="text-xs">📝</span>
-            <span className="notranslate" translate="no">{showNotes ? 'Notes' : '+Notes'}</span>
+            <span className="text-[10px] shrink-0">📝</span>
+            <span className="notranslate whitespace-nowrap" translate="no">{showNotes ? 'Notes' : '+Notes'}</span>
           </button>
         </div>
       </div>
