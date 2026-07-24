@@ -222,35 +222,47 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
     return events.filter(e => e.date_absolue >= prevDayKey && e.date_absolue <= weekEnd);
   }, [events, weekStart, weekEnd]);
 
-  // Scroll to active hours on initial mount and when switching weeks
+  // Scroll to active hours on initial mount, when switching weeks/days or when events update
   useEffect(() => {
     const handleScroll = () => {
       if (!scrollContainerRef.current) return;
       
-      // Find the earliest event time in the current week
-      const earliestMinutes = weekEvents.reduce((earliest, e) => {
+      const targetEvents = viewMode === 'day' 
+        ? (processedSingleDay?.dayEvents || []) 
+        : weekEvents;
+
+      // Find the earliest event time
+      const earliestMinutes = targetEvents.reduce((earliest, e) => {
         const mins = timeToMinutes(e.heure_debut);
         return mins < earliest ? mins : earliest;
       }, 24 * 60);
       
       let scrollTargetMinutes = 0;
       if (earliestMinutes < 24 * 60) {
-        // Scroll to 1 hour before the first event of the week
+        // Scroll to 1 hour before the first event of the day/week
         scrollTargetMinutes = Math.max(earliestMinutes - 60, 0);
       } else {
-        // No events — scroll to 1 hour before active start hour
+        // No events — scroll to active start hour (default 07:00 / 08:00)
         const startHourStr = config?.active_start_hour || '08:00';
         const [h] = startHourStr.split(':').map(Number);
         scrollTargetMinutes = Math.max(h - 1, 0) * 60;
       }
       
-      scrollContainerRef.current.scrollTop = scrollTargetMinutes;
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = scrollTargetMinutes;
+      }
     };
 
     handleScroll();
-    const timer = setTimeout(handleScroll, 100);
-    return () => clearTimeout(timer);
-  }, [weekOffset, config]);
+    const t1 = setTimeout(handleScroll, 50);
+    const t2 = setTimeout(handleScroll, 200);
+    const t3 = setTimeout(handleScroll, 500);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [weekOffset, selectedDayIndex, viewMode, weekEvents, config]);
 
   // Adjust scrollbar width CSS variable for header alignment
   useEffect(() => {
@@ -371,7 +383,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1.5 md:gap-4">
       {/* Header navigation */}
       <div className="flex items-center justify-between gap-2 sticky-calendar-header">
         {/* Left: Navigation Controls */}
