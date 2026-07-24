@@ -649,7 +649,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                     gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr'
                   }}
                 >
-                  <div className={`sticky left-0 bg-[#0b1222] z-10 p-1 text-right text-xs border-r border-white/25 pr-2 pt-0 border-l-2 ${period.border} flex flex-col items-end justify-start`}>
+                  <div className={`sticky left-0 bg-[#0b1222] z-20 p-1 text-right text-xs border-r border-white/25 pr-2 pt-0 border-l-2 ${period.border} flex flex-col items-end justify-start`}>
                     <span className={`${period.color} font-semibold`}>{hour}:00</span>
                     {isBoundary && (
                       <span className={`${period.color} text-[9px] opacity-70 mt-0.5`}>
@@ -707,7 +707,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               }}
             >
               {/* Hour labels spacer column */}
-              <div className="border-r border-white/20 sticky left-0 bg-[#0b1222]/40 backdrop-blur-sm z-10" />
+              <div className="border-r border-white/20" />
 
               {/* columns for events */}
               {viewMode === 'week' ? (
