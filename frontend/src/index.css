@@ -20,6 +20,13 @@
   --glow-teal: 0 0 15px rgba(45, 212, 191, 0.3), inset 0 0 10px rgba(45, 212, 191, 0.1);
   --border-radius: 1rem;
 
+  /* Brand Logo & Typography Theme Variables */
+  --logo-color-1: #a855f7; /* Purple */
+  --logo-color-2: #22d3ee; /* Cyan */
+  --logo-color-3: #2dd4bf; /* Turquoise */
+  --logo-text-miki: #2dd4bf;
+  --logo-text-plan: #f3f4f6;
+
   /* Event colors */
   --event-purple-bg: rgba(168, 85, 247, 0.25);
   --event-purple-border: rgba(168, 85, 247, 0.6);
@@ -61,6 +68,13 @@
   --glow-purple: none;
   --glow-teal: none;
 
+  /* Brand Logo & Typography Theme Variables */
+  --logo-color-1: #ffffff; /* Pure White */
+  --logo-color-2: #737373; /* Medium Neutral Grey */
+  --logo-color-3: #a3a3a3; /* Light Neutral Grey */
+  --logo-text-miki: #ffffff;
+  --logo-text-plan: #737373;
+
   /* Event colors - Clean monochrome blocks (Mockup 1 style) */
   --event-purple-bg: #ffffff;
   --event-purple-border: #e5e7eb;
@@ -101,6 +115,13 @@
   --active-day-text: #ffffff;
   --glow-purple: 0 4px 12px rgba(99, 102, 241, 0.08);
   --glow-teal: 0 4px 12px rgba(16, 185, 129, 0.08);
+
+  /* Brand Logo & Typography Theme Variables */
+  --logo-color-1: #4f46e5; /* Indigo */
+  --logo-color-2: #0d9488; /* Emerald Teal */
+  --logo-color-3: #06b6d4; /* Vibrant Cyan */
+  --logo-text-miki: #0d9488;
+  --logo-text-plan: #1e1b4b;
 
   /* Event colors - Soft Pastels (Mockup 2 style) */
   --event-purple-bg: #e0e7ff;

@@ -455,28 +455,28 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          {/* Mikiplan Official Logo: 4 organic blob shapes */}
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0" style={{filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'}}>
+          {/* Mikiplan Official Logo: 4 organic blob shapes adapted to active theme */}
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0" style={{filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))'}}>
             <defs>
-              <linearGradient id="purpleToCyan" x1="0" y1="1" x2="0.5" y2="0">
-                <stop offset="0%" stopColor="#a855f7" />
-                <stop offset="100%" stopColor="#22d3ee" />
+              <linearGradient id="themeGradient" x1="0" y1="1" x2="0.5" y2="0">
+                <stop offset="0%" stopColor="var(--logo-color-1)" />
+                <stop offset="100%" stopColor="var(--logo-color-2)" />
               </linearGradient>
             </defs>
-            {/* Bottom-left: purple dot */}
-            <circle cx="8" cy="24" r="5" fill="#a855f7" />
-            {/* Center-bottom: connected cyan-blue blob (links purple dot to upper shapes) */}
-            <rect x="4" y="13" width="14" height="9" rx="4.5" fill="url(#purpleToCyan)" />
-            {/* Top-left: floating turquoise dot */}
-            <circle cx="8" cy="6" r="4.5" fill="#2dd4bf" />
-            {/* Top-right: floating turquoise dot */}
-            <circle cx="22" cy="6" r="4.5" fill="#22d3ee" />
+            {/* Bottom-left dot */}
+            <circle cx="8" cy="24" r="5" fill="var(--logo-color-1)" />
+            {/* Center-bottom connected blob */}
+            <rect x="4" y="13" width="14" height="9" rx="4.5" fill="url(#themeGradient)" />
+            {/* Top-left dot */}
+            <circle cx="8" cy="6" r="4.5" fill="var(--logo-color-3)" />
+            {/* Top-right dot */}
+            <circle cx="22" cy="6" r="4.5" fill="var(--logo-color-2)" />
           </svg>
 
-          {/* Two-Tone Brand Typography */}
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-baseline">
-            <span className="text-[#0d9488] dark:text-[#2dd4bf]">Miki</span>
-            <span className="text-[#0f172a] dark:text-[#cbd5e1]">plan</span>
+          {/* Two-Tone Brand Typography adapted to active theme */}
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-baseline select-none">
+            <span style={{ color: 'var(--logo-text-miki)' }}>Miki</span>
+            <span style={{ color: 'var(--logo-text-plan)' }}>plan</span>
           </h1>
           <span className="hidden lg:inline-block w-px h-6 bg-gray-300 dark:bg-white/10 mx-1" />
           <p className="hidden lg:block text-xs text-gray-500 dark:text-gray-400">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
