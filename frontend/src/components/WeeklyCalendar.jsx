@@ -502,6 +502,34 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         </div>
       </div>
 
+      {/* Notes Ticker Banner for reading complete notes without truncation */}
+      {showNotes && (
+        <div className="bg-neon-purple/10 border border-neon-purple/20 rounded-xl px-3 py-1.5 flex items-center gap-2 overflow-x-auto no-scrollbar text-xs shadow-sm">
+          <span className="text-[10px] uppercase font-black text-neon-purple shrink-0 flex items-center gap-1">
+            <span>📝</span> Notes :
+          </span>
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+            {(viewMode === 'day' ? (processedSingleDay?.dayEvents || []) : weekEvents)
+              .filter(e => e.notes)
+              .slice(0, 5)
+              .map((evt, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => onSelectEvent && onSelectEvent(evt.isSpill ? evt.originalEvent : evt)}
+                  className="bg-white/5 hover:bg-white/10 px-2 py-0.5 rounded-lg text-[10px] text-gray-200 border border-white/10 shrink-0 flex items-center gap-1.5 cursor-pointer transition-all"
+                  title={`Cliquer pour voir : ${evt.titre} - ${evt.notes}`}
+                >
+                  <strong className="text-white font-extrabold">{evt.titre}:</strong>
+                  <span className="text-gray-300">{evt.notes}</span>
+                </button>
+              ))}
+            {(viewMode === 'day' ? (processedSingleDay?.dayEvents || []) : weekEvents).filter(e => e.notes).length === 0 && (
+              <span className="text-[10px] text-gray-400">Aucune note spécifique pour les événements affichés.</span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Calendar Grid Container (Horizontally Scrollable Container for 100% Aligned Columns) */}
       <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
         <div className={`glass-panel rounded-2xl overflow-hidden flex flex-col ${viewMode === 'week' ? 'min-w-[640px] md:min-w-full' : 'min-w-full'}`}>
@@ -823,13 +851,13 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               )}
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
-                            {showNotes && duration >= 50 && e.notes && (
+                            {showNotes && e.notes && (
                               <div 
-                                className={`mt-1.5 px-1 py-0.5 rounded text-[9px] truncate flex items-center gap-1 shadow-sm ${getNoteStyles(e.priorite).badgeClass}`}
+                                className={`mt-1 px-1 py-0.5 rounded text-[9px] leading-tight break-words whitespace-normal flex items-start gap-1 shadow-sm ${getNoteStyles(e.priorite).badgeClass}`}
                                 title={e.notes}
                               >
-                                <span className="text-[10px] flex-shrink-0">{getNoteStyles(e.priorite).icon}</span>
-                                <span className="truncate flex-1">{e.notes}</span>
+                                <span className="text-[9px] flex-shrink-0 mt-0.5">{getNoteStyles(e.priorite).icon}</span>
+                                <span className="break-words line-clamp-3 flex-1">{e.notes}</span>
                               </div>
                             )}
                             {onDeleteEvent && (
@@ -942,13 +970,13 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                               )}
                             </div>
                             <div className="opacity-70" style={{ fontSize: '9px' }}>{e.heure_debut}-{e.heure_fin}</div>
-                            {showNotes && duration >= 50 && e.notes && (
+                            {showNotes && e.notes && (
                               <div 
-                                className={`mt-1.5 px-1 py-0.5 rounded text-[9px] truncate flex items-center gap-1 shadow-sm ${getNoteStyles(e.priorite).badgeClass}`}
+                                className={`mt-1 px-1 py-0.5 rounded text-[9px] leading-tight break-words whitespace-normal flex items-start gap-1 shadow-sm ${getNoteStyles(e.priorite).badgeClass}`}
                                 title={e.notes}
                               >
-                                <span className="text-[10px] flex-shrink-0">{getNoteStyles(e.priorite).icon}</span>
-                                <span className="truncate flex-1">{e.notes}</span>
+                                <span className="text-[9px] flex-shrink-0 mt-0.5">{getNoteStyles(e.priorite).icon}</span>
+                                <span className="break-words line-clamp-3 flex-1">{e.notes}</span>
                               </div>
                             )}
                             {onDeleteEvent && (
