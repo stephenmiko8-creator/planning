@@ -488,22 +488,27 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
       <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
         <div className="glass-panel rounded-2xl overflow-hidden flex flex-col min-w-full">
           {/* Mobile Date Bar Incorporated Directly Inside Calendar Panel Header */}
-          <div className="flex md:hidden items-center justify-between bg-[#0b1222]/90 p-2 border-b border-white/10 gap-1 overflow-x-auto no-scrollbar shadow-inner">
-            {/* Micro View Mode Toggle (7D vs 1D) */}
-            <button
-              onClick={() => setViewMode(v => v === 'week' ? 'day' : 'week')}
-              className={`px-1.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-tighter transition-all border shrink-0 ${
-                viewMode === 'week'
-                  ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/40 shadow-[0_0_6px_rgba(168,85,247,0.3)]'
-                  : 'bg-cyan-500/20 text-cyan-400 border-cyan-400/40'
-              }`}
-              title={viewMode === 'week' ? "Vue 7 Jours (Cliquer pour 1 Jour)" : "Vue 1 Jour (Cliquer pour 7 Jours)"}
-            >
-              {viewMode === 'week' ? '7D' : '1D'}
-            </button>
+          <div className="flex md:hidden items-center justify-between bg-[#0b1222]/95 p-2 border-b border-white/10 gap-2 shadow-inner">
+            {/* Left: Month Badge + Micro View Mode Toggle */}
+            <div className="flex items-center gap-1.5 shrink-0 pr-1.5 border-r border-white/10">
+              <span className="text-[9px] font-black uppercase text-neon-purple tracking-wider">
+                {weekDates[0].toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
+              </span>
+              <button
+                onClick={() => setViewMode(v => v === 'week' ? 'day' : 'week')}
+                className={`px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-wider transition-all border shrink-0 ${
+                  viewMode === 'week'
+                    ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/40 shadow-[0_0_6px_rgba(168,85,247,0.3)]'
+                    : 'bg-cyan-500/20 text-cyan-400 border-cyan-400/40'
+                }`}
+                title={viewMode === 'week' ? "Vue 7 Jours (Cliquer pour 1 Jour)" : "Vue 1 Jour (Cliquer pour 7 Jours)"}
+              >
+                {viewMode === 'week' ? '7D' : '1D'}
+              </button>
+            </div>
 
-            {/* 7 Day Pills inside Calendar */}
-            <div className="flex items-center gap-1 flex-1 overflow-x-auto no-scrollbar justify-around">
+            {/* 7 Day Pills inside Calendar (Generously Sized & Horizontally Scrollable) */}
+            <div className="flex items-center gap-1.5 flex-1 overflow-x-auto no-scrollbar scroll-smooth py-0.5">
               {weekDates.map((date, i) => {
                 const isSelected = selectedDayIndex === i && viewMode === 'day';
                 const isToday = formatDateKey(date) === todayKey;
@@ -514,19 +519,19 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                       setSelectedDayIndex(i);
                       setViewMode('day');
                     }}
-                    className={`flex-1 min-w-[36px] py-1 px-0.5 flex flex-col items-center justify-center transition-all rounded-xl cursor-pointer ${
+                    className={`shrink-0 min-w-[46px] py-1.5 px-2 flex flex-col items-center justify-center transition-all rounded-xl cursor-pointer ${
                       isSelected
-                        ? 'neon-day-pill-active scale-105'
+                        ? 'neon-day-pill-active scale-105 shadow-md'
                         : isToday
                         ? 'border border-neon-purple/60 text-neon-purple bg-neon-purple/10'
-                        : 'bg-white/3 border border-white/5 text-gray-400 hover:text-white'
+                        : 'bg-white/4 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                     }`}
                     title={`Voir le programme du ${DAYS_FR[i]} ${date.getDate()}`}
                   >
-                    <span className={`text-[8px] uppercase font-bold tracking-wider ${isSelected ? 'text-neon-purple font-black' : 'text-gray-400'}`}>
+                    <span className={`text-[9px] uppercase font-bold tracking-wider ${isSelected ? 'text-neon-purple font-black' : 'text-gray-400'}`}>
                       {DAYS_FR[i]}
                     </span>
-                    <span className={`text-[11px] font-black mt-0.5 ${isSelected ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : isToday ? 'text-neon-purple' : 'text-gray-200'}`}>
+                    <span className={`text-xs font-black mt-0.5 ${isSelected ? 'text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]' : isToday ? 'text-neon-purple' : 'text-gray-200'}`}>
                       {date.getDate()}
                     </span>
                   </button>
