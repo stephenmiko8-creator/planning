@@ -14,8 +14,10 @@ router.post('/register', (req, res) => {
     return res.status(400).json({ success: false, error: 'Email et mot de passe requis.' });
   }
 
+  const cleanEmail = email.toLowerCase().trim();
+
   // Check if user exists
-  db.get(`SELECT id FROM users WHERE email = ?`, [email], (err, row) => {
+  db.get(`SELECT id FROM users WHERE email = ?`, [cleanEmail], (err, row) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
     if (row) return res.status(400).json({ success: false, error: 'Un utilisateur avec cet email existe déjà.' });
 
@@ -26,7 +28,7 @@ router.post('/register', (req, res) => {
       // Insert user
       db.run(
         `INSERT INTO users (email, password_hash, subscription_plan, subscription_status) VALUES (?, ?, 'free', 'active')`,
-        [email, hash],
+        [cleanEmail, hash],
         function(err) {
           if (err) return res.status(500).json({ success: false, error: err.message });
 
@@ -52,12 +54,12 @@ router.post('/register', (req, res) => {
           );
 
           // Generate Token
-          const token = jwt.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '7d' });
+          const token = jwt.sign({ id: userId, email: cleanEmail }, JWT_SECRET, { expiresIn: '7d' });
 
-          res.status(210).json({
+          res.status(201).json({
             success: true,
             token,
-            user: { id: userId, email, subscription_plan: 'free', subscription_status: 'active' }
+            user: { id: userId, email: cleanEmail, subscription_plan: 'free', subscription_status: 'active' }
           });
         }
       );
@@ -72,7 +74,9 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ success: false, error: 'Email et mot de passe requis.' });
   }
 
-  db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, user) => {
+  const cleanEmail = email.toLowerCase().trim();
+
+  db.get(`SELECT * FROM users WHERE email = ?`, [cleanEmail], (err, user) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
     if (!user) return res.status(401).json({ success: false, error: 'Identifiants incorrects.' });
 
