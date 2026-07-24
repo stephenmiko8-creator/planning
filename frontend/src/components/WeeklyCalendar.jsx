@@ -195,12 +195,7 @@ function getDayEventsWithSpillovers(date, weekEvents) {
 
 const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categories = [], onTimeSlotClick, config, onRefresh }) => {
   const [weekOffset, setWeekOffset] = useState(0);
-  const [viewMode, setViewMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768 ? 'day' : 'week';
-    }
-    return 'week';
-  }); // 'week' or 'day'
+  const [viewMode, setViewMode] = useState('week'); // Default to week view on all devices to match the promo image
   const [selectedDayIndex, setSelectedDayIndex] = useState(() => {
     if (typeof window !== 'undefined') {
       const day = new Date().getDay();
@@ -427,9 +422,12 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
           </button>
         </div>
 
-        {/* Center: Date title */}
-        <div className="text-center">
-          <h3 className="text-sm md:text-lg font-extrabold text-white whitespace-nowrap notranslate" translate="no">
+        {/* Center: Date title formatted like the promo image */}
+        <div className="text-center flex flex-col items-center">
+          <span className="text-[10px] md:text-xs font-black tracking-[0.2em] text-neon-purple uppercase drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">
+            {viewMode === 'week' ? 'Weekly View' : 'Daily View'}
+          </span>
+          <h3 className="text-xs md:text-sm font-semibold text-gray-400 mt-0.5 notranslate" translate="no">
             {viewMode === 'week' ? (
               `${weekDates[0].getDate()} - ${weekDates[6].getDate()} ${MONTHS_FR[weekDates[6].getMonth()]} ${weekDates[6].getFullYear()}`
             ) : (
@@ -440,14 +438,29 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
         {/* Right: Toggle actions */}
         <div className="flex items-center gap-2">
-          {viewMode === 'day' && (
+          {/* Segmented view mode toggle */}
+          <div className="flex bg-white/5 border border-white/10 p-0.5 rounded-xl">
+            <button
+              onClick={() => setViewMode('day')}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                viewMode === 'day'
+                  ? 'bg-neon-purple text-white shadow-md'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Jour
+            </button>
             <button
               onClick={() => setViewMode('week')}
-              className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold hover:bg-white/10 text-white transition-all"
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                viewMode === 'week'
+                  ? 'bg-neon-purple text-white shadow-md'
+                  : 'text-gray-400 hover:text-white'
+              }`}
             >
-              ← Semaine
+              Semaine
             </button>
-          )}
+          </div>
           <button
             onClick={() => setShowAvailabilities(!showAvailabilities)}
             className={`px-3 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 border ${showAvailabilities
@@ -504,18 +517,19 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         })}
       </div>
 
-      {/* Calendar Grid */}
-      <div className="glass-panel rounded-2xl overflow-hidden flex flex-col">
-        <div 
-          className={`grid border-b border-white/30 sticky-calendar-days ${viewMode === 'day' ? 'hidden md:grid' : ''}`} 
-          style={{ 
-            gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr',
-            paddingRight: 'var(--scrollbar-width, 0px)' 
-          }}
-        >
-          {/* Hour column header — hidden scroll-to-events button */}
+      {/* Calendar Grid Container (Horizontally Scrollable on Mobile) */}
+      <div className="w-full overflow-x-auto no-scrollbar scroll-smooth">
+        <div className="glass-panel rounded-2xl overflow-hidden flex flex-col min-w-[700px] md:min-w-full">
           <div 
-            className="p-2 text-center text-xs text-gray-500 border-r border-white/20 cursor-pointer relative group"
+            className={`grid border-b border-white/30 sticky-calendar-days ${viewMode === 'day' ? 'hidden md:grid' : ''}`} 
+            style={{ 
+              gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr',
+              paddingRight: 'var(--scrollbar-width, 0px)' 
+            }}
+          >
+          {/* Hour column header — shows month/year and handles refresh */}
+          <div 
+            className="sticky left-0 bg-[#0b1222] z-30 p-2 text-center border-r border-white/20 cursor-pointer flex flex-col items-center justify-center group"
             onClick={() => {
               if (!scrollContainerRef.current) return;
               setIsRefreshing(true);
@@ -542,25 +556,50 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
             }}
             title="Aller aux événements"
           >
-            <span className={`transition-all duration-300 text-[10px] text-white ${isRefreshing ? 'opacity-60 animate-spin inline-block' : 'opacity-0 group-hover:opacity-40'}`}>↻</span>
+            {isRefreshing ? (
+              <span className="text-[10px] text-white animate-spin">↻</span>
+            ) : (
+              <div className="flex flex-col items-center justify-center leading-none">
+                <span className="text-[10px] font-black uppercase text-neon-purple tracking-wider">
+                  {weekDates[0].toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
+                </span>
+                <span className="text-[10px] font-bold text-gray-500 mt-0.5">
+                  {weekDates[0].getFullYear().toString().slice(-2)}
+                </span>
+              </div>
+            )}
           </div>
           {/* Day headers */}
           {viewMode === 'week' ? (
             weekDates.map((date, i) => {
               const isToday = formatDateKey(date) === todayKey;
+              const isSelected = selectedDayIndex === i;
               const isWeekend = i >= 5; // Sam=5, Dim=6
               return (
                 <div
                   key={i}
                   onClick={() => {
                     setSelectedDayIndex(i);
-                    setViewMode('day');
                   }}
-                  className={`p-3 text-center border-r border-white/20 cursor-pointer hover:bg-white/5 transition-all ${isToday ? 'bg-neon-purple/20' : ''} ${isWeekend ? 'bg-white/3 opacity-40' : ''}`}
+                  className={`p-2 text-center border-r border-white/20 cursor-pointer hover:bg-white/5 transition-all flex flex-col items-center justify-center ${isToday && !isSelected ? 'bg-neon-purple/5' : ''}`}
                 >
-                  <div className="text-xs text-gray-400 notranslate" translate="no">{DAYS_FR[i]}</div>
-                  <div className={`text-lg font-bold notranslate ${isToday ? 'text-neon-purple' : isWeekend ? 'text-gray-600' : 'text-white'}`} translate="no">
-                    {date.getDate()}
+                  <div className={`flex flex-col items-center justify-center w-full max-w-[55px] py-1 px-1.5 transition-all ${
+                    isSelected 
+                      ? 'border-2 border-neon-purple bg-neon-purple/20 rounded-xl shadow-[0_0_12px_rgba(168,85,247,0.3)] font-bold' 
+                      : isToday
+                      ? 'border border-neon-purple/40 rounded-xl'
+                      : 'rounded-xl'
+                  }`}>
+                    <span className={`text-[10px] uppercase tracking-wider notranslate ${
+                      isSelected ? 'text-neon-purple font-extrabold' : 'text-gray-400'
+                    }`} translate="no">
+                      {DAYS_FR[i]}
+                    </span>
+                    <span className={`text-base font-bold mt-0.5 notranslate ${
+                      isSelected ? 'text-white font-black' : isToday ? 'text-neon-purple' : isWeekend ? 'text-gray-500' : 'text-white'
+                    }`} translate="no">
+                      {date.getDate()}
+                    </span>
                   </div>
                 </div>
               );
@@ -610,7 +649,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                     gridTemplateColumns: viewMode === 'week' ? '50px repeat(7, 1fr)' : '50px 1fr'
                   }}
                 >
-                  <div className={`p-1 text-right text-xs border-r border-white/25 pr-2 pt-0 border-l-2 ${period.border} flex flex-col items-end justify-start`}>
+                  <div className={`sticky left-0 bg-[#0b1222] z-10 p-1 text-right text-xs border-r border-white/25 pr-2 pt-0 border-l-2 ${period.border} flex flex-col items-end justify-start`}>
                     <span className={`${period.color} font-semibold`}>{hour}:00</span>
                     {isBoundary && (
                       <span className={`${period.color} text-[9px] opacity-70 mt-0.5`}>
@@ -668,7 +707,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               }}
             >
               {/* Hour labels spacer column */}
-              <div className="border-r border-white/20" />
+              <div className="border-r border-white/20 sticky left-0 bg-[#0b1222]/40 backdrop-blur-sm z-10" />
 
               {/* columns for events */}
               {viewMode === 'week' ? (
@@ -912,7 +951,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                 })()
               )}
             </div></div>
-        </div></div><style>{`
+        </div></div></div><style>{`
         @keyframes skyPanelIn {
           0% {
             opacity: 0;
