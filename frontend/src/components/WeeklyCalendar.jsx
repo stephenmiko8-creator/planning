@@ -537,7 +537,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
                 >
                   <div className="flex items-center gap-2">
                     <span>📝</span>
-                    <span>Notes de cours</span>
+                    <span>Notes & Détails</span>
                   </div>
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${showNotes ? 'bg-neon-purple/40 text-white' : 'bg-white/5 text-gray-400'}`}>
                     {showNotes ? 'ON' : 'OFF'}
