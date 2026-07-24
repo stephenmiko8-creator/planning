@@ -12,7 +12,7 @@ import TaskPanel from './TaskPanel';
 import AIChatPanel from './AIChatPanel';
 import ProjectBreakdown from './ProjectBreakdown';
 import GuidePanel from './GuidePanel';
-import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Bot, Target, HelpCircle, ChevronDown } from 'lucide-react';
+import { CalendarCheck, CheckCircle2, LogIn, LayoutGrid, BarChart3, List, Trash2, PlusCircle, Download, Settings, LogOut, Sparkles, Crown, Bot, Target, HelpCircle, ChevronDown, Menu, User } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { useToast } from './Toast';
 import { Preferences } from '@capacitor/preferences';
@@ -35,6 +35,8 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSubOpen, setIsSubOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(() => {
     try {
@@ -479,150 +481,193 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           <span className="hidden lg:inline-block w-px h-6 bg-gray-300 dark:bg-white/10 mx-1" />
           <p className="hidden lg:block text-xs text-gray-500 dark:text-gray-400">Planifiez plus intelligemment grâce à l'IA — scannez, organisez, optimisez.</p>
         </div>
-        <div className="flex gap-3 items-center w-full md:w-auto overflow-x-auto no-scrollbar py-1">
-
-          {/* User Auth Section */}
-          {user ? (
-            <div className="flex items-center gap-2 bg-dark-800/40 border border-white/5 p-1.5 pl-3 rounded-2xl shrink-0">
-              <div className="flex flex-col text-right hidden sm:flex">
-                <span className="text-xs font-semibold text-gray-300 max-w-[120px] truncate">{user.email}</span>
-                {user.subscription_plan === 'free' ? (
-                  <span className="text-[10px] text-gray-500 font-bold">
-                    {user.scan_count_this_month || 0}/5 scans
-                  </span>
-                ) : (
-                  <span className="text-[10px] text-neon-teal font-bold">
-                    Scans illimités
-                  </span>
-                )}
-              </div>
-              
-              {/* Plan badge, clickable to change subscription */}
-              <button
-                onClick={() => setIsSubOpen(true)}
-                className={`relative overflow-hidden group px-3 py-1 text-[10px] font-extrabold uppercase rounded-full transition-all flex items-center gap-1.5 cursor-pointer shrink-0 hover:scale-105 ${
-                  user.subscription_plan === 'premium'
-                    ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/50 shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)]'
-                    : user.subscription_plan === 'pro'
-                    ? 'bg-neon-teal/20 text-neon-teal border border-neon-teal/50 shadow-[0_0_15px_rgba(20,184,166,0.4)] hover:shadow-[0_0_25px_rgba(20,184,166,0.6)]'
-                    : 'bg-white/5 text-gray-400 border border-white/10 hover:border-white/30'
-                }`}
-              >
-                {(user.subscription_plan === 'premium' || user.subscription_plan === 'pro') && (
-                  <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] -translate-x-[150%] animate-[shimmer_3s_infinite]" />
-                )}
-                {user.subscription_plan === 'premium' && <Crown size={12} className="animate-pulse relative z-10" />}
-                {user.subscription_plan === 'pro' && <Sparkles size={12} className="animate-pulse relative z-10" />}
-                <span className="relative z-10">{user.subscription_plan}</span>
-              </button>
-
-              <button 
-                onClick={handleLogout}
-                title="Déconnexion"
-                className="p-1.5 text-gray-400 hover:text-red-400 transition-colors rounded-xl cursor-pointer"
-              >
-                <LogOut size={14} />
-              </button>
-            </div>
-          ) : (
-            <button 
-              onClick={() => setIsAuthOpen(true)}
-              className="px-3 py-1.5 border border-neon-purple/30 text-neon-purple hover:bg-neon-purple/10 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shrink-0"
-            >
-              <LogIn size={14} />
-              <span>Connexion</span>
-            </button>
-          )}
-
+        <div className="flex gap-3 items-center ml-auto shrink-0 py-1">
+          {/* Quick Event Planner Button (Desktop) */}
           <button 
             onClick={() => {
               setAddModalInitialValues(null);
               setIsAddModalOpen(true);
             }}
-            className="hidden md:flex relative group overflow-hidden px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-active-day-text font-bold rounded-xl text-sm shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)] hover:scale-105 active:scale-95 transition-all items-center gap-2 shrink-0"
+            className="hidden md:flex relative group overflow-hidden px-4 py-2 bg-gradient-to-r from-neon-purple to-neon-blue text-active-day-text font-bold rounded-xl text-xs shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:scale-105 active:scale-95 transition-all items-center gap-1.5 shrink-0 cursor-pointer"
           >
             <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)] -translate-x-[150%] group-hover:animate-[shimmer_2s_infinite]" />
-            <PlusCircle size={18} className="relative z-10" />
+            <PlusCircle size={14} className="relative z-10" />
             <span className="relative z-10">Planifier un bloc</span>
           </button>
-          
-          {(user && user.subscription_plan === 'premium') && (
-            <button 
-              onClick={handleGoogleConnect}
-              className={`px-3 py-1.5 flex items-center gap-1.5 rounded-xl transition-all font-bold text-xs shrink-0 ${
-                isGoogleConnected 
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/50' 
-                  : 'glass-panel text-white hover:bg-white/10'
-              }`}
+
+          {/* Account/Profile Dropdown Logo */}
+          <div className="relative profile-dropdown-container">
+            <button
+              onClick={() => {
+                setIsProfileOpen(!isProfileOpen);
+                setIsMenuOpen(false);
+              }}
+              className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-neon-purple p-[1.5px] shadow-[0_0_10px_rgba(45,212,191,0.2)] hover:shadow-[0_0_15px_rgba(45,212,191,0.4)] transition-all flex items-center justify-center cursor-pointer shrink-0"
+              title="Mon Compte"
             >
-              {isGoogleConnected ? <CheckCircle2 size={14} /> : <LogIn size={14} />}
-              <span>{isGoogleConnected ? 'Google OK' : 'Connexion Google'}</span>
+              <div className="w-full h-full bg-[#0d1322] rounded-full flex items-center justify-center text-white">
+                {user ? (
+                  <span className="text-[10px] font-black uppercase text-cyan-400">
+                    {user.email.slice(0, 2)}
+                  </span>
+                ) : (
+                  <User size={16} className="text-gray-400" />
+                )}
+              </div>
             </button>
-          )}
+
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-dark-950/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-3 z-50 animate-[fadeIn_0.15s_ease-out]">
+                {user ? (
+                  <div className="px-4 py-2 border-b border-white/10 mb-2 flex flex-col gap-1">
+                    <span className="text-[9px] text-gray-500 font-black uppercase tracking-wider">Mon Profil</span>
+                    <span className="text-xs font-bold text-white truncate" title={user.email}>{user.email}</span>
+                    <div className="flex justify-between items-center mt-2 text-[10px] bg-white/3 p-2 rounded-xl border border-white/5">
+                      <span className="text-gray-400">Scans restants :</span>
+                      <span className={`font-extrabold ${user.subscription_plan === 'free' ? 'text-gray-300' : 'text-neon-teal'}`}>
+                        {user.subscription_plan === 'free' ? `${user.scan_count_this_month || 0}/5` : 'Illimités'}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="px-4 py-2 border-b border-white/10 mb-2">
+                    <p className="text-[10px] text-gray-400">Connectez-vous pour sauvegarder vos plannings.</p>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-1 px-2">
+                  {user ? (
+                    <>
+                      {/* Subscription Status & Upgrade */}
+                      <button
+                        onClick={() => {
+                          setIsSubOpen(true);
+                          setIsProfileOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition-all hover:bg-white/5 ${
+                          user.subscription_plan === 'premium'
+                            ? 'text-neon-purple'
+                            : user.subscription_plan === 'pro'
+                            ? 'text-neon-teal'
+                            : 'text-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          {user.subscription_plan === 'premium' && <Crown size={12} className="animate-pulse" />}
+                          {user.subscription_plan === 'pro' && <Sparkles size={12} className="animate-pulse" />}
+                          <span>Plan : {user.subscription_plan}</span>
+                        </div>
+                        <span className="text-[9px] text-gray-500 font-bold border border-white/10 px-2 py-0.5 rounded-full">Changer</span>
+                      </button>
+
+                      {/* Google Calendar Link (for premium) */}
+                      {user.subscription_plan === 'premium' && (
+                        <button
+                          onClick={() => {
+                            handleGoogleConnect();
+                            setIsProfileOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold transition-all hover:bg-white/5 ${
+                            isGoogleConnected ? 'text-green-400' : 'text-gray-300'
+                          }`}
+                        >
+                          <LogIn size={12} />
+                          <span>{isGoogleConnected ? 'Google Calendar connecté' : 'Lier Google Calendar'}</span>
+                        </button>
+                      )}
+
+                      {/* Settings tab link */}
+                      <button
+                        onClick={() => {
+                          setActiveView('settings');
+                          setIsProfileOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold transition-all hover:bg-white/5 ${
+                          activeView === 'settings' ? 'text-neon-purple bg-neon-purple/5' : 'text-gray-300'
+                        }`}
+                      >
+                        <Settings size={12} />
+                        <span>Paramètres</span>
+                      </button>
+
+                      {/* Log Out */}
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsProfileOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-left text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all mt-1"
+                      >
+                        <LogOut size={12} />
+                        <span>Déconnexion</span>
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setIsAuthOpen(true);
+                        setIsProfileOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-neon-purple to-neon-blue text-active-day-text font-bold rounded-xl text-xs hover:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all justify-center cursor-pointer"
+                    >
+                      <LogIn size={12} />
+                      <span>Se connecter</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Hamburger Menu Dropdown (Triple Horizontal Lines) */}
+          <div className="relative menu-dropdown-container">
+            <button
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+                setIsProfileOpen(false);
+              }}
+              className="p-2 rounded-xl border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 text-white transition-all flex items-center justify-center cursor-pointer shrink-0"
+              title="Menu principal"
+            >
+              <Menu size={18} />
+            </button>
+
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-dark-950/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-[fadeIn_0.15s_ease-out]">
+                <div className="px-4 py-1.5 border-b border-white/10 mb-1 text-[9px] uppercase font-black tracking-wider text-gray-500">
+                  Navigation
+                </div>
+                {navItems.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveView(item.id);
+                      setIsMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left text-sm font-semibold transition-all hover:bg-white/5 cursor-pointer ${
+                      activeView === item.id
+                        ? 'text-neon-purple bg-neon-purple/5'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </div>
+                    {item.locked && (
+                      <span className="text-[10px] text-gray-500 font-extrabold uppercase">🔒</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {activeView === 'calendar' && (
         <UpcomingEventWidget events={savedEvents} />
       )}
-
-      {/* View Tabs - Desktop: Primary tabs + 'Plus' dropdown for secondary */}
-      <div className="hidden md:flex gap-2 items-center">
-        {primaryTabs.map(tab => (
-          <button 
-            key={tab.id}
-            onClick={() => setActiveView(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-              activeView === tab.id 
-                ? 'bg-neon-purple/30 text-neon-purple border border-neon-purple/50' 
-                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            {tab.icon} {tab.label} {tab.locked && <span className="text-[10px] text-gray-500 font-extrabold uppercase">🔒</span>}
-          </button>
-        ))}
-
-        {/* 'Plus' dropdown for secondary items */}
-        <div className="relative more-dropdown-container">
-          <button
-            onClick={() => setIsMoreOpen(!isMoreOpen)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold text-sm transition-all cursor-pointer ${
-              isSecondaryActive
-                ? 'bg-neon-purple/30 text-neon-purple border border-neon-purple/50'
-                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <ChevronDown size={14} className={`transition-transform duration-200 ${isMoreOpen ? 'rotate-180' : ''}`} />
-            Plus
-          </button>
-          {isMoreOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-dark-900/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-[fadeIn_0.2s_ease-out]">
-              {secondaryTabs.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveView(item.id);
-                    setIsMoreOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 text-left text-sm font-semibold transition-all hover:bg-white/5 cursor-pointer ${
-                    activeView === item.id
-                      ? 'text-neon-purple bg-neon-purple/5'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </div>
-                  {item.locked && (
-                    <span className="text-[10px] text-gray-500 font-extrabold uppercase">🔒</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Main Content */}
       {activeView === 'calendar' && (
@@ -945,29 +990,11 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           setAddModalInitialValues(null);
           setIsAddModalOpen(true);
         }}
-        className="fixed bottom-20 right-4 z-40 md:hidden p-4 bg-neon-purple text-active-day-text rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
+        className="fixed bottom-6 right-4 z-40 md:hidden p-4 bg-neon-purple text-active-day-text rounded-full shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.8)] transition-all cursor-pointer"
         aria-label="Planifier un bloc"
       >
         <PlusCircle size={24} />
       </button>
-
-      {/* Bottom Nav Bar for Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-dark-950/95 backdrop-blur-md border-t border-white/10 flex justify-around p-2 pb-safe md:hidden shadow-[0_-5px_15px_rgba(0,0,0,0.5)]">
-        {navItems.filter(item => ['calendar', 'tasks', 'breakdown', 'chat', 'stats'].includes(item.id)).map(tab => (
-          <button 
-            key={tab.id}
-            onClick={() => setActiveView(tab.id)}
-            className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
-              activeView === tab.id 
-                ? 'text-neon-purple' 
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            {tab.icon}
-            <span className="text-[10px] font-bold">{tab.label}</span>
-          </button>
-        ))}
-      </div>
     </div>
   );
 };
