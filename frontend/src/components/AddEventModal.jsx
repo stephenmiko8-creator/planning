@@ -205,7 +205,7 @@ const AddEventModal = ({ onClose, onSave, categories = [], initialValues }) => {
             </button>
             <button 
               type="submit"
-              className="flex-1 py-2 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all"
+              className="flex-1 py-2 bg-neon-purple text-btn-text-accent font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all"
             >
               Enregistrer
             </button>

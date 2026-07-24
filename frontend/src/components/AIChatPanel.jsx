@@ -127,7 +127,7 @@ export default function AIChatPanel({ API_BASE_URL, getHeaders, addToast, config
         <button
           type="submit"
           disabled={!input.trim() || isSending}
-          className="p-2.5 bg-neon-purple text-active-day-text rounded-xl font-bold transition-all hover:shadow-[0_0_15px_rgba(168,85,247,0.4)] disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="p-2.5 bg-neon-purple text-btn-text-accent rounded-xl font-bold transition-all hover:shadow-[0_0_15px_rgba(168,85,247,0.4)] disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           <Send size={16} />
         </button>

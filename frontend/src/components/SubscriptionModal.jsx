@@ -178,7 +178,7 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
               >
                 {/* Ribbon Tag */}
                 {plan.tag && (
-                  <span className="absolute -top-3 right-6 bg-neon-teal text-active-day-text text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-lg">
+                  <span className="absolute -top-3 right-6 bg-neon-teal text-neutral-950 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-lg">
                     {plan.tag}
                   </span>
                 )}
@@ -217,12 +217,12 @@ const SubscriptionModal = ({ isOpen, onClose, currentPlan, onPlanUpdated, token 
                     isCurrent 
                       ? 'bg-white/10 text-white cursor-default border border-white/10' 
                       : plan.id === 'premium'
-                      ? 'bg-neon-purple text-active-day-text shadow-md hover:shadow-[0_0_15px_rgba(192,132,252,0.5)] hover:brightness-115 active:scale-[0.98]'
+                      ? 'bg-neon-purple text-btn-text-accent shadow-md hover:shadow-[0_0_15px_rgba(192,132,252,0.5)] hover:brightness-115 active:scale-[0.98]'
                       : 'bg-white text-dark-900 shadow-md hover:bg-gray-100 hover:scale-[1.01] active:scale-[0.98]'
                   }`}
                 >
                   {loadingPlan === plan.id ? (
-                    <span className="h-4 w-4 border-2 border-dark-900 border-t-transparent rounded-full animate-spin" />
+                    <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : isCurrent ? (
                     'Plan Actuel'
                   ) : (

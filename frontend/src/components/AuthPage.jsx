@@ -82,8 +82,8 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
             onClick={() => setActiveTab('login')}
             className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
               activeTab === 'login' 
-                ? 'bg-neon-purple text-active-day-text shadow-lg shadow-neon-purple/20 font-bold' 
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-neon-purple text-btn-text-accent shadow-lg shadow-neon-purple/20 font-bold' 
+                  : 'text-gray-400 hover:text-white'
             }`}
           >
             <LogIn size={16} />
@@ -93,8 +93,8 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
             onClick={() => setActiveTab('register')}
             className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
               activeTab === 'register' 
-                ? 'bg-neon-purple text-active-day-text shadow-lg shadow-neon-purple/20 font-bold' 
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-neon-purple text-btn-text-accent shadow-lg shadow-neon-purple/20 font-bold' 
+                  : 'text-gray-400 hover:text-white'
             }`}
           >
             <UserPlus size={16} />
@@ -149,7 +149,7 @@ const AuthPage = ({ isOpen, onClose, onSuccess }) => {
             {/* Shimmer effect inside button */}
             <div className="absolute inset-0 w-full h-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)] -translate-x-[150%] group-hover:animate-[shimmer_2s_infinite]" />
             {loading ? (
-              <span className="h-5 w-5 border-2 border-active-day-text border-t-transparent rounded-full animate-spin" />
+              <span className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : activeTab === 'login' ? (
               <>Se connecter</>
             ) : (

@@ -227,7 +227,7 @@ const ScannerInput = ({ onScan }) => {
           className={`relative group flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all duration-300 overflow-hidden ${
             isBtnDisabled 
               ? 'bg-white/5 text-gray-500 cursor-not-allowed shadow-none' 
-              : 'bg-gradient-to-r from-neon-purple to-neon-teal text-active-day-text hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:scale-[1.02] active:scale-[0.98]'
+              : 'bg-gradient-to-r from-neon-purple to-neon-teal text-btn-text-accent hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:scale-[1.02] active:scale-[0.98]'
           }`}
         >
           {/* Shimmer effect inside button */}
@@ -236,7 +236,7 @@ const ScannerInput = ({ onScan }) => {
           )}
           {isScanning ? (
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-active-day-text border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
               <span>Analyse en cours...</span>
             </div>
           ) : (

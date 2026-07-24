@@ -886,11 +886,11 @@ const StatsPanel = ({ events, conflicts, categories = [], token, user, setIsSubO
             <button 
               onClick={handleGenerateReport}
               disabled={isGenerating || !startDate || !endDate}
-              className="w-full py-2.5 bg-neon-purple text-active-day-text font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-2.5 bg-neon-purple text-btn-text-accent font-bold rounded-xl text-sm hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-dark-950 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                   <span>Génération du rapport en cours...</span>
                 </>
               ) : (

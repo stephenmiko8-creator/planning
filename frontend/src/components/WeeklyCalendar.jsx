@@ -505,7 +505,7 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               <span className="text-[10px] uppercase font-semibold mb-1">{DAYS_FR[i]}</span>
               <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                 isSelected 
-                  ? 'bg-neon-purple text-active-day-text shadow-md font-black ring-2 ring-neon-purple/30' 
+                  ? 'bg-neon-purple text-btn-text-accent shadow-md font-black ring-2 ring-neon-purple/30' 
                   : isToday
                   ? 'border border-neon-purple/50 text-neon-purple font-bold'
                   : ''

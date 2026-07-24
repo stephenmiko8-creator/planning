@@ -22,6 +22,7 @@ export default {
         },
         white: 'var(--text-white-custom)',
         'active-day-text': 'var(--active-day-text)',
+        'btn-text-accent': 'var(--btn-text-accent)',
       },
     },
   },
