@@ -489,16 +489,17 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
         <div className="glass-panel rounded-2xl overflow-hidden flex flex-col min-w-full">
           {/* Mobile Date Bar Incorporated Directly Inside Calendar Panel Header */}
           <div className="flex md:hidden items-center justify-between bg-[#0b1222]/90 p-2 border-b border-white/10 gap-1 overflow-x-auto no-scrollbar shadow-inner">
-            {/* View Mode Toggle Pill (Semaine vs Jour) */}
+            {/* Micro View Mode Toggle (7D vs 1D) */}
             <button
               onClick={() => setViewMode(v => v === 'week' ? 'day' : 'week')}
-              className={`px-2 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all border shrink-0 ${
+              className={`px-1.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-tighter transition-all border shrink-0 ${
                 viewMode === 'week'
-                  ? 'bg-neon-purple text-white border-neon-purple/50 shadow-[0_0_8px_rgba(168,85,247,0.4)]'
-                  : 'bg-white/5 text-cyan-400 border-cyan-400/40'
+                  ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/40 shadow-[0_0_6px_rgba(168,85,247,0.3)]'
+                  : 'bg-cyan-500/20 text-cyan-400 border-cyan-400/40'
               }`}
+              title={viewMode === 'week' ? "Vue 7 Jours (Cliquer pour 1 Jour)" : "Vue 1 Jour (Cliquer pour 7 Jours)"}
             >
-              {viewMode === 'week' ? '7 Jours' : '1 Jour'}
+              {viewMode === 'week' ? '7D' : '1D'}
             </button>
 
             {/* 7 Day Pills inside Calendar */}
