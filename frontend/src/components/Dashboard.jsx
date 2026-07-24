@@ -452,10 +452,10 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
 
   return (
     <div className="w-full max-w-full px-2 md:px-8 py-2 md:py-6 pb-20 md:pb-6 flex flex-col gap-2 md:gap-6">
-      {/* Header */}
-      <div className="flex justify-between items-center gap-3 w-full border-b border-white/5 pb-3 md:pb-0 md:border-none">
-        {/* Left: User Profile Avatar button on mobile & desktop */}
-        <div className="relative profile-dropdown-container shrink-0">
+      {/* Header — Perfectly Justified & Centered on Mobile */}
+      <div className="flex justify-between items-center gap-2 w-full border-b border-white/5 pb-2.5 md:pb-0 md:border-none">
+        {/* Left: User Profile Avatar button */}
+        <div className="relative profile-dropdown-container shrink-0 w-1/4 flex justify-start">
           <button
             onClick={() => {
               setIsProfileOpen(!isProfileOpen);
@@ -476,7 +476,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           </button>
 
           {isProfileOpen && (
-            <div className="absolute left-0 md:right-0 md:left-auto mt-2 w-64 bg-dark-950/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-3 z-50 animate-[fadeIn_0.15s_ease-out]">
+            <div className="absolute left-0 mt-2 w-64 bg-dark-950/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl py-3 z-50 animate-[fadeIn_0.15s_ease-out]">
               {user ? (
                 <div className="px-4 py-2 border-b border-white/10 mb-2 flex flex-col gap-1">
                   <span className="text-[9px] text-gray-500 font-black uppercase tracking-wider">Mon Profil</span>
@@ -574,9 +574,9 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
           )}
         </div>
 
-        {/* Center: Mikiplan Official Logo & Typography (Matching promo image layout) */}
-        <div className="flex items-center gap-2 mx-auto md:mx-0">
-          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0" style={{filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))'}}>
+        {/* Center: Mikiplan Official Logo & Typography (Centered on Mobile) */}
+        <div className="flex items-center gap-1.5 justify-center w-2/4 text-center">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0" style={{filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))'}}>
             <defs>
               <linearGradient id="themeGradient" x1="0" y1="1" x2="0.5" y2="0">
                 <stop offset="0%" stopColor="var(--logo-color-1)" />
@@ -589,7 +589,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
             <circle cx="22" cy="6" r="4.5" fill="var(--logo-color-2)" />
           </svg>
 
-          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight flex items-baseline select-none">
+          <h1 className="text-xl md:text-4xl font-extrabold tracking-tight flex items-baseline select-none">
             <span style={{ color: 'var(--logo-text-miki)' }}>Miki</span>
             <span style={{ color: 'var(--logo-text-plan)' }}>plan</span>
           </h1>
@@ -598,7 +598,7 @@ const Dashboard = ({ currentTheme, onChangeTheme }) => {
         </div>
 
         {/* Right: Actions & Main Hamburger Menu */}
-        <div className="flex gap-2 items-center shrink-0">
+        <div className="flex gap-2 items-center shrink-0 w-1/4 justify-end">
           {/* Quick Event Planner Button (Desktop) */}
           <button 
             onClick={() => {
