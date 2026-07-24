@@ -487,7 +487,12 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
 
 
       {/* Mobile Day Selector Bar */}
-      <div className={`flex md:hidden justify-between bg-dark-900/60 p-2 rounded-xl border border-white/5 gap-1 mb-2 ${viewMode === 'week' ? 'hidden' : ''}`}>
+      <div className={`flex md:hidden items-center justify-between bg-dark-900/60 p-2 rounded-xl border border-white/5 gap-1 mb-2 ${viewMode === 'week' ? 'hidden' : ''}`}>
+        <div className="w-[50px] shrink-0 text-center flex flex-col items-center justify-center leading-none">
+          <span className="text-[10px] font-black uppercase text-neon-purple tracking-wider">
+            {weekDates[0].toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '')}
+          </span>
+        </div>
         {weekDates.map((date, i) => {
           const isSelected = selectedDayIndex === i && viewMode === 'day';
           const isToday = formatDateKey(date) === todayKey;
