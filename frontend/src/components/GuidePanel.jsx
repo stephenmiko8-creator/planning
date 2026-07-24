@@ -45,7 +45,7 @@ export default function GuidePanel({ user, setIsSubOpen }) {
           </div>
           <button
             onClick={() => setIsSubOpen(true)}
-            className="px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-white font-bold rounded-xl text-xs hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center gap-1 shrink-0 cursor-pointer"
+            className="px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-btn-text-accent font-bold rounded-xl text-xs hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center gap-1 shrink-0 cursor-pointer"
           >
             <span>Voir les abonnements</span>
             <ArrowRight size={14} />
@@ -100,7 +100,7 @@ export default function GuidePanel({ user, setIsSubOpen }) {
           </div>
           <button
             onClick={() => setIsSubOpen(true)}
-            className="px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-white font-bold rounded-xl text-xs hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center gap-1 shrink-0 cursor-pointer"
+            className="px-5 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-btn-text-accent font-bold rounded-xl text-xs hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all flex items-center gap-1 shrink-0 cursor-pointer"
           >
             <span>Passer à Premium</span>
             <ArrowRight size={14} />

@@ -31,7 +31,7 @@ const Paywall = ({ requiredPlan, title, description, features, onUpgrade }) => {
         onClick={onUpgrade}
         className={`w-full py-3 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg cursor-pointer ${
           requiredPlan === 'premium'
-            ? 'bg-gradient-to-r from-neon-purple to-neon-blue text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+            ? 'bg-gradient-to-r from-neon-purple to-neon-blue text-btn-text-accent shadow-[0_0_15px_rgba(168,85,247,0.3)]'
             : 'bg-neon-teal text-dark-950 shadow-[0_0_15px_rgba(20,184,166,0.3)]'
         }`}
       >

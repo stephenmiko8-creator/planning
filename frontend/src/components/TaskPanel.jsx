@@ -133,7 +133,7 @@ export default function TaskPanel({ API_BASE_URL, getHeaders, addToast, config, 
         </p>
         <button 
           onClick={() => document.querySelector('[title="Connexion"]')?.click() || document.querySelector('button:has(.lucide-log-in)')?.click()}
-          className="mt-4 px-6 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-white font-bold rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:scale-105 transition-all flex items-center gap-2"
+          className="mt-4 px-6 py-2.5 bg-gradient-to-r from-neon-purple to-neon-blue text-btn-text-accent font-bold rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:scale-105 transition-all flex items-center gap-2"
         >
           <LogIn size={18} />
           <span>Se connecter</span>
@@ -212,7 +212,7 @@ export default function TaskPanel({ API_BASE_URL, getHeaders, addToast, config, 
             className={`relative overflow-hidden group px-4 py-2 font-bold rounded-xl transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] ${
               tasks.length === 0 || isScheduling
                 ? 'opacity-50 cursor-not-allowed bg-gray-800 text-gray-500 border border-gray-700 shadow-none hover:shadow-none'
-                : 'bg-gradient-to-r from-neon-purple to-neon-blue text-white hover:scale-105 active:scale-95'
+                : 'bg-gradient-to-r from-neon-purple to-neon-blue text-btn-text-accent hover:scale-105 active:scale-95'
             }`}
           >
             {tasks.length > 0 && !isScheduling && (
