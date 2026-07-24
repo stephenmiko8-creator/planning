@@ -448,10 +448,10 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
           </h3>
         </div>
 
-        {/* Right: Desktop actions (hidden on mobile to save vertical space) */}
-        <div className="hidden md:flex items-center gap-2">
-          {/* Segmented view mode toggle */}
-          <div className="flex bg-white/5 border border-white/10 p-0.5 rounded-xl">
+        {/* Right: Quick actions for Dispos, Notes, and View Modes */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Segmented view mode toggle (Desktop) */}
+          <div className="hidden md:flex bg-white/5 border border-white/10 p-0.5 rounded-xl">
             <button
               onClick={() => setViewMode('day')}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
@@ -473,25 +473,31 @@ const WeeklyCalendar = ({ events, conflicts, onDeleteEvent, onSelectEvent, categ
               Semaine
             </button>
           </div>
+
+          {/* Availability Dispos Toggle (Mobile & Desktop) */}
           <button
             onClick={() => setShowAvailabilities(!showAvailabilities)}
-            className={`px-3 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 border ${showAvailabilities
+            className={`px-2 md:px-3 py-1.5 md:py-2 rounded-xl font-extrabold text-[10px] md:text-xs transition-all flex items-center gap-1 border cursor-pointer ${showAvailabilities
                 ? 'event-green border-solid shadow-[0_0_10px_var(--event-green-border)]'
                 : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-transparent'
               }`}
+            title={showAvailabilities ? "Masquer les créneaux disponibles" : "Afficher les créneaux disponibles"}
           >
-            <Clock size={14} />
-            <span className="notranslate" translate="no">{showAvailabilities ? 'Masquer dispos' : 'Afficher dispos'}</span>
+            <Clock size={13} />
+            <span className="notranslate" translate="no">{showAvailabilities ? 'Dispos' : '+Dispos'}</span>
           </button>
+
+          {/* Priority Notes Toggle (Mobile & Desktop) */}
           <button
             onClick={() => setShowNotes(!showNotes)}
-            className={`px-3 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 border ${showNotes
+            className={`px-2 md:px-3 py-1.5 md:py-2 rounded-xl font-extrabold text-[10px] md:text-xs transition-all flex items-center gap-1 border cursor-pointer ${showNotes
                 ? 'bg-neon-purple/20 text-neon-purple border-neon-purple/30 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
                 : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-transparent'
               }`}
+            title={showNotes ? "Masquer les notes" : "Afficher les notes"}
           >
-            <span>📝</span>
-            <span className="notranslate" translate="no">{showNotes ? 'Masquer notes' : 'Afficher notes'}</span>
+            <span className="text-xs">📝</span>
+            <span className="notranslate" translate="no">{showNotes ? 'Notes' : '+Notes'}</span>
           </button>
         </div>
       </div>
